@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
+import android.graphics.Matrix as AndroidMatrix
 import android.graphics.Paint
 import androidx.exifinterface.media.ExifInterface
 import com.tom_roush.pdfbox.multipdf.PDFMergerUtility
@@ -36,7 +36,7 @@ import com.tom_roush.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOut
 import com.tom_roush.pdfbox.rendering.ImageType
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import com.tom_roush.pdfbox.text.PDFTextStripper
-import com.tom_roush.pdfbox.util.Matrix
+import com.tom_roush.pdfbox.util.Matrix as PdfBoxMatrix
 import com.vextech.smart_edit.core.library.CompressionPolicies
 import com.vextech.smart_edit.core.util.CorePolicies
 import com.vextech.smart_edit.feature.pdf.domain.PdfAnnotationInfo
@@ -290,7 +290,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                     stream.setNonStrokingColor(135, 135, 135)
                     stream.beginText()
                     stream.setFont(PDType1Font.HELVETICA_BOLD, 42f)
-                    stream.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(35.0), box.width * .15f, box.height * .45f))
+                    stream.setTextMatrix(PdfBoxMatrix.getRotateInstance(Math.toRadians(35.0), box.width * .15f, box.height * .45f))
                     stream.showText(safeText(text, 80))
                     stream.endText()
                 }
@@ -441,7 +441,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 rectangle = toPageRect(page, rect)
                 contents = text.take(1000)
                 name = PDAnnotationText.NAME_COMMENT
-                isOpen = false
+                setOpen(false)
             })
             doc.save(output)
         }
@@ -581,7 +581,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             val form = requireNotNull(doc.documentCatalog.acroForm) { "PDF has no form" }
             val field = requireNotNull(form.getField(fieldName)) { "Form field no longer exists" }
             require(!field.isReadOnly) { "Form field is read-only" }
-            field.value = value
+            field.setValue(value)
             doc.save(output)
         }
     }
@@ -888,7 +888,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         val source = requireNotNull(BitmapFactory.decodeFile(file.absolutePath)) { "Unable to decode ${file.name}" }
         val orientation = runCatching { ExifInterface(file).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) }
             .getOrDefault(ExifInterface.ORIENTATION_NORMAL)
-        val matrix = Matrix()
+        val matrix = AndroidMatrix()
         when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)

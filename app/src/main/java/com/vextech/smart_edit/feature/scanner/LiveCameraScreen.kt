@@ -130,7 +130,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, vm: LiveCameraViewMo
                     Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) { Text("Allow camera") }
                 }
             } else {
-                surfaceRequest?.let { request -> CameraXViewfinder(surfaceRequest = request, modifier = Modifier.fillMaxSize(), isPinchToZoomEnabled = true) }
+                surfaceRequest?.let { request -> CameraXViewfinder(surfaceRequest = request, modifier = Modifier.fillMaxSize(), pinchToZoomEnabled = true) }
                 if (showGrid) CameraGrid(Modifier.fillMaxSize())
                 Row(
                     Modifier.align(Alignment.TopCenter).padding(12.dp),

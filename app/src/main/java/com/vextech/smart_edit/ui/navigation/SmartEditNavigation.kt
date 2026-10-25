@@ -41,7 +41,7 @@ fun SmartEditNavigation(shareService: ShareService, adsService: UnityAdsService)
                     }
                 }
             }
-            entry<OnboardingRoute> { OnboardingScreen { rootStack.clear(); rootStack.add(ShellRoute) } }
+            entry<OnboardingRoute> { OnboardingScreen(onComplete = { rootStack.clear(); rootStack.add(ShellRoute) }) }
             entry<ShellRoute> { MainShell(shareService, adsService) }
         },
     )
