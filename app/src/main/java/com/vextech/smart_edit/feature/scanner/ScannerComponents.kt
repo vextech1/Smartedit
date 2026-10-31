@@ -69,6 +69,13 @@ internal fun scanFilterPreview(filter: ScanFilter): ColorFilter? = when (filter)
         0f, 0f, 1.12f, 0f, 8f,
         0f, 0f, 0f, 1f, 0f,
     )))
+    // The real filter divides by the local paper brightness; a contrast lift is the closest cheap preview.
+    ScanFilter.CLEAN -> ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
+        1.3f, 0f, 0f, 0f, 14f,
+        0f, 1.3f, 0f, 0f, 14f,
+        0f, 0f, 1.3f, 0f, 14f,
+        0f, 0f, 0f, 1f, 0f,
+    )))
 }
 
 @Composable
@@ -78,5 +85,6 @@ internal fun scanFilterLabel(filter: ScanFilter) = stringResource(
         ScanFilter.GRAYSCALE -> R.string.scanner_filter_grayscale
         ScanFilter.BLACK_WHITE -> R.string.scanner_filter_black_white
         ScanFilter.ENHANCE -> R.string.scanner_filter_enhance
+        ScanFilter.CLEAN -> R.string.scanner_filter_clean
     }
 )

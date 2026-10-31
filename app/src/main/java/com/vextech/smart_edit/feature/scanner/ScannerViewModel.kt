@@ -136,6 +136,17 @@ class ScannerViewModel @Inject constructor(private val repository: ScannerReposi
         }
     }
 
+    /** Saves the page as a transparent PNG. [onResult] gets the file, or null if it failed. */
+    fun extractCutout(pageId: String, mode: CutoutMode, onResult: (java.io.File?) -> Unit) {
+        viewModelScope.launch {
+            inFlight.update { it + 1 }; message.value = null
+            val file = lock.withLock { runCatching { repository.extractCutout(pageId, mode) }.getOrNull() }
+            if (file == null) message.value = ScannerMessage.EDIT_FAILED
+            inFlight.update { it - 1 }
+            onResult(file)
+        }
+    }
+
     /** [script] null = auto-detect. [onDone] gets true when text recognition finished. */
     fun ocr(id: String, script: OcrScript? = null, onDone: (Boolean) -> Unit = {}) {
         viewModelScope.launch {

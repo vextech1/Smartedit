@@ -41,6 +41,15 @@ Native persistent multi-page scan sessions with three input paths: Google ML Kit
 - Capture check: after each camera shot the page is checked for blur (variance of the Laplacian below 100 on a 480 px copy) and darkness (mean brightness below 50), and a "Retake" prompt removes the page. Thresholds are starting values to tune on real captures.
 - Fixed: reordering pages could fail on the unique (session, position) index; it now parks rows on temporary positions inside one transaction.
 
+## Phase 3: capture modes
+Pick a mode with the chips at the bottom of the camera.
+- **Document:** as before (smart filter, auto-crop).
+- **ID card:** shoot the front, then the back (auto-capture re-arms when the card is flipped). Both go on one A4 page at real card size (85.6 x 54 mm at 300 dpi), on a white sheet with a light border. "Skip back" (or Done / PDF) finishes with the front only. Retake on the front drops it.
+- **Receipt / Whiteboard:** pre-crop to the outline and use the new **Clean** filter. Receipts accept narrower outlines than documents.
+- **Book:** the whole spread is kept, cut at the dark gutter near the middle (or exactly in half when none is found) into two pages, with Clean applied.
+- **Clean filter** (also available in the editor and multi-select): estimates the paper colour on a coarse grid, divides it out and darkens mid-tones, so shadows and uneven light disappear while coloured ink stays coloured.
+- **Cut-outs:** the top-bar menu has "Signature to PNG" (Clean first, then plain background removed) and "Cut out to PNG" (plain background removed only) for the selected page. Margins are trimmed and the transparent PNG can be shared or saved. Only background connected to the edges is removed, so enclosed white (inside letters) stays; it needs a plain backdrop.
+
 ## Editing
 Supported non-destructive operations: perspective/rectangular corner crop, 90-degree rotation, Original, Grayscale, Black & White, and Enhance filters.
 

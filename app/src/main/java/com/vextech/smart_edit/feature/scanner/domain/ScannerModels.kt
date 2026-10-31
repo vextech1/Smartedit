@@ -15,7 +15,8 @@ data class CropQuad(val topLeft: NormalizedPoint, val topRight: NormalizedPoint,
     }
 }
 
-enum class ScanFilter { ORIGINAL, GRAYSCALE, BLACK_WHITE, ENHANCE }
+/** CLEAN evens out lighting and removes shadows (receipts, whiteboards, book pages). */
+enum class ScanFilter { ORIGINAL, GRAYSCALE, BLACK_WHITE, ENHANCE, CLEAN }
 enum class ScanStatus { DRAFT, EXPORTED }
 
 data class ScanPageDraft(val id:String, val position:Int, val renderedUri:String, val filter:ScanFilter, val rotationDegrees:Int, val ocrText:String?, val ocrLanguage:String?, val originalUri:String = "", val cropPoints:String = "0,0;1,0;1,1;0,1", val updatedAt:Long = 0L)

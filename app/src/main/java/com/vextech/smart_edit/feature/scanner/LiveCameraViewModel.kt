@@ -22,6 +22,11 @@ import javax.inject.Inject
 
 enum class CameraHint { ALIGN, MOVE_CLOSER, HOLD_STEADY, TOO_DARK }
 
+/** ID card mode takes two shots: the front first, then (optionally) the back. */
+enum class IdStep { FRONT, BACK }
+
+private class IdSide(val file: File, val crop: CropQuad?)
+
 /** What the viewfinder overlay shows. [quad] is in upright preview coordinates (0..1); [aspect] is preview width / height. */
 data class CameraAssist(
     val quad: CropQuad? = null,
@@ -33,12 +38,13 @@ data class CameraAssist(
 @HiltViewModel
 class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, private val scanner: ScannerRepository) : ViewModel() {
     private companion object {
-        const val MIN_CROP_AREA = 0.20f      // below this the outline is probably not a whole page; keep the full image
-        const val CLOSE_ENOUGH_AREA = 0.25f
         const val DARK_MEAN = 45f
     }
 
     private val _message = MutableStateFlow<String?>(null); val message = _message.asStateFlow()
+    private val _mode = MutableStateFlow(ScanMode.DOCUMENT); val mode: StateFlow<ScanMode> = _mode.asStateFlow()
+    private val _idStep = MutableStateFlow(IdStep.FRONT); val idStep: StateFlow<IdStep> = _idStep.asStateFlow()
+    private var idFront: IdSide? = null
     private val _retake = MutableStateFlow<PageQuality?>(null); val retake: StateFlow<PageQuality?> = _retake.asStateFlow()
     private val _exporting = MutableStateFlow(false); val exporting: StateFlow<Boolean> = _exporting.asStateFlow()
     private val _assist = MutableStateFlow(CameraAssist()); val assist: StateFlow<CameraAssist> = _assist.asStateFlow()
@@ -58,7 +64,9 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
     /** Called on the analysis thread for every frame. [rotation] is the clockwise turn that makes the frame upright. */
     fun analyze(frame: LumaFrame, rotation: Int) {
         val upright = if (rotation % 180 == 0) frame.width.toFloat() / frame.height else frame.height.toFloat() / frame.width
-        val raw = DocumentDetector.detect(frame)?.quad?.let { QuadGeometry.rotateClockwise(it, rotation) }
+        val mode = _mode.value
+        // Small subjects (cards, receipts) are detected below the default minimum; whether to crop to them is decided at capture.
+        val raw = DocumentDetector.detect(frame, minOf(mode.minArea, 0.12f))?.quad?.let { QuadGeometry.rotateClockwise(it, rotation) }
         val prev = smoothed
         val quad = when {
             raw == null -> null
@@ -70,7 +78,7 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
         val hint = when {
             frame.mean() < DARK_MEAN -> CameraHint.TOO_DARK
             quad == null -> CameraHint.ALIGN
-            QuadGeometry.area(quad) < CLOSE_ENOUGH_AREA -> CameraHint.MOVE_CLOSER
+            QuadGeometry.area(quad) < mode.minArea -> CameraHint.MOVE_CLOSER
             status.progress > 0f -> CameraHint.HOLD_STEADY
             else -> CameraHint.ALIGN
         }
@@ -82,21 +90,59 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
     fun clearAssist() { latest = null; smoothed = null; stabilizer.reset(); _assist.value = CameraAssist(aspect = _assist.value.aspect) }
 
     /** The outline to pre-crop the next capture with, or null to keep the whole image. */
-    fun snapshotQuad(): CropQuad? = latest?.takeIf { QuadGeometry.area(it) >= MIN_CROP_AREA }
+    fun snapshotQuad(): CropQuad? { val mode = _mode.value; return latest?.takeIf { mode.crops && QuadGeometry.area(it) >= mode.minArea } }
 
     /** Tell the stabilizer a shot was taken (manual or auto) so the same page is not captured twice. */
     fun noteCapture() = stabilizer.markCaptured(latest, SystemClock.elapsedRealtime())
 
     fun registerCapture(sessionId: String, file: File, quad: CropQuad?) = viewModelScope.launch {
+        val mode = _mode.value
+        val uri = Uri.fromFile(file)
         // Judge the shot before the temp file goes away; a blurry or dark page offers a one-tap retake.
-        val quality = runCatching { scanner.assessQuality(file, quad) }.getOrDefault(PageQuality.OK)
-        runCatching { scanner.addPages(sessionId, listOf(Uri.fromFile(file)), listOf(quad)) }
-            .onSuccess { _message.value = "Capture added"; _retake.value = quality.takeIf { it != PageQuality.OK } }
+        val quality = runCatching { scanner.assessQuality(file, quad.takeIf { mode.crops }) }.getOrDefault(PageQuality.OK)
+        var keepFile = false
+        runCatching {
+            when (mode) {
+                ScanMode.DOCUMENT -> scanner.addPages(sessionId, listOf(uri), listOf(quad))
+                ScanMode.RECEIPT, ScanMode.WHITEBOARD -> scanner.addPages(sessionId, listOf(uri), listOf(quad), autoFilter = false, presetFilter = ScanFilter.CLEAN)
+                ScanMode.BOOK -> scanner.addPages(sessionId, listOf(uri), autoFilter = false, presetFilter = ScanFilter.CLEAN, splitSpreads = true)
+                ScanMode.ID_CARD -> {
+                    val front = idFront
+                    if (front == null) { idFront = IdSide(file, quad); _idStep.value = IdStep.BACK; keepFile = true }   // wait for the back
+                    else { scanner.addIdCard(sessionId, front.file, front.crop, file, quad); front.file.delete(); idFront = null; _idStep.value = IdStep.FRONT }
+                }
+            }
+        }
+            .onSuccess { _message.value = if (keepFile) null else "Capture added"; _retake.value = quality.takeIf { it != PageQuality.OK } }
             .onFailure { _message.value = "Unable to add capture" }
-        file.delete()
+        if (!keepFile) file.delete()
     }
 
-    /** Removes the most recent page of the session (undo for a bad shot). */
+    fun setMode(mode: ScanMode) {
+        if (_mode.value == mode) return
+        discardFront()
+        stabilizer.reset()
+        _mode.value = mode
+    }
+
+    /** ID card: finish with the front side only. [onDone] runs afterwards (also when there is nothing pending). */
+    fun skipBack(sessionId: String, onDone: () -> Unit = {}) = viewModelScope.launch {
+        val front = idFront
+        if (front != null) {
+            runCatching { scanner.addIdCard(sessionId, front.file, front.crop, null, null) }
+                .onFailure { _message.value = "Unable to add capture" }
+            front.file.delete(); idFront = null; _idStep.value = IdStep.FRONT
+        }
+        onDone()
+    }
+
+    /** Retake prompt: drops the pending ID front if there is one, otherwise the newest page. */
+    fun retake(sessionId: String) { if (idFront != null) { discardFront(); _retake.value = null } else deleteLast(sessionId) }
+
+    private fun discardFront() { idFront?.file?.delete(); idFront = null; _idStep.value = IdStep.FRONT }
+
+    override fun onCleared() { idFront?.file?.delete(); super.onCleared() }
+
     fun dismissRetake() { _retake.value = null }
 
     fun deleteLast(sessionId: String) = viewModelScope.launch {

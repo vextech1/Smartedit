@@ -26,6 +26,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -70,6 +71,7 @@ import com.vextech.smart_edit.core.ui.ImageScrim
 import com.vextech.smart_edit.feature.scanner.domain.CropQuad
 import com.vextech.smart_edit.feature.scanner.domain.NormalizedPoint
 import com.vextech.smart_edit.feature.scanner.domain.PageQuality
+import com.vextech.smart_edit.feature.scanner.domain.ScanMode
 import java.util.concurrent.Executors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -103,6 +105,8 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
     val assist by vm.assist.collectAsState()
     val exporting by vm.exporting.collectAsState()
     val retake by vm.retake.collectAsState()
+    val mode by vm.mode.collectAsState()
+    val idStep by vm.idStep.collectAsState()
     val session by remember(sessionId) { vm.observeSession(sessionId) }.collectAsState(initial = null)
     var permissionGranted by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
@@ -262,19 +266,25 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
                 Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 72.dp),
                 shape = RoundedCornerShape(16.dp), color = Scrim,
             ) {
-                Text(
-                    message ?: stringResource(
-                        when (assist.hint) {
-                            CameraHint.ALIGN -> R.string.scanner_camera_hint
-                            CameraHint.MOVE_CLOSER -> R.string.scanner_camera_hint_closer
-                            CameraHint.HOLD_STEADY -> R.string.scanner_camera_hint_hold
-                            CameraHint.TOO_DARK -> R.string.scanner_camera_hint_dark
-                        },
-                    ),
-                    Modifier.padding(horizontal = 14.dp, vertical = 6.dp), color = Color.White, style = MaterialTheme.typography.labelLarge,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        message ?: if (mode == ScanMode.ID_CARD) stringResource(if (idStep == IdStep.BACK) R.string.scanner_camera_id_back else R.string.scanner_camera_id_front)
+                        else stringResource(
+                            when (assist.hint) {
+                                CameraHint.ALIGN -> if (mode == ScanMode.BOOK) R.string.scanner_camera_book_hint else R.string.scanner_camera_hint
+                                CameraHint.MOVE_CLOSER -> R.string.scanner_camera_hint_closer
+                                CameraHint.HOLD_STEADY -> R.string.scanner_camera_hint_hold
+                                CameraHint.TOO_DARK -> R.string.scanner_camera_hint_dark
+                            },
+                        ),
+                        Modifier.padding(start = 14.dp, end = if (mode == ScanMode.ID_CARD && idStep == IdStep.BACK) 4.dp else 14.dp, top = 6.dp, bottom = 6.dp),
+                        color = Color.White, style = MaterialTheme.typography.labelLarge,
+                    )
+                    if (mode == ScanMode.ID_CARD && idStep == IdStep.BACK) {
+                        TextButton(onClick = { vm.skipBack(sessionId) }) { Text(stringResource(R.string.scanner_camera_id_skip), color = MaterialTheme.colorScheme.inversePrimary) }
+                    }
+                }
             }
-
             retake?.let { problem ->
                 LaunchedEffect(problem, pages.size) { delay(5_000); vm.dismissRetake() }
                 Surface(
@@ -286,12 +296,30 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
                             stringResource(if (problem == PageQuality.DARK) R.string.scanner_camera_dark else R.string.scanner_camera_blurry),
                             color = MaterialTheme.colorScheme.onErrorContainer, style = MaterialTheme.typography.labelLarge,
                         )
-                        TextButton(onClick = { vm.deleteLast(sessionId) }) { Text(stringResource(R.string.scanner_camera_retake)) }
+                        TextButton(onClick = { vm.retake(sessionId) }) { Text(stringResource(R.string.scanner_camera_retake)) }
                     }
                 }
             }
             if (shutterFlash) Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.45f)))
             if (exporting) CircularProgressIndicator(Modifier.align(Alignment.Center))
+
+            // Capture mode
+            LazyRow(
+                Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(bottom = 76.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(ScanMode.entries.toList(), key = { it.name }) { option ->
+                    FilterChip(
+                        selected = option == mode, onClick = { vm.setMode(option) },
+                        label = { Text(stringResource(modeLabel(option))) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = Scrim, labelColor = Color.White,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary, selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                        border = null,
+                    )
+                }
+            }
 
             // Resolution selector and zoom readout
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(16.dp)) {
@@ -349,11 +377,13 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
         ) {
             Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 OutlinedButton(
-                    enabled = pages.isNotEmpty() && !exporting,
+                    enabled = (pages.isNotEmpty() || idStep == IdStep.BACK) && !exporting,
                     onClick = {
-                        vm.exportPdf(sessionId) { file ->
-                            if (file != null) { runCatching { share.share(file, "application/pdf") }; onBack() }
-                            else vm.error(context.getString(R.string.scanner_error_export))
+                        vm.skipBack(sessionId) {   // a pending ID front is added first so it is part of the PDF
+                            vm.exportPdf(sessionId) { file ->
+                                if (file != null) { runCatching { share.share(file, "application/pdf") }; onBack() }
+                                else vm.error(context.getString(R.string.scanner_error_export))
+                            }
                         }
                     },
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White, disabledContentColor = Color.White.copy(alpha = 0.38f)),
@@ -373,7 +403,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
                 ) { Box(Modifier.size(58.dp).clip(CircleShape).background(Color.White.copy(alpha = if (ready) 1f else 0.4f))) }
             }
             Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-                Button(onClick = onBack, modifier = Modifier.height(48.dp)) {
+                Button(onClick = { vm.skipBack(sessionId, onBack) }, modifier = Modifier.height(48.dp)) {
                     Text(if (pages.isEmpty()) stringResource(R.string.scanner_camera_done) else stringResource(R.string.scanner_camera_done_count, pages.size))
                     Spacer(Modifier.width(6.dp)); Icon(Icons.Rounded.Check, null, Modifier.size(20.dp))
                 }
@@ -439,4 +469,12 @@ private fun CameraGrid(modifier: Modifier = Modifier) {
             drawLine(color, Offset(0f, y), Offset(size.width, y), stroke)
         }
     }
+}
+
+private fun modeLabel(mode: ScanMode) = when (mode) {
+    ScanMode.DOCUMENT -> R.string.scanner_mode_document
+    ScanMode.ID_CARD -> R.string.scanner_mode_id_card
+    ScanMode.RECEIPT -> R.string.scanner_mode_receipt
+    ScanMode.WHITEBOARD -> R.string.scanner_mode_whiteboard
+    ScanMode.BOOK -> R.string.scanner_mode_book
 }

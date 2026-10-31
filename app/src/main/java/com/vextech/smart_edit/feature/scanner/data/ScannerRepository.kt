@@ -40,7 +40,15 @@ interface ScannerRepository {
     suspend fun createSession(title:String = ""): String
     /** [crops] (optional, same order as [sources]) pre-crops a page, e.g. from live edge detection; null entries keep the full image. */
     /** [autoFilter] picks Original / Grayscale / B&W per page from its content; turn it off for sources that are already processed (ML Kit scanner). */
-    suspend fun addPages(sessionId:String, sources:List<Uri>, crops:List<CropQuad?> = emptyList(), autoFilter:Boolean = true)
+    /**
+     * [presetFilter] (e.g. CLEAN for receipts) overrides [autoFilter]. [splitSpreads] cuts every source in two at the book gutter,
+     * giving two pages per photo; crops are ignored then.
+     */
+    suspend fun addPages(sessionId:String, sources:List<Uri>, crops:List<CropQuad?> = emptyList(), autoFilter:Boolean = true, presetFilter:ScanFilter? = null, splitSpreads:Boolean = false)
+    /** Puts the card photos (front, optional back) on one A4 page at real card size. The caller deletes the source files. */
+    suspend fun addIdCard(sessionId:String, front:File, frontCrop:CropQuad?, back:File?, backCrop:CropQuad?)
+    /** Writes the page as a transparent PNG (plain background removed, margins trimmed) and returns the file. */
+    suspend fun extractCutout(pageId:String, mode:CutoutMode): File
     suspend fun applyFilterToPages(sessionId:String, pageIds:Set<String>, filter:ScanFilter)
     /** Clockwise turn (0/90/180/270) that makes the page text upright, 0 when unsure. */
     suspend fun detectOrientation(pageId:String): Int
@@ -89,29 +97,95 @@ class AndroidScannerRepository @Inject constructor(
         ids.forEach { db.scanSessionDao().delete(it) }; ids.size
     }
     private val addLock = Mutex()   // rapid captures must not compute the same page positions
-    override suspend fun addPages(sessionId:String, sources:List<Uri>, crops:List<CropQuad?>, autoFilter:Boolean) = withContext(io) { addLock.withLock {
+    override suspend fun addPages(sessionId:String, sources:List<Uri>, crops:List<CropQuad?>, autoFilter:Boolean, presetFilter:ScanFilter?, splitSpreads:Boolean) = withContext(io) { addLock.withLock {
         require(sources.isNotEmpty())
         val session=requireNotNull(db.scanSessionDao().get(sessionId))
         val existing=db.scanPageDao().forSession(sessionId); val now=System.currentTimeMillis()
         val created=mutableListOf<File>()
-        val pages=try {
-            val built=sources.mapIndexed { index,uri ->
-                val original=store.copyIntoManaged(uri,"scan_${sessionId.take(8)}_${existing.size+index+1}.jpg",store.scansDir); created += original
+        val pages=mutableListOf<ScanPageEntity>(); val pageCrops=mutableListOf<CropQuad?>()
+        try {
+            var position=existing.size
+            sources.forEachIndexed { index,uri ->
+                val original=store.copyIntoManaged(uri,"scan_${sessionId.take(8)}_${position+1}.jpg",store.scansDir); created += original
                 images.bakeExifOrientation(original)
-                val rendered=store.copyFile(original,store.scansDir,"scan_${sessionId.take(8)}_${existing.size+index+1}_rendered.jpg"); created += rendered
-                ScanPageEntity(UUID.randomUUID().toString(),sessionId,existing.size+index,original.toURI().toString(),original.toURI().toString(),rendered.toURI().toString(),createdAt=now,updatedAt=now)
+                val files=if(splitSpreads) splitSpread(original,created) else listOf(original)
+                files.forEach { file ->
+                    val rendered=store.copyFile(file,store.scansDir,"${file.nameWithoutExtension}_rendered.jpg"); created += rendered
+                    pages += ScanPageEntity(UUID.randomUUID().toString(),sessionId,position++,file.toURI().toString(),file.toURI().toString(),rendered.toURI().toString(),createdAt=now,updatedAt=now)
+                    pageCrops += if(splitSpreads) null else crops.getOrNull(index)
+                }
             }
-            db.withTransaction { db.scanPageDao().upsertAll(built); db.scanSessionDao().upsert(session.copy(updatedAt=now)) }
-            built
+            db.withTransaction { db.scanPageDao().upsertAll(pages); db.scanSessionDao().upsert(session.copy(updatedAt=now)) }
         } catch(t:Throwable) { created.forEach(File::delete); throw t }
-        // Auto-crop and the suggested filter are bonuses: if either fails the page simply stays as imported.
+        // Auto-crop and the filter are bonuses: if rendering fails the page simply stays as imported.
         pages.forEachIndexed { index,page ->
-            val crop=crops.getOrNull(index)
-            val filter=if(autoFilter) runCatching { suggestFilter(requireFile(page.originalUri),crop) }.getOrDefault(ScanFilter.ORIGINAL) else ScanFilter.ORIGINAL
+            val crop=pageCrops[index]
+            val filter=presetFilter ?: if(autoFilter) runCatching { suggestFilter(requireFile(page.originalUri),crop) }.getOrDefault(ScanFilter.ORIGINAL) else ScanFilter.ORIGINAL
             if(crop==null && filter==ScanFilter.ORIGINAL) return@forEachIndexed
             runCatching { db.scanPageDao().upsert(render(page,crop ?: CropQuad.Full,filter,0)) }
         }
     } }
+    /** Cuts a photographed spread at its gutter into left and right files; the combined file is removed. */
+    private fun splitSpread(original:File,created:MutableList<File>):List<File> {
+        val small=images.decodeOriented(original,240); val cut=try { SpreadSplitter.gutter(lumaOf(small)) } finally { small.recycle() }
+        val full=images.decode(original)
+        try {
+            val x=(full.width*cut).toInt().coerceIn(1,full.width-1)
+            val left=Bitmap.createBitmap(full,0,0,x,full.height); val right=Bitmap.createBitmap(full,x,0,full.width-x,full.height)
+            try {
+                val l=store.writeBitmap(left,store.scansDir,"${original.nameWithoutExtension}_L.jpg",Bitmap.CompressFormat.JPEG,95); created += l
+                val r=store.writeBitmap(right,store.scansDir,"${original.nameWithoutExtension}_R.jpg",Bitmap.CompressFormat.JPEG,95); created += r
+                created.remove(original); original.delete()
+                return listOf(l,r)
+            } finally { left.recycle(); right.recycle() }
+        } finally { full.recycle() }
+    }
+    override suspend fun addIdCard(sessionId:String,front:File,frontCrop:CropQuad?,back:File?,backCrop:CropQuad?) = withContext(io) { addLock.withLock {
+        val session=requireNotNull(db.scanSessionDao().get(sessionId))
+        val existing=db.scanPageDao().forSession(sessionId); val now=System.currentTimeMillis()
+        val created=mutableListOf<File>()
+        try {
+            val sides=listOfNotNull(front to frontCrop, back?.let { it to backCrop }).map { (file,crop) -> cardBitmap(file,crop) }
+            val slots=IdCardLayout.slots(sides.size)
+            val sheet=Bitmap.createBitmap(IdCardLayout.PAGE_W,IdCardLayout.PAGE_H,Bitmap.Config.ARGB_8888)
+            try {
+                val canvas=Canvas(sheet); canvas.drawColor(Color.WHITE)
+                val paint=Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+                val border=Paint(Paint.ANTI_ALIAS_FLAG).apply { style=Paint.Style.STROKE; strokeWidth=3f; color=0xFFBDBDBD.toInt() }
+                sides.forEachIndexed { i,bitmap ->
+                    val r=IdCardLayout.fit(slots[i],bitmap.width,bitmap.height); val dst=Rect(r.x,r.y,r.x+r.w,r.y+r.h)
+                    canvas.drawBitmap(bitmap,null,dst,paint); canvas.drawRect(dst,border); bitmap.recycle()
+                }
+                val original=store.writeBitmap(sheet,store.scansDir,"id_${sessionId.take(8)}_${existing.size+1}.jpg",Bitmap.CompressFormat.JPEG,95); created += original
+                val rendered=store.copyFile(original,store.scansDir,"${original.nameWithoutExtension}_rendered.jpg"); created += rendered
+                val page=ScanPageEntity(UUID.randomUUID().toString(),sessionId,existing.size,original.toURI().toString(),original.toURI().toString(),rendered.toURI().toString(),createdAt=now,updatedAt=now)
+                db.withTransaction { db.scanPageDao().upsert(page); db.scanSessionDao().upsert(session.copy(updatedAt=now)) }
+            } finally { sheet.recycle() }
+        } catch(t:Throwable) { created.forEach(File::delete); throw t }
+    } }
+    /** One card side, upright, perspective-corrected and turned to landscape. */
+    private fun cardBitmap(file:File,crop:CropQuad?):Bitmap {
+        var bitmap=images.decodeOriented(file,1800)
+        if(crop!=null) { val cropped=PerspectiveCropper.crop(bitmap,crop); if(cropped!==bitmap) bitmap.recycle(); bitmap=cropped }
+        if(IdCardLayout.needsTurn(bitmap.width,bitmap.height)) { val turned=images.rotate(bitmap,90f); bitmap.recycle(); bitmap=turned }
+        return bitmap
+    }
+    override suspend fun extractCutout(pageId:String,mode:CutoutMode):File=withContext(io) {
+        val page=requireNotNull(db.scanPageDao().get(pageId))
+        var bitmap=images.decodeOriented(requireFile(page.renderedUri),2000)   // capped: the background flood fill needs several int arrays
+        try {
+            if(mode==CutoutMode.SIGNATURE) { val clean=images.flattenBackground(bitmap); bitmap.recycle(); bitmap=clean }
+            val cut=images.removePlainBackground(bitmap,if(mode==CutoutMode.SIGNATURE) 60 else 40)
+            val trimmed=images.trimTransparent(cut); if(trimmed!==cut) cut.recycle()
+            try {
+                val name=(if(mode==CutoutMode.SIGNATURE) "signature" else "cutout")+"_${System.currentTimeMillis()}.png"
+                val out=store.writeBitmap(trimmed,store.scansDir,name,Bitmap.CompressFormat.PNG,100)
+                appRepo.registerFile(out,ResourceType.IMAGE,"image/png")
+                appRepo.recordHistory(HistoryAction.SCANNED,"Extracted ${if(mode==CutoutMode.SIGNATURE) "signature" else "cut-out"}",ResourceType.IMAGE,pageId,out.toURI().toString(),out.name)
+                out
+            } finally { trimmed.recycle() }
+        } finally { bitmap.recycle() }
+    }
     override suspend fun deletePage(sessionId:String,pageId:String)=withContext(io) {
         val page=requireNotNull(db.scanPageDao().get(pageId)); require(page.sessionId==sessionId)
         db.scanPageDao().delete(pageId); cleanupPageFiles(page)
@@ -173,7 +247,7 @@ class AndroidScannerRepository @Inject constructor(
         val rot=PageOrientation.rotation(rotationDegrees); val flipped=PageOrientation.flipped(rotationDegrees)
         if(flipped) { val next=images.flipHorizontal(bitmap); bitmap.recycle(); bitmap=next }
         if(rot!=0) { val next=images.rotate(bitmap,rot.toFloat()); bitmap.recycle(); bitmap=next }
-        val filtered=when(filter){ ScanFilter.ORIGINAL->bitmap; ScanFilter.GRAYSCALE->images.grayscale(bitmap); ScanFilter.BLACK_WHITE->images.blackAndWhite(bitmap); ScanFilter.ENHANCE->images.adjust(bitmap,8f,1.12f,.85f) }
+        val filtered=when(filter){ ScanFilter.ORIGINAL->bitmap; ScanFilter.GRAYSCALE->images.grayscale(bitmap); ScanFilter.BLACK_WHITE->images.blackAndWhite(bitmap); ScanFilter.ENHANCE->images.adjust(bitmap,8f,1.12f,.85f); ScanFilter.CLEAN->images.flattenBackground(bitmap) }
         if(filtered!==bitmap) bitmap.recycle()
         val out=store.writeBitmap(filtered,store.scansDir,"${page.id}_rendered.jpg",Bitmap.CompressFormat.JPEG,94); filtered.recycle()
         store.asFile(page.renderedUri)?.takeIf { it.absolutePath!=original.absolutePath }?.delete()

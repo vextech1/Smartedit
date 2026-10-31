@@ -44,6 +44,84 @@ class ImageProcessor @Inject constructor() {
         return true
     }
 
+    /**
+     * Removes shadows and uneven lighting: estimates the paper colour on a coarse grid (mean of the brightest quarter of
+     * each cell), divides every pixel by it, and darkens the mid-tones a little so ink stays crisp. Works per colour
+     * channel, so coloured marker on a whiteboard keeps its colour. Streams rows to keep memory near one extra bitmap.
+     */
+    fun flattenBackground(source: Bitmap, gamma: Float = 1.4f): Bitmap {
+        val w = source.width; val h = source.height
+        val cell = max(16, max(w, h) / 40)
+        val gw = (w + cell - 1) / cell; val gh = (h + cell - 1) / cell
+        var grid = Array(3) { FloatArray(gw * gh) }
+        val strip = IntArray(w * cell)
+        fun lum(p: Int) = ((p shr 16 and 0xFF) * 299 + (p shr 8 and 0xFF) * 587 + (p and 0xFF) * 114) / 1000
+        for (gy in 0 until gh) {
+            val y0 = gy * cell; val rows = minOf(cell, h - y0)
+            source.getPixels(strip, 0, w, 0, y0, w, rows)
+            for (gx in 0 until gw) {
+                val x0 = gx * cell; val cols = minOf(cell, w - x0)
+                val hist = IntArray(256); var n = 0
+                var y = 0
+                while (y < rows) { var x = 0; while (x < cols) { hist[lum(strip[y * w + x0 + x])]++; n++; x += 2 }; y += 2 }
+                var cut = 255; var acc = 0
+                while (cut > 0) { acc += hist[cut]; if (acc >= n / 4) break; cut-- }
+                var r = 0L; var g = 0L; var b = 0L; var count = 0
+                y = 0
+                while (y < rows) { var x = 0; while (x < cols) { val p = strip[y * w + x0 + x]; if (lum(p) >= cut) { r += p shr 16 and 0xFF; g += p shr 8 and 0xFF; b += p and 0xFF; count++ }; x += 2 }; y += 2 }
+                val i = gy * gw + gx; val c = max(count, 1)
+                grid[0][i] = r.toFloat() / c; grid[1][i] = g.toFloat() / c; grid[2][i] = b.toFloat() / c
+            }
+        }
+        repeat(2) { // soften cell edges
+            grid = Array(3) { ch -> FloatArray(gw * gh) { i ->
+                val gx = i % gw; val gy = i / gw; var sum = 0f; var cnt = 0
+                for (dy in -1..1) for (dx in -1..1) { val xx = gx + dx; val yy = gy + dy; if (xx in 0 until gw && yy in 0 until gh) { sum += grid[ch][yy * gw + xx]; cnt++ } }
+                sum / cnt
+            } }
+        }
+        val lut = IntArray(1101) { i -> (Math.pow(minOf(1.0, i / 1000.0 * 1.04), gamma.toDouble()) * 255.0).toInt().coerceIn(0, 255) }
+        val x0s = IntArray(w); val x1s = IntArray(w); val txs = FloatArray(w)
+        for (x in 0 until w) {
+            val fx = ((x + 0.5f) / cell - 0.5f).coerceIn(0f, (gw - 1).toFloat())
+            x0s[x] = fx.toInt(); x1s[x] = minOf(x0s[x] + 1, gw - 1); txs[x] = fx - x0s[x]
+        }
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val row = IntArray(w); val bgRow = Array(3) { FloatArray(gw) }
+        for (y in 0 until h) {
+            val fy = ((y + 0.5f) / cell - 0.5f).coerceIn(0f, (gh - 1).toFloat())
+            val ya = fy.toInt(); val yb = minOf(ya + 1, gh - 1); val ty = fy - ya
+            for (ch in 0..2) for (gx in 0 until gw) bgRow[ch][gx] = grid[ch][ya * gw + gx] * (1 - ty) + grid[ch][yb * gw + gx] * ty
+            source.getPixels(row, 0, w, 0, y, w, 1)
+            for (x in 0 until w) {
+                val p = row[x]; val a = x0s[x]; val b = x1s[x]; val t = txs[x]
+                val bgR = max(bgRow[0][a] * (1 - t) + bgRow[0][b] * t, 1f)
+                val bgG = max(bgRow[1][a] * (1 - t) + bgRow[1][b] * t, 1f)
+                val bgB = max(bgRow[2][a] * (1 - t) + bgRow[2][b] * t, 1f)
+                val r = lut[((p shr 16 and 0xFF) / bgR * 1000f).toInt().coerceIn(0, 1100)]
+                val g = lut[((p shr 8 and 0xFF) / bgG * 1000f).toInt().coerceIn(0, 1100)]
+                val bl = lut[((p and 0xFF) / bgB * 1000f).toInt().coerceIn(0, 1100)]
+                row[x] = (p and 0xFF000000.toInt()) or (r shl 16) or (g shl 8) or bl
+            }
+            out.setPixels(row, 0, w, 0, y, w, 1)
+        }
+        return out
+    }
+
+    /** Crops away fully transparent margins (plus a little padding), e.g. after [removePlainBackground]. */
+    fun trimTransparent(source: Bitmap, padFraction: Float = 0.04f): Bitmap {
+        val w = source.width; val h = source.height
+        val px = IntArray(w * h); source.getPixels(px, 0, w, 0, 0, w, h)
+        var minX = w; var minY = h; var maxX = -1; var maxY = -1
+        for (y in 0 until h) { val base = y * w
+            for (x in 0 until w) if ((px[base + x] ushr 24) > 8) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y } }
+        if (maxX < 0) return source
+        val pad = (max(maxX - minX, maxY - minY) * padFraction).toInt()
+        val l = (minX - pad).coerceAtLeast(0); val t = (minY - pad).coerceAtLeast(0)
+        val r = (maxX + pad).coerceAtMost(w - 1); val b = (maxY + pad).coerceAtMost(h - 1)
+        return Bitmap.createBitmap(source, l, t, r - l + 1, b - t + 1)
+    }
+
     fun crop(source: Bitmap, left: Float, top: Float, right: Float, bottom: Float): Bitmap {
         val l = (source.width * left.coerceIn(0f, 1f)).toInt()
         val t = (source.height * top.coerceIn(0f, 1f)).toInt()

@@ -13,7 +13,7 @@ fun main(){
     check(ScannerPolicies.timestampLabel(1_793_446_560_000L, java.util.Locale.ENGLISH, java.util.TimeZone.getTimeZone("UTC"))=="31 Oct 11:36")
     check(ScannerPolicies.withoutPending(listOf("a","b","c"),setOf("b")){ it }==listOf("a","c") && ScannerPolicies.withoutPending(listOf("a","b","c"),setOf("a","c")){ it }==listOf("b"))
     check(ScannerPolicies.withoutPending(listOf("a","b"),emptySet()){ it }==listOf("a","b"))
-    detectorTests(); geometryTests(); stabilizerTests(); analysisTests()
+    detectorTests(); geometryTests(); stabilizerTests(); analysisTests(); modeTests()
     println("Scanner production-policy tests: PASS")
 }
 
@@ -110,4 +110,30 @@ fun analysisTests() {
     check(OcrPolicies.pageRotation(intArrayOf(10, 0, 160, 0)) == 180)
     check(OcrPolicies.pageRotation(intArrayOf(100, 110, 0, 0)) == 0) { "no clear winner keeps current rotation" }
     check(OcrPolicies.pageRotation(intArrayOf(0, 0, 0, 12)) == 0) { "too little text to decide" }
+}
+
+// ── Phase 3: modes ──
+fun modeTests() {
+    val one = IdCardLayout.slots(1); val two = IdCardLayout.slots(2)
+    check(one.size == 1 && two.size == 2)
+    check(two.all { it.x >= 0 && it.x + it.w <= IdCardLayout.PAGE_W && it.y >= 0 && it.y + it.h <= IdCardLayout.PAGE_H })
+    check(two[0].y + two[0].h < two[1].y) { "cards must not overlap" }
+    check(kotlin.math.abs((two[0].y) - (IdCardLayout.PAGE_H - (two[1].y + two[1].h))) <= 1) { "block should be vertically centred" }
+    val fitted = IdCardLayout.fit(two[0], 2000, 1000)                      // 2:1 picture into 1011x638 slot
+    check(fitted.w == 1011 && fitted.h == 505 && fitted.y == two[0].y + (638 - 505) / 2) { "fit wrong: $fitted" }
+    check(IdCardLayout.needsTurn(600, 900) && !IdCardLayout.needsTurn(900, 600))
+
+    // a spread: bright pages, dark gutter at 46% of the width
+    val w = 200; val h = 120
+    val spread = LumaFrame(w, h, IntArray(w * h) { i -> val x = i % w; if (x in 91..93) 70 else 215 })
+    check(kotlin.math.abs(SpreadSplitter.gutter(spread) - 0.465f) < 0.02f) { "gutter ${SpreadSplitter.gutter(spread)}" }
+    check(SpreadSplitter.gutter(LumaFrame(w, h, IntArray(w * h) { 200 })) == 0.5f)
+
+    check(ScanMode.BOOK.crops.not() && ScanMode.DOCUMENT.crops && ScanMode.ID_CARD.minArea < ScanMode.DOCUMENT.minArea)
+    // a small, narrow subject (about 9% of the frame, like a receipt held far away) needs the lower receipt minimum
+    val slip = listOf(.30f to .38f, .70f to .38f, .70f to .60f, .30f to .60f)
+    val frame = synthetic(160, 213, 40, 215, slip, noise = 4)
+    check(DocumentDetector.detect(frame) == null) { "9% subject is below the default minimum" }
+    check(DocumentDetector.detect(frame, ScanMode.RECEIPT.minArea) != null) { "should be found with the receipt minimum" }
+    check(ScanMode.ID_CARD.minArea <= 0.10f)
 }

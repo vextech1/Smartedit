@@ -20,17 +20,18 @@ object DocumentDetector {
     private const val MIN_FILL = 0.65f
     private const val MIN_SIDE = 0.10f
 
-    fun detect(frame: LumaFrame): Detection? {
+    /** [minArea] is the smallest accepted share of the frame (smaller subjects such as ID cards and receipts need a lower value). */
+    fun detect(frame: LumaFrame, minArea: Float = MIN_AREA): Detection? {
         val w = frame.width; val h = frame.height
         if (w < 24 || h < 24) return null
         val smooth = blur(frame.data, w, h)
         val threshold = otsu(smooth)
         return listOf(true, false)
-            .mapNotNull { lightBlob -> candidate(smooth, w, h, threshold, lightBlob) }
+            .mapNotNull { lightBlob -> candidate(smooth, w, h, threshold, lightBlob, minArea) }
             .maxByOrNull { it.second }?.first
     }
 
-    private fun candidate(px: IntArray, w: Int, h: Int, t: Int, light: Boolean): Pair<Detection, Float>? {
+    private fun candidate(px: IntArray, w: Int, h: Int, t: Int, light: Boolean, minArea: Float): Pair<Detection, Float>? {
         val n = w * h
         val seen = BooleanArray(n)
         val queue = IntArray(n)
@@ -59,7 +60,7 @@ object DocumentDetector {
                 if (y < h - 1) { val j = i + w; if (!seen[j] && (px[j] >= t) == light) { seen[j] = true; queue[tail++] = j } }
             }
             val areaRatio = area.toFloat() / n
-            if (areaRatio < MIN_AREA || areaRatio > MAX_AREA) continue
+            if (areaRatio < minArea || areaRatio > MAX_AREA) continue
             if (Integer.bitCount(sides) >= 3) continue            // touches most edges: that is the background
             fun pt(i: Int) = floatArrayOf((i % w + 0.5f) / w, (i / w + 0.5f) / h)
             val p = listOf(pt(tl), pt(tr), pt(br), pt(bl))

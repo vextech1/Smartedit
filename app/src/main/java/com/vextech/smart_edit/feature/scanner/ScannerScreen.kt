@@ -60,6 +60,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     var edit by remember { mutableStateOf<ScanPageDraft?>(null) }
     var selectedId by remember { mutableStateOf<String?>(null) }
     var confirmDiscard by remember { mutableStateOf(false) }
+    var cutoutFile by remember { mutableStateOf<java.io.File?>(null) }
     var renaming by remember { mutableStateOf(false) }
     var localMessage by remember { mutableStateOf<UiText?>(null) }
     var ocrSheetFor by remember { mutableStateOf<String?>(null) }
@@ -104,6 +105,17 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                     IconButton(onClick = { renaming = true }) { Icon(Icons.Rounded.Edit, stringResource(R.string.scanner_rename)) }
                     IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, stringResource(R.string.scanner_more_options)) }
                     DropdownMenu(menu, { menu = false }) {
+                        val target = session?.pages?.firstOrNull { it.id == selectedId } ?: session?.pages?.firstOrNull()
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.scanner_cutout_signature)) },
+                            leadingIcon = { Icon(Icons.Rounded.Draw, null) }, enabled = target != null && !state.busy,
+                            onClick = { menu = false; target?.let { vm.extractCutout(it.id, CutoutMode.SIGNATURE) { f -> cutoutFile = f } } },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.scanner_cutout_photo)) },
+                            leadingIcon = { Icon(Icons.Rounded.ContentCut, null) }, enabled = target != null && !state.busy,
+                            onClick = { menu = false; target?.let { vm.extractCutout(it.id, CutoutMode.PHOTO) { f -> cutoutFile = f } } },
+                        )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.scanner_discard)) },
                             leadingIcon = { Icon(Icons.Rounded.Delete, null) },
@@ -161,6 +173,22 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
 
     if (renaming && session != null) {
         RenameDialog(session.title, { renaming = false }) { renaming = false; vm.rename(it) }
+    }
+
+    cutoutFile?.let { file ->
+        val uri = file.toURI().toString()
+        AlertDialog(
+            onDismissRequest = { cutoutFile = null },
+            title = { Text(stringResource(R.string.scanner_cutout_ready)) },
+            text = { ScanThumbnail(uri, Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(12.dp)), contentScale = androidx.compose.ui.layout.ContentScale.Fit, maxDim = 800) },
+            confirmButton = {
+                Row {
+                    TextButton(onClick = { runCatching { share.shareManaged(uri, "image/png") }.onFailure { localMessage = UiText.res(R.string.common_share_failed) } }) { Text(stringResource(R.string.scanner_share_pdf)) }
+                    TextButton(onClick = { saveToDevice.save(uri, file.name, "image/png") }) { Text(stringResource(R.string.scanner_save_pdf)) }
+                }
+            },
+            dismissButton = { TextButton(onClick = { cutoutFile = null }) { Text(stringResource(R.string.scanner_select_done)) } },
+        )
     }
 
     if (confirmDiscard) {
@@ -426,6 +454,7 @@ private fun filterLabel(filter: ScanFilter) = when (filter) {
     ScanFilter.GRAYSCALE -> R.string.scanner_filter_grayscale
     ScanFilter.BLACK_WHITE -> R.string.scanner_filter_black_white
     ScanFilter.ENHANCE -> R.string.scanner_filter_enhance
+    ScanFilter.CLEAN -> R.string.scanner_filter_clean
 }
 
 @Composable
