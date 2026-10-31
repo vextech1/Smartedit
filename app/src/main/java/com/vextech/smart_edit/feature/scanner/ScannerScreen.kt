@@ -131,7 +131,6 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                 if (session == null) {
                     ScannerHome(
                         recent = state.recentSessions, covers = state.covers, busy = state.busy,
-                        onNew = { vm.newSession(::openCamera) },
                         onCamera = { vm.newSession(::openCamera) },
                         onImport = ::importImages, onAuto = ::autoScan,
                         onOpen = { selectedId = null; vm.openSession(it) },
@@ -179,19 +178,14 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
 @Composable
 private fun ScannerHome(
     recent: List<ScanSessionEntity>, covers: Map<String, ScanCover>, busy: Boolean,
-    onNew: () -> Unit, onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onOpen: (String) -> Unit,
+    onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onOpen: (String) -> Unit,
 ) {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
-            Button(onClick = onNew, enabled = !busy, modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                Icon(Icons.Rounded.Add, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.scanner_new_session))
-            }
-        }
-        item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ActionTile(Icons.Rounded.PhotoCamera, stringResource(R.string.scanner_live_camera), !busy, onCamera, Modifier.weight(1f))
-                ActionTile(Icons.Rounded.AddPhotoAlternate, stringResource(R.string.scanner_import), !busy, onImport, Modifier.weight(1f))
-                ActionTile(Icons.Rounded.DocumentScanner, stringResource(R.string.scanner_auto), !busy, onAuto, Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ActionTile(Icons.Rounded.PhotoCamera, stringResource(R.string.scanner_live_camera), !busy, onCamera, Modifier.weight(1f).fillMaxHeight())
+                ActionTile(Icons.Rounded.AddPhotoAlternate, stringResource(R.string.scanner_import), !busy, onImport, Modifier.weight(1f).fillMaxHeight())
+                ActionTile(Icons.Rounded.DocumentScanner, stringResource(R.string.scanner_auto), !busy, onAuto, Modifier.weight(1f).fillMaxHeight())
             }
         }
         if (recent.isEmpty()) {
@@ -206,7 +200,7 @@ private fun ScannerHome(
 @Composable
 private fun ActionTile(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(onClick = onClick, enabled = enabled, modifier = modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
-        Column(Modifier.padding(vertical = 16.dp, horizontal = 4.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(vertical = 16.dp, horizontal = 4.dp).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2)
         }

@@ -39,9 +39,8 @@
     <string name="scanner_title">स्कैनर</string>
     <string name="scanner_live_camera">लाइव कैमरा</string>
     <string name="scanner_import">चित्र आयात करें</string>
-    <string name="scanner_auto">स्वचालित दस्तावेज़ स्कैन</string>
-    <string name="scanner_intro">स्कैन सत्र बनाएँ, पृष्ठ कैप्चर करें, समीक्षा करें, OCR चलाएँ और क्रमबद्ध PDF निर्यात करें।</string>
-    <string name="scanner_new_session">नया स्कैन</string>
+    <string name="scanner_auto">ऑटो</string>
+    <string name="scanner_intro">स्कैन करने के लिए ऊपर दिए गए विकल्पों में से चुनें।</string>
     <string name="scanner_pages_count">%1$d पृष्ठ</string>
     <string name="scanner_page_number">पृष्ठ %1$d</string>
     <string name="scanner_edit">संपादित करें</string>

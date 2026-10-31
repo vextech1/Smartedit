@@ -39,9 +39,8 @@
     <string name="scanner_title">Escáner</string>
     <string name="scanner_live_camera">Cámara en vivo</string>
     <string name="scanner_import">Importar imágenes</string>
-    <string name="scanner_auto">Escaneo automático</string>
-    <string name="scanner_intro">Crea una sesión, captura páginas, revísalas, ejecuta OCR y exporta un PDF ordenado.</string>
-    <string name="scanner_new_session">Nuevo escaneo</string>
+    <string name="scanner_auto">Auto</string>
+    <string name="scanner_intro">Elige una de las opciones anteriores para escanear.</string>
     <string name="scanner_pages_count">%1$d páginas</string>
     <string name="scanner_page_number">Página %1$d</string>
     <string name="scanner_edit">Editar</string>

@@ -39,9 +39,8 @@
     <string name="scanner_title">Scanner</string>
     <string name="scanner_live_camera">Caméra en direct</string>
     <string name="scanner_import">Importer des images</string>
-    <string name="scanner_auto">Numérisation automatique</string>
-    <string name="scanner_intro">Créez une session, capturez les pages, vérifiez-les, lancez l’OCR puis exportez un PDF ordonné.</string>
-    <string name="scanner_new_session">Nouveau scan</string>
+    <string name="scanner_auto">Auto</string>
+    <string name="scanner_intro">Choisissez l’une des options ci-dessus pour numériser.</string>
     <string name="scanner_pages_count">%1$d pages</string>
     <string name="scanner_page_number">Page %1$d</string>
     <string name="scanner_edit">Modifier</string>

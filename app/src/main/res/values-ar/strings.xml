@@ -39,9 +39,8 @@
     <string name="scanner_title">الماسح</string>
     <string name="scanner_live_camera">الكاميرا المباشرة</string>
     <string name="scanner_import">استيراد الصور</string>
-    <string name="scanner_auto">مسح المستند تلقائياً</string>
-    <string name="scanner_intro">أنشئ جلسة مسح، التقط الصفحات وراجعها وشغّل OCR ثم صدّر ملف PDF مرتباً.</string>
-    <string name="scanner_new_session">مسح جديد</string>
+    <string name="scanner_auto">تلقائي</string>
+    <string name="scanner_intro">اختر أحد الخيارات أعلاه للمسح.</string>
     <string name="scanner_pages_count">%1$d صفحات</string>
     <string name="scanner_page_number">الصفحة %1$d</string>
     <string name="scanner_edit">تعديل</string>
