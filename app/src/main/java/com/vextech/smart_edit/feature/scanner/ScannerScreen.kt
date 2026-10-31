@@ -506,7 +506,6 @@ private fun scannerMessage(m: ScannerMessage) = stringResource(
         ScannerMessage.EDIT_FAILED -> R.string.scanner_error_edit
         ScannerMessage.OCR_FAILED -> R.string.scanner_error_ocr
         ScannerMessage.EXPORT_FAILED -> R.string.scanner_error_export
-        ScannerMessage.PAGE_DELETED -> R.string.scanner_page_deleted
         ScannerMessage.EXPORTED -> R.string.scanner_exported
     }
 )

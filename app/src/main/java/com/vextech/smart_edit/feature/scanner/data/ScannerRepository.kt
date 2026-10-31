@@ -181,7 +181,7 @@ class AndroidScannerRepository @Inject constructor(
                 val name=(if(mode==CutoutMode.SIGNATURE) "signature" else "cutout")+"_${System.currentTimeMillis()}.png"
                 val out=store.writeBitmap(trimmed,store.scansDir,name,Bitmap.CompressFormat.PNG,100)
                 appRepo.registerFile(out,ResourceType.IMAGE,"image/png")
-                appRepo.recordHistory(HistoryAction.SCANNED,"Extracted ${if(mode==CutoutMode.SIGNATURE) "signature" else "cut-out"}",ResourceType.IMAGE,pageId,out.toURI().toString(),out.name)
+                appRepo.recordHistory(HistoryAction.SCANNED,context.getString(if(mode==CutoutMode.SIGNATURE) R.string.scanner_history_signature else R.string.scanner_history_cutout),ResourceType.IMAGE,pageId,out.toURI().toString(),out.name)
                 out
             } finally { trimmed.recycle() }
         } finally { bitmap.recycle() }
@@ -273,7 +273,7 @@ class AndroidScannerRepository @Inject constructor(
             val out=store.uniqueFile(store.scansDir,"${session.title.ifBlank{"Scan"}.replace(Regex("[\\\\/:*?\"<>|]"),"_")}_${System.currentTimeMillis()}.pdf")
             pdf.imagesToPdf(bitmaps,out)
             appRepo.registerFile(out,ResourceType.PDF,"application/pdf")
-            appRepo.recordHistory(HistoryAction.SCANNED,"Scanned ${pages.size} page${if(pages.size==1)"" else "s"}",ResourceType.SCAN,sessionId,out.toURI().toString(),out.name)
+            appRepo.recordHistory(HistoryAction.SCANNED,context.resources.getQuantityString(R.plurals.scanner_history_scanned,pages.size,pages.size),ResourceType.SCAN,sessionId,out.toURI().toString(),out.name)
             val now=System.currentTimeMillis(); db.scanSessionDao().upsert(session.copy(status=ScanStatus.EXPORTED.name,updatedAt=now,exportedPdfUri=out.toURI().toString()))
             db.scanDao().upsert(com.vextech.smart_edit.core.database.entity.ScanEntity(sessionId,pages.first().renderedUri,out.toURI().toString(),pages.mapNotNull{it.ocrText}.joinToString("\n\n").ifBlank{null},pages.size,session.createdAt))
             out

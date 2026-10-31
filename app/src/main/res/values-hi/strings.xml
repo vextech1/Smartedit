@@ -445,4 +445,5 @@
         <item quantity="one">%1$d छवि छोटी की गई</item>
         <item quantity="other">%1$d छवियाँ छोटी की गईं</item>
     </plurals>
+    <string name="settings_language_system">सिस्टम भाषा</string>
 </resources>

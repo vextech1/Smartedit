@@ -2,9 +2,12 @@ package com.vextech.smart_edit.feature.scanner
 
 import android.net.Uri
 import android.os.SystemClock
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.files.DocumentStore
+import com.vextech.smart_edit.core.ui.UiText
 import com.vextech.smart_edit.feature.scanner.data.ScannerRepository
 import com.vextech.smart_edit.feature.scanner.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +44,7 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
         const val DARK_MEAN = 45f
     }
 
-    private val _message = MutableStateFlow<String?>(null); val message = _message.asStateFlow()
+    private val _message = MutableStateFlow<UiText?>(null); val message: StateFlow<UiText?> = _message.asStateFlow()
     private val _mode = MutableStateFlow(ScanMode.DOCUMENT); val mode: StateFlow<ScanMode> = _mode.asStateFlow()
     private val _idStep = MutableStateFlow(IdStep.FRONT); val idStep: StateFlow<IdStep> = _idStep.asStateFlow()
     private var idFront: IdSide? = null
@@ -113,8 +116,8 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
                 }
             }
         }
-            .onSuccess { _message.value = if (keepFile) null else "Capture added"; _retake.value = quality.takeIf { it != PageQuality.OK } }
-            .onFailure { _message.value = "Unable to add capture" }
+            .onSuccess { _message.value = if (keepFile) null else UiText.res(R.string.scanner_camera_added); _retake.value = quality.takeIf { it != PageQuality.OK } }
+            .onFailure { _message.value = UiText.res(R.string.scanner_camera_add_failed) }
         if (!keepFile) file.delete()
     }
 
@@ -130,7 +133,7 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
         val front = idFront
         if (front != null) {
             runCatching { scanner.addIdCard(sessionId, front.file, front.crop, null, null) }
-                .onFailure { _message.value = "Unable to add capture" }
+                .onFailure { _message.value = UiText.res(R.string.scanner_camera_add_failed) }
             front.file.delete(); idFront = null; _idStep.value = IdStep.FRONT
         }
         onDone()
@@ -148,7 +151,7 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
     fun deleteLast(sessionId: String) = viewModelScope.launch {
         _retake.value = null
         runCatching { scanner.observeSession(sessionId).first()?.pages?.lastOrNull()?.let { scanner.deletePage(sessionId, it.id) } }
-            .onFailure { _message.value = "Unable to remove page" }
+            .onFailure { _message.value = UiText.res(R.string.scanner_camera_remove_failed) }
     }
 
     /** Exports the session as one PDF; [onResult] gets the file, or null if it failed. */
@@ -159,7 +162,10 @@ class LiveCameraViewModel @Inject constructor(private val store: DocumentStore, 
         onResult(file)
     }
 
-    fun error(message: String) { _message.value = message }
+    /** Shows [detail] (e.g. a system error message) when there is one, otherwise the [fallback] string. */
+    fun error(@StringRes fallback: Int, detail: String? = null) {
+        _message.value = detail?.takeIf { it.isNotBlank() }?.let(UiText::dynamic) ?: UiText.res(fallback)
+    }
     fun clearMessage() { _message.value = null }
     fun observeSession(sessionId: String) = scanner.observeSession(sessionId)
 }

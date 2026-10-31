@@ -457,4 +457,5 @@
         <item quantity="many">تم تصغير %1$d صورة</item>
         <item quantity="other">تم تصغير %1$d صورة</item>
     </plurals>
+    <string name="settings_language_system">لغة النظام</string>
 </resources>

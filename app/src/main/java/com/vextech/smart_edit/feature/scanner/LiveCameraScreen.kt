@@ -102,6 +102,8 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
     val lifecycleOwner = LocalLifecycleOwner.current
     val haptic = LocalHapticFeedback.current
     val message by vm.message.collectAsState()
+    val messageText = message?.asString()
+    val shutterLabel = stringResource(R.string.scanner_camera_capture)
     val assist by vm.assist.collectAsState()
     val exporting by vm.exporting.collectAsState()
     val retake by vm.retake.collectAsState()
@@ -166,7 +168,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
             camera = cp.bindToLifecycle(lifecycleOwner, selector, *useCases.toTypedArray())
             capture = imageCapture
             zoomRatio = 1f
-        }.onFailure { vm.error(it.message ?: "Unable to start camera") }
+        }.onFailure { vm.error(R.string.scanner_camera_start_failed, it.message) }
     }
 
     LaunchedEffect(camera) { if (camera?.cameraInfo?.hasFlashUnit() != true) flashMode = ImageCapture.FLASH_MODE_OFF }
@@ -189,7 +191,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
             ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) { vm.registerCapture(sessionId, file, quad) }
-                override fun onError(exception: ImageCaptureException) { file.delete(); vm.error(exception.message ?: "Capture failed") }
+                override fun onError(exception: ImageCaptureException) { file.delete(); vm.error(R.string.scanner_camera_capture_failed, exception.message) }
             },
         )
     }
@@ -268,7 +270,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        message ?: if (mode == ScanMode.ID_CARD) stringResource(if (idStep == IdStep.BACK) R.string.scanner_camera_id_back else R.string.scanner_camera_id_front)
+                        messageText ?: if (mode == ScanMode.ID_CARD) stringResource(if (idStep == IdStep.BACK) R.string.scanner_camera_id_back else R.string.scanner_camera_id_front)
                         else stringResource(
                             when (assist.hint) {
                                 CameraHint.ALIGN -> if (mode == ScanMode.BOOK) R.string.scanner_camera_book_hint else R.string.scanner_camera_hint
@@ -382,7 +384,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
                         vm.skipBack(sessionId) {   // a pending ID front is added first so it is part of the PDF
                             vm.exportPdf(sessionId) { file ->
                                 if (file != null) { runCatching { share.share(file, "application/pdf") }; onBack() }
-                                else vm.error(context.getString(R.string.scanner_error_export))
+                                else vm.error(R.string.scanner_error_export)
                             }
                         }
                     },
@@ -398,7 +400,7 @@ fun LiveCameraScreen(sessionId: String, onBack: () -> Unit, share: ShareService,
                 Box(
                     Modifier.size(76.dp).clip(CircleShape).border(4.dp, Color.White.copy(alpha = if (ready) 1f else 0.4f), CircleShape)
                         .clickable(enabled = ready, onClick = ::takePhoto)
-                        .semantics { contentDescription = "capture" },
+                        .semantics { contentDescription = shutterLabel },
                     contentAlignment = Alignment.Center,
                 ) { Box(Modifier.size(58.dp).clip(CircleShape).background(Color.White.copy(alpha = if (ready) 1f else 0.4f))) }
             }

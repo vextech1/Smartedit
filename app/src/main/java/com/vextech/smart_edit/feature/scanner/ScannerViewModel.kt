@@ -16,7 +16,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
-enum class ScannerMessage { SESSION_FAILED, IMPORT_FAILED, EDIT_FAILED, OCR_FAILED, EXPORT_FAILED, PAGE_DELETED, EXPORTED }
+enum class ScannerMessage { SESSION_FAILED, IMPORT_FAILED, EDIT_FAILED, OCR_FAILED, EXPORT_FAILED, EXPORTED }
 
 data class ScannerUiState(
     val session: ScanSessionDraft? = null,

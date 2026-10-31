@@ -445,4 +445,5 @@
         <item quantity="one">%1$d Bild verkleinert</item>
         <item quantity="other">%1$d Bilder verkleinert</item>
     </plurals>
+    <string name="settings_language_system">Systemsprache</string>
 </resources>

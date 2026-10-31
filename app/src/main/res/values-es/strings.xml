@@ -448,4 +448,5 @@
         <item quantity="many">%1$d imágenes reducidas</item>
         <item quantity="other">%1$d imágenes reducidas</item>
     </plurals>
+    <string name="settings_language_system">Idioma del sistema</string>
 </resources>

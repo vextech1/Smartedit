@@ -194,6 +194,17 @@
     <string name="scanner_camera_blurry">Page looks blurry</string>
     <string name="scanner_camera_dark">Page is too dark</string>
     <string name="scanner_camera_retake">Retake</string>
+    <string name="scanner_camera_added">Capture added</string>
+    <string name="scanner_camera_add_failed">Unable to add capture</string>
+    <string name="scanner_camera_remove_failed">Unable to remove page</string>
+    <string name="scanner_camera_start_failed">Unable to start camera</string>
+    <string name="scanner_camera_capture_failed">Capture failed</string>
+    <plurals name="scanner_history_scanned">
+        <item quantity="one">Scanned %1$d page</item>
+        <item quantity="other">Scanned %1$d pages</item>
+    </plurals>
+    <string name="scanner_history_signature">Extracted signature</string>
+    <string name="scanner_history_cutout">Extracted cut-out</string>
     <string name="scanner_auto_rotate">Fix orientation</string>
     <string name="scanner_orientation_ok">Orientation looks correct</string>
     <string name="scanner_orientation_failed">Could not detect orientation</string>
@@ -734,4 +745,5 @@
         <item quantity="one">%1$d picture shrunk</item>
         <item quantity="other">%1$d pictures shrunk</item>
     </plurals>
+    <string name="settings_language_system">System default</string>
 </resources>

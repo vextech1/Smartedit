@@ -7,7 +7,8 @@ enum class JobStatus { PENDING, RUNNING, COMPLETED, FAILED }
 
 data class AppSettings(
     val theme: ThemePreference = ThemePreference.SYSTEM,
-    val language: String = "en",
+    /** BCP-47 tag chosen in Settings; empty means "follow the phone's system language". */
+    val language: String = "",
     val notificationsEnabled: Boolean = true,
     val autoBackupEnabled: Boolean = false,
     val confirmDeleteEnabled: Boolean = true,

@@ -33,6 +33,7 @@ private val languages = listOf("en" to "English", "fr" to "Français", "es" to "
 fun SettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) {
     val settings by vm.settings.collectAsState()
     var languageDialog by remember { mutableStateOf(false) }
+    val systemLanguageLabel = stringResource(R.string.settings_language_system)
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> vm.notifications(granted) }
 
     FeatureScaffold(title = stringResource(R.string.settings), onBack = onBack) { padding ->
@@ -63,7 +64,7 @@ fun SettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) 
 
             SettingRow(
                 title = stringResource(R.string.settings_language),
-                description = languages.firstOrNull { it.first == settings.language }?.second ?: settings.language,
+                description = if (settings.language.isEmpty()) systemLanguageLabel else languages.firstOrNull { it.first == settings.language }?.second ?: settings.language,
                 modifier = Modifier.clickable { languageDialog = true },
             ) { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
             HorizontalDivider()
@@ -90,7 +91,7 @@ fun SettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) 
             title = { Text(stringResource(R.string.settings_language)) },
             text = {
                 Column {
-                    languages.forEach { (tag, label) ->
+                    (listOf("" to systemLanguageLabel) + languages).forEach { (tag, label) ->
                         Row(
                             Modifier.fillMaxWidth().clickable {
                                 languageDialog = false

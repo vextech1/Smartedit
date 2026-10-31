@@ -25,7 +25,8 @@ Native persistent multi-page scan sessions with three input paths: Google ML Kit
 - The page editor can apply the chosen filter and rotation to all pages; each page keeps its own crop.
 
 ## Phase 1: fast capture
-- Opening the Scanner goes straight to the camera. A session with no pages is dropped when you come back.
+- The Scanner opens on a chooser with three tiles (Live camera, Import, Auto) above the 20 most recent scans. The camera opens only when picked. A session with no pages is dropped when you come back from it.
+- Camera controls: front/back camera switch, flash (off / auto / on), pinch zoom with a readout, a thirds grid, and a capture resolution of HD (1280x720), Full HD (1920x1080) or High (2560x1440). The front camera has no outline and no auto-capture.
 - Live edge detection (back camera): `DocumentDetector` finds the page from low-resolution brightness frames (no OpenCV). It needs a page clearly lighter or darker than its surroundings and tilted less than 45 degrees. When nothing is found the static guide frame shows and the manual shutter still works.
 - Auto-capture (toggle in the top bar, on by default): the shutter fires when the outline stays still for about 0.9 s, with a progress ring, haptic and flash. It will not take the same page twice; the page must leave the view or move before it re-arms. Manual shots also disarm it.
 - Auto-crop: the outline at the moment of the shot is saved as the page's perspective crop (only when it covers at least 20% of the frame). The editor reopens with those corners.
@@ -51,14 +52,26 @@ Pick a mode with the chips at the bottom of the camera.
 - **Cut-outs:** the top-bar menu has "Signature to PNG" (Clean first, then plain background removed) and "Cut out to PNG" (plain background removed only) for the selected page. Margins are trimmed and the transparent PNG can be shared or saved. Only background connected to the edges is removed, so enclosed white (inside letters) stays; it needs a plain backdrop.
 
 ## Editing
-Supported non-destructive operations: perspective/rectangular corner crop, 90-degree rotation, Original, Grayscale, Black & White, and Enhance filters.
+Supported non-destructive operations (every edit is re-rendered from the original, in the order crop, mirror, rotate, filter):
+- Crop: rectangular or four-corner perspective, with aspect presets Free, Original, 1:1, 4:3, 3:4 and A4, and a reset.
+- Rotate in 90-degree steps, and flip (mirror left-right). The flip is stored in the existing rotation column as `rotation + 360`, so no schema change was needed.
+- Fix orientation (see Phase 2).
+- Five filters: Original, Grayscale, Black & White, Enhance and Clean.
+
+## Output
+- Export PDF from the session screen. Afterwards the session shows a PDF card with Open, Share and Save to device.
+- The camera's PDF button exports and opens the share sheet straight away.
+- Cut-out PNGs (see Phase 3) are registered in Files and History, like the PDF.
+
+## Localization
+Scanner strings live in `values/strings.xml`. Arabic, German, Spanish, French and Hindi translate only part of them; the rest fall back to English.
 
 ## Verification
 Run `./tools/verify_scanner_feature.sh`.
 
 The local verifier compiles and executes production ScannerPolicies, checks persistence/DI/live-camera wiring, checks localized resources, and rejects TODO/FIXME/NotImplementedError placeholders.
 
-JUnit tests: `ScannerPoliciesTest`.
+JUnit tests: `ScannerPoliciesTest`, `DocumentDetectorTest`, `DocumentModesTest`.
 Android instrumentation tests: `PerspectiveCropperTest`.
 
 A full Android Gradle compile still requires network access to obtain the configured Gradle distribution/dependencies; this sandbox cannot resolve services.gradle.org.
