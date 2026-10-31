@@ -17,12 +17,16 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - uses: android-actions/setup-android@v3
-
+      # ubuntu-24.04 ships with the Android SDK at $ANDROID_HOME. Run sdkmanager under
+      # the preinstalled JDK 17 (it does not support JDK 25); Gradle still uses JDK 25.
       - name: Install Android 37.1 platform and build tools
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          ls "$ANDROID_HOME" "$ANDROID_HOME/cmdline-tools" || true
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
 
       # local.properties in the repo may point at a Windows path (C:\Android); replace it.
       - name: Point Gradle at the SDK
