@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -36,10 +39,16 @@ jobs:
 
       - name: Unit tests (do not block the APK)
         continue-on-error: true
-        run: chmod +x gradlew && ./gradlew --no-daemon testDebugUnitTest
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon testDebugUnitTest 2>&1 | tee test.log
 
       - name: Build debug APK
-        run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleDebug 2>&1 | tee build.log
 
       - uses: actions/upload-artifact@v4
         with:
@@ -54,3 +63,16 @@ jobs:
           path: |
             app/build/reports/**
             app/build/test-results/**
+
+      # Publish logs to a branch so they can be read without downloading artifacts.
+      - name: Publish logs to ci-logs branch
+        if: always()
+        run: |
+          mkdir -p /tmp/logs && cp -f build.log test.log /tmp/logs/ 2>/dev/null || true
+          git config user.name "ci"; git config user.email "ci@example.com"
+          git checkout --orphan ci-logs
+          git rm -rf . > /dev/null 2>&1 || true
+          cp /tmp/logs/* . 2>/dev/null || true
+          git add build.log test.log
+          git commit -m "logs for ${GITHUB_SHA}" || true
+          git push -f origin ci-logs
