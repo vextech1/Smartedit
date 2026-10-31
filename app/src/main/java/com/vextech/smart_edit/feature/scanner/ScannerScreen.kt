@@ -63,13 +63,12 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     var renaming by remember { mutableStateOf(false) }
     var localMessage by remember { mutableStateOf<UiText?>(null) }
     var ocrSheetFor by remember { mutableStateOf<String?>(null) }
-    var autoStarted by rememberSaveable { mutableStateOf(false) }
     var cameraPending by rememberSaveable { mutableStateOf(false) }
     fun openCamera(id: String) { cameraPending = true; onLiveCamera(id) }
-    // One-tap scan: entering the scanner opens the camera straight away; the session is cleaned up if nothing is captured.
+    // Entering the scanner shows the chooser (Live camera / Import / Auto). The camera opens only when the user picks it;
+    // on return, a session with no captured pages is cleaned up.
     LaunchedEffect(Unit) {
-        if (!autoStarted) { autoStarted = true; vm.newSession(::openCamera) }
-        else if (cameraPending) { cameraPending = false; vm.afterCamera() }
+        if (cameraPending) { cameraPending = false; vm.afterCamera() }
     }
     val saveToDevice = rememberSaveToDevice(share) { localMessage = it }
 
