@@ -57,6 +57,9 @@ import javax.inject.Singleton
 
 enum class PdfRenderFormat { JPEG, PNG }
 
+/** Page size for images placed into a new PDF. [FIT_IMAGE] makes each page exactly as large as its image. */
+enum class PdfPageSize { FIT_IMAGE, A4, LETTER }
+
 interface PdfEngine {
     fun pageCount(file: File, password: String? = null): Int
     fun pageInfo(file: File, password: String? = null): List<PdfPageInfo>
@@ -116,15 +119,27 @@ interface PdfEngine {
         jpegQuality: Int = 92,
         shouldContinue: () -> Boolean = { true },
         onImageProcessed: (processed: Int, total: Int) -> Unit = { _, _ -> },
+        pageSize: PdfPageSize = PdfPageSize.FIT_IMAGE,
     )
-    fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String? = null)
+    /**
+     * Rebuilds the PDF with every page rendered to a JPEG. [onProgress] receives 0..1 before each page and may throw
+     * to cancel; nothing is written to [output] in that case. A protected source stays protected with the same password.
+     */
+    fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String? = null, onProgress: (Float) -> Unit = {})
 
     /**
      * Shrinks a PDF without rendering pages: embedded pictures larger than [maxDimension] are scaled down and
      * re-encoded as JPEG at [jpegQuality] when that is smaller. Text, fonts and structure are untouched.
-     * [onProgress] receives 0..1 after each page and may throw to cancel.
+     * [onProgress] receives 0..1 after each page and may throw to cancel. A protected source stays protected.
      */
-    fun optimizeImages(input: File, output: File, maxDimension: Int, jpegQuality: Int, onProgress: (Float) -> Unit = {}): PdfOptimizeStats =
+    fun optimizeImages(
+        input: File,
+        output: File,
+        maxDimension: Int,
+        jpegQuality: Int,
+        onProgress: (Float) -> Unit = {},
+        password: String? = null,
+    ): PdfOptimizeStats =
         throw UnsupportedOperationException("optimizeImages is not supported by this engine")
 }
 
@@ -287,7 +302,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             doc.pages.forEach { page ->
                 val box = page.cropBox
                 PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
-                    stream.setNonStrokingColor(135, 135, 135)
+                    stream.setNonStrokingColor(135 / 255f, 135 / 255f, 135 / 255f)
                     stream.beginText()
                     stream.setFont(PDType1Font.HELVETICA_BOLD, 42f)
                     stream.setTextMatrix(PdfBoxMatrix.getRotateInstance(Math.toRadians(35.0), box.width * .15f, box.height * .45f))
@@ -311,7 +326,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 val box = page.cropBox
                 PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
                     stream.beginText()
-                    stream.setNonStrokingColor(70, 70, 70)
+                    stream.setNonStrokingColor(70 / 255f, 70 / 255f, 70 / 255f)
                     stream.setFont(font, size)
                     stream.newLineAtOffset(box.lowerLeftX + (box.width - textWidth) / 2f, box.lowerLeftY + 18f)
                     stream.showText(label)
@@ -330,7 +345,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             val r = toPageRect(page, rect)
             PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
                 stream.beginText()
-                stream.setNonStrokingColor(20, 20, 20)
+                stream.setNonStrokingColor(20 / 255f, 20 / 255f, 20 / 255f)
                 stream.setFont(PDType1Font.HELVETICA, fontSize)
                 stream.newLineAtOffset(r.lowerLeftX, r.upperRightY - fontSize)
                 text.lineSequence().take(12).forEachIndexed { i, line ->
@@ -408,7 +423,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 return Pair(box.lowerLeftX + mapped.x * box.width, box.lowerLeftY + (1f - mapped.y) * box.height)
             }
             PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
-                stream.setStrokingColor(210, 32, 32)
+                stream.setStrokingColor(210 / 255f, 32 / 255f, 32 / 255f)
                 stream.setLineWidth(2.2f)
                 val first = map(points.first())
                 stream.moveTo(first.first, first.second)
@@ -424,7 +439,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             val page = doc.getPage(pageIndex)
             val r = toPageRect(page, rect)
             PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
-                stream.setStrokingColor(34, 88, 220)
+                stream.setStrokingColor(34 / 255f, 88 / 255f, 220 / 255f)
                 stream.setLineWidth(2f)
                 stream.addRect(r.lowerLeftX, r.lowerLeftY, r.width, r.height)
                 stream.stroke()
@@ -771,6 +786,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         jpegQuality: Int,
         shouldContinue: () -> Boolean,
         onImageProcessed: (processed: Int, total: Int) -> Unit,
+        pageSize: PdfPageSize,
     ) {
         require(images.isNotEmpty())
         PDDocument().use { doc ->
@@ -778,12 +794,26 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 if (!shouldContinue()) throw java.util.concurrent.CancellationException("Cancelled")
                 val bitmap = decodeOrientedImage(file)
                 try {
-                    val page = PDPage(PDRectangle(bitmap.width.toFloat(), bitmap.height.toFloat()))
+                    val page = when (pageSize) {
+                        PdfPageSize.FIT_IMAGE -> PDPage(PDRectangle(bitmap.width.toFloat(), bitmap.height.toFloat()))
+                        else -> {
+                            val base = if (pageSize == PdfPageSize.A4) PDRectangle.A4 else PDRectangle.LETTER
+                            PDPage(if (bitmap.width > bitmap.height) PDRectangle(base.height, base.width) else base)
+                        }
+                    }
                     doc.addPage(page)
                     val image = if (bitmap.hasAlpha()) LosslessFactory.createFromImage(doc, bitmap)
                     else JPEGFactory.createFromImage(doc, bitmap, jpegQuality.coerceIn(10, 100) / 100f)
                     PDPageContentStream(doc, page).use { stream ->
-                        stream.drawImage(image, 0f, 0f, page.mediaBox.width, page.mediaBox.height)
+                        if (pageSize == PdfPageSize.FIT_IMAGE) {
+                            stream.drawImage(image, 0f, 0f, page.mediaBox.width, page.mediaBox.height)
+                        } else {
+                            // Standard paper: keep the image's proportions, centered inside a 24 pt margin.
+                            val margin = 24f
+                            val scale = minOf((page.mediaBox.width - 2 * margin) / bitmap.width, (page.mediaBox.height - 2 * margin) / bitmap.height)
+                            val w = bitmap.width * scale; val h = bitmap.height * scale
+                            stream.drawImage(image, (page.mediaBox.width - w) / 2f, (page.mediaBox.height - h) / 2f, w, h)
+                        }
                     }
                 } finally {
                     bitmap.recycle()
@@ -796,29 +826,53 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         }
     }
 
-    override fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String?) {
+    override fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String?, onProgress: (Float) -> Unit) {
         load(input, password).use { source ->
             val renderer = PDFRenderer(source)
             PDDocument().use { target ->
                 target.documentInformation = copyInfo(source.documentInformation)
+                val total = source.numberOfPages.coerceAtLeast(1)
                 repeat(source.numberOfPages) { index ->
+                    onProgress(index.toFloat() / total)
                     val srcPage = source.getPage(index)
+                    // The renderer draws the visible area (crop box) with the page rotation applied, so the new page must match that.
+                    val box = srcPage.cropBox
+                    val sideways = PdfEditorPolicies.normalizeRotation(srcPage.rotation) % 180 != 0
+                    val pageWidth = if (sideways) box.height else box.width
+                    val pageHeight = if (sideways) box.width else box.height
                     val bitmap = renderer.renderImageWithDPI(index, dpi.toFloat(), ImageType.RGB)
-                    val page = PDPage(srcPage.mediaBox)
-                    target.addPage(page)
-                    val image = JPEGFactory.createFromImage(target, bitmap, jpegQuality / 100f)
-                    PDPageContentStream(target, page).use { it.drawImage(image, 0f, 0f, page.mediaBox.width, page.mediaBox.height) }
-                    bitmap.recycle()
+                    try {
+                        val page = PDPage(PDRectangle(pageWidth, pageHeight))
+                        target.addPage(page)
+                        val image = JPEGFactory.createFromImage(target, bitmap, jpegQuality / 100f)
+                        PDPageContentStream(target, page).use { it.drawImage(image, 0f, 0f, pageWidth, pageHeight) }
+                    } finally {
+                        bitmap.recycle()
+                    }
                 }
+                keepProtection(source, target, password)
+                onProgress(1f)
                 target.save(output)
             }
         }
     }
 
-    override fun optimizeImages(input: File, output: File, maxDimension: Int, jpegQuality: Int, onProgress: (Float) -> Unit): PdfOptimizeStats {
+    /** A rebuilt document is new, so a protected source needs its protection applied again or the copy would be open to anyone. */
+    private fun keepProtection(source: PDDocument, target: PDDocument, password: String?) {
+        if (!source.isEncrypted) return
+        val secret = password.orEmpty()
+        target.protect(
+            StandardProtectionPolicy(secret, secret, source.currentAccessPermission).apply {
+                setEncryptionKeyLength(128)
+                setPreferAES(true)
+            }
+        )
+    }
+
+    override fun optimizeImages(input: File, output: File, maxDimension: Int, jpegQuality: Int, onProgress: (Float) -> Unit, password: String?): PdfOptimizeStats {
         var found = 0
         var replaced = 0
-        load(input, null).use { doc ->
+        load(input, password).use { doc ->
             val visitedResources = java.util.IdentityHashMap<COSDictionary, Boolean>()
             val replacements = java.util.IdentityHashMap<Any, PDImageXObject?>()
             val total = doc.numberOfPages.coerceAtLeast(1)

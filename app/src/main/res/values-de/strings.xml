@@ -359,7 +359,7 @@
     <string name="compressor_error_protected">Dieses PDF ist passwortgeschützt.</string>
     <string name="compressor_limit_reached">Es können bis zu %1$d Dateien gleichzeitig komprimiert werden.</string>
     <string name="compressor_mode_maximum">Maximal</string>
-    <string name="compressor_mode_maximum_hint">Wandelt jede Seite in ein Bild um, für die kleinste Größe. Text lässt sich danach nicht mehr markieren oder durchsuchen.</string>
+    <string name="compressor_mode_maximum_hint">Wandelt jede Seite in ein Bild um, für die kleinste Größe. Text lässt sich danach nicht mehr markieren oder durchsuchen, und Links, Lesezeichen und Formularfelder gehen verloren.</string>
     <string name="compressor_mode_standard">Text beibehalten</string>
     <string name="compressor_mode_standard_hint">Verkleinert die Bilder im PDF. Text bleibt markierbar und durchsuchbar.</string>
     <string name="compressor_pdf_mode_title">PDF-Methode</string>
@@ -439,5 +439,11 @@
     <plurals name="compressor_skipped_unsupported">
         <item quantity="one">%1$d Datei wurde übersprungen, da sie kein PDF und kein Bild ist.</item>
         <item quantity="other">%1$d Dateien wurden übersprungen, da sie keine PDFs oder Bilder sind.</item>
+    </plurals>
+    <string name="compressor_enter_password">Passwort eingeben</string>
+    <string name="compressor_no_images_hint">In diesem PDF ließ sich kein Bild verkleinern. Probiere die Methode „Maximal“, um es weiter zu verkleinern.</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="one">%1$d Bild verkleinert</item>
+        <item quantity="other">%1$d Bilder verkleinert</item>
     </plurals>
 </resources>

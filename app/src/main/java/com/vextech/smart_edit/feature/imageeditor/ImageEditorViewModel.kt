@@ -239,6 +239,9 @@ class ImageEditorViewModel @Inject constructor(
         }
     }
 
+    /** The untouched preview, shown while the user holds "compare". */
+    fun originalPreview(): Bitmap? = original
+
     fun dismissSaved() { _state.update { it.copy(saved = null) } }
 
     /** Replays [ops] on [source]. The source is never modified or recycled; intermediate bitmaps are. */

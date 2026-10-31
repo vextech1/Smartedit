@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.compression.CompressionService
+import com.vextech.smart_edit.core.compression.PdfPasswordException
 import com.vextech.smart_edit.core.di.IoDispatcher
 import com.vextech.smart_edit.core.files.UriMetadataReader
 import com.vextech.smart_edit.core.library.CompressionKind
@@ -12,6 +13,7 @@ import com.vextech.smart_edit.core.library.CompressionPolicies
 import com.vextech.smart_edit.core.library.CompressionPreset
 import com.vextech.smart_edit.core.library.CompressionVerdict
 import com.vextech.smart_edit.core.library.PdfCompressionMode
+import com.vextech.smart_edit.core.library.PdfPasswordIssue
 import com.vextech.smart_edit.core.ui.UiEventChannel
 import com.vextech.smart_edit.core.ui.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,8 +30,14 @@ import javax.inject.Inject
 
 data class CompressorFile(val uri: String, val name: String, val mimeType: String, val sizeBytes: Long, val kind: CompressionKind)
 
-/** One finished file. [outputUri] is null when nothing was kept (error, or the result was not smaller). */
+/**
+ * One finished file. [outputUri] is null when nothing was kept (error, or the result was not smaller).
+ * [passwordIssue] is set when a protected PDF needs a (different) password. [optimizedImages] is the number of
+ * pictures shrunk inside a PDF, and null when that count does not apply.
+ */
 data class CompressorResult(
+    val sourceUri: String,
+    val kind: CompressionKind,
     val name: String,
     val originalBytes: Long,
     val compressedBytes: Long,
@@ -38,6 +46,8 @@ data class CompressorResult(
     val outputUri: String?,
     val outputMime: String?,
     val error: UiText?,
+    val passwordIssue: PdfPasswordIssue? = null,
+    val optimizedImages: Int? = null,
 )
 
 data class CompressorUiState(
@@ -45,6 +55,10 @@ data class CompressorUiState(
     val preset: CompressionPreset = CompressionPreset.BALANCED,
     val pdfMode: PdfCompressionMode = PdfCompressionMode.STANDARD,
     val running: Boolean = false,
+    /** True while one file is being redone with a password; the earlier results stay on screen. */
+    val retrying: Boolean = false,
+    /** How many files the current run handles. */
+    val runTotal: Int = 0,
     val currentIndex: Int = 0,
     val currentName: String? = null,
     val progress: Float? = null,
@@ -113,7 +127,7 @@ class CompressorViewModel @Inject constructor(
         val snapshot = _state.value
         if (snapshot.running || snapshot.files.isEmpty()) return
         job = viewModelScope.launch {
-            _state.update { it.copy(running = true, results = emptyList(), progress = null, currentIndex = 0) }
+            _state.update { it.copy(running = true, retrying = false, runTotal = snapshot.files.size, results = emptyList(), progress = null, currentIndex = 0) }
             val collected = ArrayList<CompressorResult>()
             try {
                 snapshot.files.forEachIndexed { index, file ->
@@ -129,20 +143,44 @@ class CompressorViewModel @Inject constructor(
         }
     }
 
-    private suspend fun compressOne(file: CompressorFile, snapshot: CompressorUiState): CompressorResult = try {
-        val result = service.compress(Uri.parse(file.uri), file.name, file.mimeType, snapshot.preset, snapshot.pdfMode) { progress ->
+    /** Redoes one protected PDF with [password]. The other results stay as they are. */
+    fun retryWithPassword(sourceUri: String, password: String) {
+        val snapshot = _state.value
+        val file = snapshot.files.firstOrNull { it.uri == sourceUri } ?: return
+        if (snapshot.running || password.isEmpty()) return
+        job = viewModelScope.launch {
+            _state.update { it.copy(running = true, retrying = true, runTotal = 1, currentIndex = 0, currentName = file.name, progress = null) }
+            try {
+                val redone = compressOne(file, snapshot, password)
+                _state.update { current -> current.copy(results = current.results.map { if (it.sourceUri == sourceUri) redone else it }) }
+            } catch (cancelled: CancellationException) {
+                events.message(UiText.res(R.string.compressor_cancelled))
+            } finally {
+                _state.update { it.copy(running = false, retrying = false, currentName = null, progress = null) }
+            }
+        }
+    }
+
+    private suspend fun compressOne(file: CompressorFile, snapshot: CompressorUiState, password: String? = null): CompressorResult = try {
+        val result = service.compress(Uri.parse(file.uri), file.name, file.mimeType, snapshot.preset, snapshot.pdfMode, password) { progress ->
             _state.update { it.copy(progress = progress) }
         }
         CompressorResult(
-            name = file.name, originalBytes = result.originalBytes, compressedBytes = result.compressedBytes, verdict = result.verdict,
+            sourceUri = file.uri, kind = file.kind, name = file.name,
+            originalBytes = result.originalBytes, compressedBytes = result.compressedBytes, verdict = result.verdict,
             outputName = result.output?.name, outputUri = result.output?.toURI()?.toString(), outputMime = result.outputMimeType, error = null,
+            optimizedImages = result.optimizedImages,
         )
     } catch (cancelled: CancellationException) {
         throw cancelled
+    } catch (error: PdfPasswordException) {
+        CompressorResult(
+            file.uri, file.kind, file.name, file.sizeBytes, file.sizeBytes, null, null, null, null,
+            UiText.res(if (error.issue == PdfPasswordIssue.WRONG) R.string.pdf_wrong_password else R.string.compressor_error_protected),
+            passwordIssue = error.issue,
+        )
     } catch (error: Exception) {
-        val protectedPdf = error::class.simpleName == "InvalidPasswordException"
-        CompressorResult(file.name, file.sizeBytes, file.sizeBytes, null, null, null, null,
-            UiText.res(if (protectedPdf) R.string.compressor_error_protected else R.string.compressor_error_failed))
+        CompressorResult(file.uri, file.kind, file.name, file.sizeBytes, file.sizeBytes, null, null, null, null, UiText.res(R.string.compressor_error_failed))
     }
 
     private companion object { const val MAX_FILES = 20 }

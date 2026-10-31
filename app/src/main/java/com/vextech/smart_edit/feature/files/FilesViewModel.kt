@@ -31,7 +31,7 @@ enum class FilesMessageKey {
     RENAMED, MOVED, TRASHED, REFRESHED, NAME_EMPTY, NAME_DOT, NAME_SEPARATOR, NAME_DOUBLE_DOT,
     NAME_CONTROL, NAME_RESERVED, NAME_TOO_LONG, CLIPBOARD_EMPTY, NAME_CONFLICT, FILE_NOT_FOUND,
     DESTINATION_NOT_FOLDER, MOVE_INTO_SELF, MOVE_INTO_DESCENDANT, FOLDER_CANNOT_BE_FAVORITE,
-    NOT_MANAGED, FILE_MISSING,
+    NOT_MANAGED, FILE_MISSING, MOVED_MANY, TRASHED_MANY,
 }
 
 data class FilesUiMessage(
@@ -182,6 +182,25 @@ class FilesViewModel @Inject constructor(
         repository.moveToTrash(item.id)
         if (wasCurrentFolder) navigateToBreadcrumb(parentId)
         message.value = FilesUiMessage(FilesMessageKey.TRASHED, value = item.name)
+    }
+
+    /** Moves several items at once; stops at the first failure and reports it. */
+    fun moveMany(items: List<FileItem>, destinationFolderId: String?) = runOperation(FilesMessageKey.MOVE_FAILED) {
+        items.forEach { repository.move(it.id, destinationFolderId) }
+        message.value = FilesUiMessage(FilesMessageKey.MOVED_MANY, count = items.size)
+    }
+
+    fun trashMany(items: List<FileItem>) = runOperation(FilesMessageKey.TRASH_FAILED) {
+        val currentFolder = uiState.value.currentFolderId
+        val currentFolderItem = items.firstOrNull { it.id == currentFolder }
+        items.forEach { repository.moveToTrash(it.id) }
+        if (currentFolderItem != null) navigateToBreadcrumb(currentFolderItem.parentId)
+        message.value = FilesUiMessage(FilesMessageKey.TRASHED_MANY, count = items.size)
+    }
+
+    /** Sets favorite on every file in [items] (folders are skipped); already-matching files are left alone. */
+    fun setFavorite(items: List<FileItem>, favorite: Boolean) = runOperation(FilesMessageKey.FAVORITE_FAILED) {
+        items.filter { !it.isDirectory && it.isFavorite != favorite }.forEach { repository.toggleFavorite(it.id) }
     }
 
     fun toggleFavorite(item: FileItem) = runOperation(FilesMessageKey.FAVORITE_FAILED) {

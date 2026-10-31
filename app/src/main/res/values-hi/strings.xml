@@ -359,7 +359,7 @@
     <string name="compressor_error_protected">यह PDF पासवर्ड से सुरक्षित है।</string>
     <string name="compressor_limit_reached">एक बार में अधिकतम %1$d फ़ाइलें संपीड़ित की जा सकती हैं।</string>
     <string name="compressor_mode_maximum">अधिकतम</string>
-    <string name="compressor_mode_maximum_hint">सबसे छोटे आकार के लिए हर पेज को छवि में बदलता है। इसके बाद टेक्स्ट चुना या खोजा नहीं जा सकेगा।</string>
+    <string name="compressor_mode_maximum_hint">सबसे छोटे आकार के लिए हर पेज को छवि में बदलता है। इसके बाद टेक्स्ट चुना या खोजा नहीं जा सकेगा, और लिंक, बुकमार्क व फ़ॉर्म फ़ील्ड हट जाएँगे।</string>
     <string name="compressor_mode_standard">टेक्स्ट बनाए रखें</string>
     <string name="compressor_mode_standard_hint">PDF के अंदर की छवियाँ छोटी करता है। टेक्स्ट चुना और खोजा जा सकता है।</string>
     <string name="compressor_pdf_mode_title">PDF की विधि</string>
@@ -439,5 +439,11 @@
     <plurals name="compressor_skipped_unsupported">
         <item quantity="one">%1$d फ़ाइल छोड़ी गई क्योंकि वह PDF या छवि नहीं है।</item>
         <item quantity="other">%1$d फ़ाइलें छोड़ी गईं क्योंकि वे PDF या छवियाँ नहीं हैं।</item>
+    </plurals>
+    <string name="compressor_enter_password">पासवर्ड दर्ज करें</string>
+    <string name="compressor_no_images_hint">इस PDF की कोई भी छवि छोटी नहीं की जा सकी। इसे और छोटा करने के लिए “अधिकतम” तरीका आज़माएँ।</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="one">%1$d छवि छोटी की गई</item>
+        <item quantity="other">%1$d छवियाँ छोटी की गईं</item>
     </plurals>
 </resources>

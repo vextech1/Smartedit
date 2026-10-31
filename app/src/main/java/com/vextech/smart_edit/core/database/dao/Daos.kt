@@ -84,10 +84,18 @@ interface ScanSessionDao {
     @Query("SELECT * FROM scan_sessions WHERE id=:id LIMIT 1") suspend fun get(id: String): ScanSessionEntity?
     @Upsert suspend fun upsert(entity: ScanSessionEntity)
     @Query("DELETE FROM scan_sessions WHERE id=:id") suspend fun delete(id: String)
+    /** Draft sessions last touched before [before] that own no pages. */
+    @Query("SELECT id FROM scan_sessions WHERE status='DRAFT' AND updatedAt < :before AND id NOT IN (SELECT DISTINCT sessionId FROM scan_pages)")
+    suspend fun emptyDraftIds(before: Long): List<String>
 }
+
+/** First page (cover) and page count of a scan session, derived from scan_pages (no schema change). */
+data class ScanCover(val sessionId: String, val renderedUri: String, val pageCount: Int, val updatedAt: Long)
 
 @Dao
 interface ScanPageDao {
+    @Query("SELECT p.sessionId AS sessionId, p.renderedUri AS renderedUri, (SELECT COUNT(*) FROM scan_pages c WHERE c.sessionId = p.sessionId) AS pageCount, p.updatedAt AS updatedAt FROM scan_pages p WHERE p.position = (SELECT MIN(m.position) FROM scan_pages m WHERE m.sessionId = p.sessionId)")
+    fun observeCovers(): Flow<List<ScanCover>>
     @Query("SELECT * FROM scan_pages WHERE sessionId=:sessionId ORDER BY position") fun observeForSession(sessionId: String): Flow<List<ScanPageEntity>>
     @Query("SELECT * FROM scan_pages WHERE sessionId=:sessionId ORDER BY position") suspend fun forSession(sessionId: String): List<ScanPageEntity>
     @Query("SELECT * FROM scan_pages WHERE id=:id LIMIT 1") suspend fun get(id: String): ScanPageEntity?

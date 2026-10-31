@@ -360,7 +360,7 @@
     <string name="compressor_error_protected">Este PDF está protegido con contraseña.</string>
     <string name="compressor_limit_reached">Se pueden comprimir hasta %1$d archivos a la vez.</string>
     <string name="compressor_mode_maximum">Máximo</string>
-    <string name="compressor_mode_maximum_hint">Convierte cada página en una imagen para el menor tamaño. El texto ya no se podrá seleccionar ni buscar.</string>
+    <string name="compressor_mode_maximum_hint">Convierte cada página en una imagen para el menor tamaño. El texto ya no se podrá seleccionar ni buscar, y se eliminarán los enlaces, marcadores y campos de formulario.</string>
     <string name="compressor_mode_standard">Mantener texto</string>
     <string name="compressor_mode_standard_hint">Reduce las imágenes dentro del PDF. El texto sigue siendo seleccionable y se puede buscar.</string>
     <string name="compressor_pdf_mode_title">Método para PDF</string>
@@ -441,5 +441,12 @@
         <item quantity="one">Se omitió %1$d archivo porque no es un PDF ni una imagen.</item>
         <item quantity="many">Se omitieron %1$d archivos porque no son PDF ni imágenes.</item>
         <item quantity="other">Se omitieron %1$d archivos porque no son PDF ni imágenes.</item>
+    </plurals>
+    <string name="compressor_enter_password">Introducir contraseña</string>
+    <string name="compressor_no_images_hint">No se pudo reducir ninguna imagen de este PDF. Prueba el método Máximo para reducirlo más.</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="one">%1$d imagen reducida</item>
+        <item quantity="many">%1$d imágenes reducidas</item>
+        <item quantity="other">%1$d imágenes reducidas</item>
     </plurals>
 </resources>

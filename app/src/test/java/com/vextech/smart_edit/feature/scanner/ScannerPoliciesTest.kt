@@ -6,5 +6,20 @@ class ScannerPoliciesTest {
  @Test fun reorderPreservesEveryPage(){ assertThat(ScannerPolicies.reorderedIds(listOf("1","2","3"),0,2)).containsExactly("2","3","1").inOrder() }
  @Test fun rotationIsNormalized(){ assertThat(ScannerPolicies.normalizeRotation(-90)).isEqualTo(270) }
  @Test fun cropQuadRoundTrips(){ val q=CropQuad.Full; assertThat(CropQuad.decode(q.encode())).isEqualTo(q) }
+ @Test fun orientationPacksRotationAndFlip(){
+  val v=PageOrientation.encode(90,true)
+  assertThat(PageOrientation.rotation(v)).isEqualTo(90); assertThat(PageOrientation.flipped(v)).isTrue()
+  assertThat(PageOrientation.flipped(270)).isFalse(); assertThat(PageOrientation.rotation(270)).isEqualTo(270)
+ }
  @Test fun emptySessionCannotExport(){ assertThat(ScannerPolicies.canExport(0)).isFalse() }
+ @Test fun timestampLabelIsShortAndStable(){
+  val utc=java.util.TimeZone.getTimeZone("UTC")
+  assertThat(ScannerPolicies.timestampLabel(1_793_446_560_000L, java.util.Locale.ENGLISH, utc)).isEqualTo("31 Oct 11:36")
+ }
+ @Test fun pendingDeleteHidesOnlyThosePages(){
+  assertThat(ScannerPolicies.withoutPending(listOf("a","b","c"),setOf("b")){ it }).containsExactly("a","c").inOrder()
+  assertThat(ScannerPolicies.withoutPending(listOf("a","b"),emptySet()){ it }).containsExactly("a","b").inOrder()
+  assertThat(ScannerPolicies.withoutPending(listOf("a"),setOf("zzz")){ it }).containsExactly("a")
+  assertThat(ScannerPolicies.withoutPending(listOf("a","b","c"),setOf("a","c")){ it }).containsExactly("b")
+ }
 }

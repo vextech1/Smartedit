@@ -53,4 +53,15 @@ object OcrPolicies {
         val target = scriptForLanguage(detectedLanguage)
         return target.takeIf { it != selected }
     }
+
+    /**
+     * [scores] = letters/digits recognised with the page turned 0, 90, 180 and 270 degrees clockwise. Returns the turn that
+     * makes the text upright, or 0 when no turn is clearly better (needs 20+ characters and 25% more than the current view).
+     */
+    fun pageRotation(scores: IntArray): Int {
+        require(scores.size == 4)
+        var best = 0
+        for (i in 1..3) if (scores[i] > scores[best]) best = i
+        return if (best != 0 && scores[best] >= 20 && scores[best] >= scores[0] * 1.25f) best * 90 else 0
+    }
 }

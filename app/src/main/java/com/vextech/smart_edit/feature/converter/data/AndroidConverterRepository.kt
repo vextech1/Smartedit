@@ -12,6 +12,7 @@ import com.vextech.smart_edit.core.files.DocumentStore
 import com.vextech.smart_edit.core.model.HistoryAction
 import com.vextech.smart_edit.core.model.ResourceType
 import com.vextech.smart_edit.core.pdf.PdfEngine
+import com.vextech.smart_edit.core.pdf.PdfPageSize
 import com.vextech.smart_edit.core.pdf.PdfRenderFormat
 import com.vextech.smart_edit.core.repository.SmartEditRepository
 import com.vextech.smart_edit.feature.converter.domain.ConversionJob
@@ -20,6 +21,9 @@ import com.vextech.smart_edit.feature.converter.domain.ConversionResult
 import com.vextech.smart_edit.feature.converter.domain.ConverterFailure
 import com.vextech.smart_edit.feature.converter.domain.ConverterMessageKey
 import com.vextech.smart_edit.feature.converter.domain.ConverterOutput
+import com.vextech.smart_edit.feature.converter.domain.ConverterPageSize
+import com.vextech.smart_edit.feature.converter.domain.ConverterSource
+import com.vextech.smart_edit.feature.converter.domain.PdfInspection
 import com.vextech.smart_edit.feature.converter.domain.ConverterPolicies
 import com.vextech.smart_edit.feature.converter.domain.ImageTargetFormat
 import java.io.File
@@ -58,7 +62,23 @@ class AndroidConverterRepository @Inject constructor(
                 createdAt = job.createdAt,
                 completedAt = job.completedAt,
                 errorMessage = job.errorMessage,
+                outputUri = job.outputUri,
+                outputSizeBytes = job.outputSizeBytes ?: 0L,
             )
+        }
+    }
+
+    override suspend fun inspectPdf(source: ConverterSource, password: String): PdfInspection = withContext(io) {
+        val staged = store.stageContent(Uri.parse(source.uri), ".pdf")
+        try {
+            val given = password.takeIf { it.isNotEmpty() }
+            try {
+                PdfInspection(pdf.pageCount(staged, given), passwordRequired = given != null, unlocked = true)
+            } catch (t: Throwable) {
+                if (isPasswordFailure(t)) PdfInspection(null, passwordRequired = true, unlocked = false) else throw t
+            }
+        } finally {
+            staged.delete()
         }
     }
 
@@ -175,6 +195,11 @@ class AndroidConverterRepository @Inject constructor(
             out,
             ConverterPolicies.clampQuality(request.options.quality),
             shouldContinue = { context.isActive },
+            pageSize = when (request.options.pageSize) {
+                ConverterPageSize.FIT_IMAGE -> PdfPageSize.FIT_IMAGE
+                ConverterPageSize.A4 -> PdfPageSize.A4
+                ConverterPageSize.LETTER -> PdfPageSize.LETTER
+            },
         )
         progress(0.9f)
         return listOf(out)

@@ -1,6 +1,7 @@
 package com.vextech.smart_edit.core.processing
 
 import android.graphics.*
+import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import javax.inject.Inject
 import kotlin.math.max
@@ -12,6 +13,36 @@ class ImageProcessor @Inject constructor() {
     fun rotate(source: Bitmap, degrees: Float): Bitmap = Bitmap.createBitmap(
         source, 0, 0, source.width, source.height, Matrix().apply { postRotate(degrees) }, true
     )
+
+    fun flipHorizontal(source: Bitmap): Bitmap = Bitmap.createBitmap(
+        source, 0, 0, source.width, source.height, Matrix().apply { postScale(-1f, 1f) }, true
+    )
+
+    /**
+     * Rewrites a JPEG so its pixels are upright and the EXIF orientation no longer matters. The scanner decodes with
+     * BitmapFactory (which ignores EXIF), so without this camera and gallery photos can end up sideways and any crop
+     * computed on the upright preview would land in the wrong place. Returns true when the file was rewritten.
+     */
+    fun bakeExifOrientation(file: File, quality: Int = 95): Boolean {
+        val orientation = runCatching { ExifInterface(file).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
+            ExifInterface.ORIENTATION_TRANSPOSE -> { matrix.setRotate(90f); matrix.postScale(-1f, 1f) }
+            ExifInterface.ORIENTATION_TRANSVERSE -> { matrix.setRotate(-90f); matrix.postScale(-1f, 1f) }
+            else -> return false
+        }
+        val source = decode(file)
+        val upright = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+        if (upright !== source) source.recycle()
+        try { java.io.FileOutputStream(file).use { require(upright.compress(Bitmap.CompressFormat.JPEG, quality, it)) { "Bitmap compression failed" } } }
+        finally { upright.recycle() }
+        return true
+    }
 
     fun crop(source: Bitmap, left: Float, top: Float, right: Float, bottom: Float): Bitmap {
         val l = (source.width * left.coerceIn(0f, 1f)).toInt()
@@ -72,6 +103,18 @@ class ImageProcessor @Inject constructor() {
         out.setPixels(pixels,0,w,0,0,w,h); return out
     }
 
+    /** True only when some pixel is actually see-through. A PNG can carry an alpha channel that is fully opaque. */
+    fun hasTransparentPixels(bitmap: Bitmap): Boolean {
+        if (!bitmap.hasAlpha()) return false
+        val width = bitmap.width
+        val row = IntArray(width)
+        for (y in 0 until bitmap.height) {
+            bitmap.getPixels(row, 0, width, 0, y, width, 1)
+            for (pixel in row) if ((pixel ushr 24) != 0xFF) return true
+        }
+        return false
+    }
+
     /**
      * Decodes close to [maxDimension] (power-of-two sampling keeps memory low), applies camera orientation,
      * then fine-scales so the longest side is at most [maxDimension]. Never enlarges.
@@ -85,14 +128,19 @@ class ImageProcessor @Inject constructor() {
         val decoded = requireNotNull(
             BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply { inSampleSize = sample })
         ) { "Unsupported image: ${file.name}" }
-        val rotation = when (runCatching { androidx.exifinterface.media.ExifInterface(file).getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL) }.getOrDefault(androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)) {
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-            androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-            else -> 0f
-        }
-        val oriented = if (rotation == 0f) decoded else {
-            rotate(decoded, rotation).also { if (it !== decoded) decoded.recycle() }
+        val exifOrientation = runCatching {
+            androidx.exifinterface.media.ExifInterface(file).getAttributeInt(
+                androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION,
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL,
+            )
+        }.getOrDefault(androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)
+        val fix = com.vextech.smart_edit.core.library.CompressionPolicies.orientationFix(exifOrientation)
+        val oriented = if (fix.isIdentity) decoded else {
+            val matrix = Matrix().apply {
+                if (fix.flipHorizontal) preScale(-1f, 1f)
+                if (fix.rotationDegrees != 0f) postRotate(fix.rotationDegrees)
+            }
+            Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, matrix, true).also { if (it !== decoded) decoded.recycle() }
         }
         val (width, height) = com.vextech.smart_edit.core.library.CompressionPolicies.scaledSize(oriented.width, oriented.height, maxDimension)
         if (width == oriented.width && height == oriented.height) return oriented

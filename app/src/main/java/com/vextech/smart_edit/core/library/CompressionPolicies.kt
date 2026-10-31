@@ -13,6 +13,14 @@ data class ImageParams(val jpegQuality: Int, val maxDimension: Int)
 
 data class RasterParams(val dpi: Int, val jpegQuality: Int)
 
+/** Why a protected PDF could not be opened: no password was given, or the one given did not work. */
+enum class PdfPasswordIssue { REQUIRED, WRONG }
+
+/** Camera orientation as "flip horizontally first, then rotate clockwise". */
+data class OrientationFix(val flipHorizontal: Boolean, val rotationDegrees: Float) {
+    val isIdentity: Boolean get() = !flipHorizontal && rotationDegrees == 0f
+}
+
 enum class ImageOutput(val extension: String, val mimeType: String) {
     JPEG("jpg", "image/jpeg"),
     PNG("png", "image/png"),
@@ -71,8 +79,27 @@ object CompressionPolicies {
         else -> CompressionVerdict.UNCHANGED
     }
 
-    /** Transparent images stay PNG (JPEG would turn transparency black). Everything else becomes JPEG. */
-    fun imageOutput(hasAlpha: Boolean): ImageOutput = if (hasAlpha) ImageOutput.PNG else ImageOutput.JPEG
+    /**
+     * Images with real transparency stay PNG (JPEG would turn transparency black). Everything else becomes JPEG.
+     * Pass whether any pixel is actually see-through, not just whether the bitmap has an alpha channel.
+     */
+    fun imageOutput(hasTransparency: Boolean): ImageOutput = if (hasTransparency) ImageOutput.PNG else ImageOutput.JPEG
+
+    /** Maps an EXIF orientation value (1..8) to the flip and rotation that make the picture upright. Unknown values change nothing. */
+    fun orientationFix(exifOrientation: Int): OrientationFix = when (exifOrientation) {
+        2 -> OrientationFix(true, 0f)
+        3 -> OrientationFix(false, 180f)
+        4 -> OrientationFix(true, 180f)
+        5 -> OrientationFix(true, 270f)
+        6 -> OrientationFix(false, 90f)
+        7 -> OrientationFix(true, 90f)
+        8 -> OrientationFix(false, 270f)
+        else -> OrientationFix(false, 0f)
+    }
+
+    /** An empty password means none was supplied. Anything else that failed was wrong. */
+    fun passwordIssue(password: String?): PdfPasswordIssue =
+        if (password.isNullOrEmpty()) PdfPasswordIssue.REQUIRED else PdfPasswordIssue.WRONG
 
     fun outputName(originalName: String, extension: String): String {
         val base = originalName.substringBeforeLast('.', originalName).trim().ifBlank { "file" }

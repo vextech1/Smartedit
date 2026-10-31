@@ -89,6 +89,30 @@ for sub in ('main/java', 'test/java', 'androidTest/java'):
         for bad in BAD_IMPORTS:
             if bad in txt: errors.append(f'wrong import "{bad}" in {os.path.relpath(p, SRC)}')
 
+
+# ---- every module compiles and targets Android 16 (API 36), with no stray lower pins
+REQUIRED_SDK = 36
+gradle_files = [p for p in glob.glob(os.path.join(ROOT, '**/*.gradle.kts'), recursive=True) if '/.gradle/' not in p]
+app_gradle = open(os.path.join(ROOT, 'app/build.gradle.kts'), encoding='utf-8').read()
+target_found = re.findall(r'targetSdk\s*=\s*(\d+)', app_gradle)
+if target_found != [str(REQUIRED_SDK)]: errors.append(f'targetSdk must be exactly {REQUIRED_SDK} in app/build.gradle.kts, found {target_found}')
+# compileSdk: either `compileSdk = N` or the AGP 9 block `compileSdk { version = release(N) { ... } }`.
+compile_found = re.findall(r'compileSdk\s*=\s*(\d+)', app_gradle) + re.findall(r'compileSdk\s*\{[^}]*?release\((\d+)\)', app_gradle, re.S)
+if len(compile_found) != 1 or int(compile_found[0]) < REQUIRED_SDK:
+    errors.append(f'compileSdk must be declared once and be at least {REQUIRED_SDK} (libraries in use need 37.1), found {compile_found}')
+for gf in gradle_files:
+    txt = open(gf, encoding='utf-8').read()
+    for legacy in ('compileSdkVersion', 'targetSdkVersion'):
+        if legacy in txt: errors.append(f'legacy {legacy} in {os.path.relpath(gf, ROOT)}')
+manifest_text = open(os.path.join(SRC, 'main/AndroidManifest.xml'), encoding='utf-8').read()
+if 'targetSdkVersion' in manifest_text: errors.append('targetSdkVersion pinned in AndroidManifest.xml (set it only in Gradle)')
+if not re.search(r'enableEdgeToEdge\(\)', open(os.path.join(SRC, 'main/java/com/vextech/smart_edit/MainActivity.kt'), encoding='utf-8').read()):
+    errors.append('MainActivity must call enableEdgeToEdge() (edge-to-edge is enforced when targeting API 35+)')
+for removed in ('onBackPressed', 'startActivityForResult', 'getExternalStorageDirectory', 'requestLegacyExternalStorage'):
+    for sub in ('main/java',):
+        for p in kt_files(sub):
+            if removed in open(p, encoding='utf-8').read(): errors.append(f'{removed} used in {os.path.relpath(p, SRC)}')
+
 for p in list(kt_files('main/java')):
     t = open(p, encoding='utf-8').read()
     if re.search(r'\b(TODO|FIXME)\b|NotImplementedError', t): errors.append(f'placeholder marker in {os.path.relpath(p, SRC)}')

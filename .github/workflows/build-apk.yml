@@ -1,0 +1,52 @@
+name: Build debug APK
+
+on:
+  push:
+  workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      # gradle/gradle-daemon-jvm.properties asks for a JDK 25 daemon.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android 37.1 platform and build tools
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
+
+      # local.properties in the repo may point at a Windows path (C:\Android); replace it.
+      - name: Point Gradle at the SDK
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests (do not block the APK)
+        continue-on-error: true
+        run: chmod +x gradlew && ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Build debug APK
+        run: chmod +x gradlew && ./gradlew --no-daemon assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smart-edit-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload build reports if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            app/build/reports/**
+            app/build/test-results/**

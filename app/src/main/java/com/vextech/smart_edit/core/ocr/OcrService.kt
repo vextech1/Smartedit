@@ -1,6 +1,7 @@
 package com.vextech.smart_edit.core.ocr
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.vision.common.InputImage
@@ -11,6 +12,7 @@ import com.google.mlkit.vision.text.devanagari.DevanagariTextRecognizerOptions
 import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.vextech.smart_edit.core.library.OcrPolicies
 import com.vextech.smart_edit.core.library.OcrScript
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
@@ -47,4 +49,18 @@ class OcrService @Inject constructor(@ApplicationContext private val context: Co
         }
     }
 
+    /**
+     * Clockwise turn (0/90/180/270) that makes the page text upright. Reads the page at all four turns and keeps the one
+     * that yields clearly the most text; returns 0 when unsure. Latin script only, so non-Latin pages usually return 0.
+     */
+    suspend fun detectOrientation(bitmap: Bitmap): Int {
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        return try {
+            val scores = IntArray(4)
+            for (i in 0..3) scores[i] = recognizer.process(InputImage.fromBitmap(bitmap, i * 90)).await().text.count { it.isLetterOrDigit() }
+            OcrPolicies.pageRotation(scores)
+        } finally {
+            recognizer.close()
+        }
+    }
 }

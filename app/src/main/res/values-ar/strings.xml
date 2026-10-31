@@ -363,7 +363,7 @@
     <string name="compressor_error_protected">ملف PDF هذا محمي بكلمة مرور.</string>
     <string name="compressor_limit_reached">يمكن ضغط حتى %1$d ملفًا دفعة واحدة.</string>
     <string name="compressor_mode_maximum">أقصى ضغط</string>
-    <string name="compressor_mode_maximum_hint">يحوّل كل صفحة إلى صورة للحصول على أصغر حجم. لن يمكن تحديد النص أو البحث فيه بعد ذلك.</string>
+    <string name="compressor_mode_maximum_hint">يحوّل كل صفحة إلى صورة للحصول على أصغر حجم. لن يمكن تحديد النص أو البحث فيه بعد ذلك، وستُزال الروابط والإشارات المرجعية وحقول النماذج.</string>
     <string name="compressor_mode_standard">الاحتفاظ بالنص</string>
     <string name="compressor_mode_standard_hint">يصغّر الصور داخل ملف PDF. يبقى النص قابلاً للتحديد والبحث.</string>
     <string name="compressor_pdf_mode_title">طريقة PDF</string>
@@ -447,5 +447,15 @@
         <item quantity="few">تم تخطي %1$d ملفات لأنها ليست PDF أو صورًا.</item>
         <item quantity="many">تم تخطي %1$d ملفًا لأنها ليست PDF أو صورًا.</item>
         <item quantity="other">تم تخطي %1$d ملف لأنها ليست PDF أو صورًا.</item>
+    </plurals>
+    <string name="compressor_enter_password">أدخل كلمة المرور</string>
+    <string name="compressor_no_images_hint">تعذّر تصغير أي صورة في ملف PDF هذا. جرّب طريقة «أقصى ضغط» لتصغيره أكثر.</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="zero">لم يتم تصغير أي صورة</item>
+        <item quantity="one">تم تصغير صورة واحدة</item>
+        <item quantity="two">تم تصغير صورتين</item>
+        <item quantity="few">تم تصغير %1$d صور</item>
+        <item quantity="many">تم تصغير %1$d صورة</item>
+        <item quantity="other">تم تصغير %1$d صورة</item>
     </plurals>
 </resources>

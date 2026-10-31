@@ -1,5 +1,7 @@
 package com.vextech.smart_edit.feature.profile
 
+import com.vextech.smart_edit.core.ui.TileRow
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -106,35 +108,34 @@ fun AccountCard(modifier: Modifier = Modifier) {
 
 @Composable
 private fun LibraryStats(summary: DashboardSummary, modifier: Modifier = Modifier) {
-    ElevatedCard(modifier.fillMaxWidth()) {
-        Column(Modifier.padding(vertical = 8.dp)) {
-            StatRow(stringResource(R.string.files), summary.totalFiles.toString())
-            HorizontalDivider()
-            StatRow(stringResource(R.string.notes), summary.totalNotes.toString())
-            HorizontalDivider()
-            StatRow(stringResource(R.string.favorites), summary.favorites.toString())
-            HorizontalDivider()
-            StatRow(stringResource(R.string.profile_stat_storage), formatBytes(summary.storageUsedBytes))
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatTile(summary.totalFiles.toString(), stringResource(R.string.files), Modifier.weight(1f))
+            StatTile(summary.totalNotes.toString(), stringResource(R.string.notes), Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatTile(summary.favorites.toString(), stringResource(R.string.favorites), Modifier.weight(1f))
+            StatTile(formatBytes(summary.storageUsedBytes), stringResource(R.string.profile_stat_storage), Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun StatRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+private fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
+    Surface(modifier, shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+        Column(Modifier.padding(14.dp)) {
+            Text(value, style = MaterialTheme.typography.headlineSmall)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 
 @Composable
 private fun NavRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String?, onClick: () -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        leadingContent = { Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-        headlineContent = { Text(title) },
-        supportingContent = subtitle?.let { { Text(it) } },
-        trailingContent = { Icon(Icons.Rounded.ChevronRight, contentDescription = null) },
+    TileRow(
+        icon = icon, title = title, subtitle = subtitle, onClick = onClick,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        trailing = { Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(end = 8.dp)) },
     )
 }
 

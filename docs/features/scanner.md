@@ -16,6 +16,31 @@ Native persistent multi-page scan sessions with three input paths: Google ML Kit
 - Discard removes the session and its managed page files.
 - Blocking bitmap, OCR, filesystem and PDF work runs on Dispatchers.IO.
 
+## Phase 0 behaviour
+- New scans are auto-named with a timestamp (e.g. "Scan 31 Oct 11:36").
+- Draft sessions with no pages are deleted when the session is closed, and at screen start (60 s grace).
+- Deleting a page can be undone for 5 seconds; the file is only removed after that. Any other change commits a pending delete first.
+- OCR text opens in a sheet (copy, share, word/character count). Tapping the OCR badge reopens it.
+- OCR script is auto-detected (Latin first, then the script of the detected language, then other scripts if nothing was found) and can be re-run as Latin, Chinese, Devanagari, Japanese or Korean.
+- The page editor can apply the chosen filter and rotation to all pages; each page keeps its own crop.
+
+## Phase 1: fast capture
+- Opening the Scanner goes straight to the camera. A session with no pages is dropped when you come back.
+- Live edge detection (back camera): `DocumentDetector` finds the page from low-resolution brightness frames (no OpenCV). It needs a page clearly lighter or darker than its surroundings and tilted less than 45 degrees. When nothing is found the static guide frame shows and the manual shutter still works.
+- Auto-capture (toggle in the top bar, on by default): the shutter fires when the outline stays still for about 0.9 s, with a progress ring, haptic and flash. It will not take the same page twice; the page must leave the view or move before it re-arms. Manual shots also disarm it.
+- Auto-crop: the outline at the moment of the shot is saved as the page's perspective crop (only when it covers at least 20% of the frame). The editor reopens with those corners.
+- Batch mode: the camera stays open; a thumbnail strip shows every page and the newest one can be removed.
+- Quick export: the PDF button on the camera exports the session and opens the share sheet.
+- Camera and gallery photos are rewritten upright on import (EXIF orientation baked in), so crops line up with what the user saw.
+
+## Phase 2: faster review
+- Smart default filter: new camera and gallery pages start as Original (colourful), Black & White (clean text on paper) or Grayscale (everything else), judged on the cropped page. ML Kit scanner pages are left as they are. The choice is a heuristic (`FilterAdvisor`); the editor can change it.
+- Drag to reorder: long-press a page and drag it onto another. Screen readers get "move left / right" actions instead of arrows. There is no auto-scroll while dragging, so on long documents move in steps.
+- Multi-select: "Select" next to the page count; tap pages, then apply a filter to all of them or delete them (with the same 5-second undo).
+- Fix orientation: a button in the editor reads the page at 0/90/180/270 degrees with OCR and turns it to the angle that yields the most text. Latin text only; returns "looks correct" when unsure.
+- Capture check: after each camera shot the page is checked for blur (variance of the Laplacian below 100 on a 480 px copy) and darkness (mean brightness below 50), and a "Retake" prompt removes the page. Thresholds are starting values to tune on real captures.
+- Fixed: reordering pages could fail on the unique (session, position) index; it now parks rows on temporary positions inside one transaction.
+
 ## Editing
 Supported non-destructive operations: perspective/rectangular corner crop, 90-degree rotation, Original, Grayscale, Black & White, and Enhance filters.
 

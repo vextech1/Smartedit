@@ -29,11 +29,14 @@ data class ConverterSource(
     val sizeBytes: Long,
 )
 
+enum class ConverterPageSize { FIT_IMAGE, A4, LETTER }
+
 data class ConverterOptions(
     val quality: Int = 92,
     val dpi: Int = 144,
     val pageRange: String = "all",
     val pdfPassword: String = "",
+    val pageSize: ConverterPageSize = ConverterPageSize.FIT_IMAGE,
 )
 
 data class ConverterOutput(
@@ -57,7 +60,12 @@ data class ConversionJob(
     val createdAt: Long,
     val completedAt: Long?,
     val errorMessage: String?,
+    val outputUri: String? = null,
+    val outputSizeBytes: Long = 0L,
 )
+
+/** Result of opening a PDF before conversion: [unlocked] is false when a password is needed or was wrong. */
+data class PdfInspection(val pageCount: Int?, val passwordRequired: Boolean, val unlocked: Boolean)
 
 enum class ConverterMessageKey {
     SOURCE_REQUIRED,
@@ -69,6 +77,7 @@ enum class ConverterMessageKey {
     CONVERSION_FAILED,
     CONVERSION_CANCELLED,
     CONVERSION_COMPLETE,
+    OUTPUT_MISSING,
 }
 
 class ConverterFailure(
@@ -108,6 +117,16 @@ sealed interface ConversionRequest {
 }
 
 object ConverterPolicies {
+    fun mimeForExtension(extension: String): String = when (extension.lowercase()) {
+        "pdf" -> "application/pdf"
+        "zip" -> "application/zip"
+        "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        "txt" -> "text/plain"
+        "png" -> "image/png"
+        "webp" -> "image/webp"
+        else -> "image/jpeg"
+    }
+
     fun clampQuality(value: Int): Int = value.coerceIn(10, 100)
 
     fun normalizeDpi(value: Int): Int = value.coerceIn(72, 300)
