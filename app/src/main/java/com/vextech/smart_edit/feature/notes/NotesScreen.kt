@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -126,11 +127,11 @@ fun NotesScreen(
                         },
                         placeholder = { Text(stringResource(R.string.notes_search_hint)) },
                     )
-                    if (state.allTags.isNotEmpty()) {
+                    if (state.tags.isNotEmpty()) {
                         Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(selected = state.tag == null, onClick = { vm.onTag(null) }, label = { Text(stringResource(R.string.notes_all_tags)) })
-                            state.allTags.forEach { tag ->
-                                FilterChip(selected = state.tag == tag, onClick = { vm.onTag(if (state.tag == tag) null else tag) }, label = { Text(tag) })
+                            FilterChip(selected = state.selectedTag == null, onClick = { vm.onTag(null) }, label = { Text(stringResource(R.string.notes_all_tags)) })
+                            state.tags.forEach { tag ->
+                                FilterChip(selected = state.selectedTag == tag, onClick = { vm.onTag(if (state.selectedTag == tag) null else tag) }, label = { Text(tag) })
                             }
                         }
                     }
