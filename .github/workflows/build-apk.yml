@@ -6,6 +6,7 @@ on:
       - 'public/**'
       - 'firebase.json'
       - '.firebaserc'
+      - 'tools/site_test/**'
       - '.github/workflows/firebase-hosting.yml'
   workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
 
