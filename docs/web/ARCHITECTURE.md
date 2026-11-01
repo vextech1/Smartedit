@@ -19,5 +19,5 @@ Config lives in `web/vite.config.ts` (this SvelteKit version has no `svelte.conf
 to `firebase-hosting.yml`, set `SITE.origin`, and port the `/vendor` + `/js` cache headers (`/_app/immutable` is hashed).
 
 ## Roadmap
-1 PDF suite (rotate, reorder, split, extract) -> 2 Compressor + OCR + Image editor -> 3 Scanner -> 4 Workspace (Files, Library, search, trash in IndexedDB/OPFS) -> 5 i18n, analytics, ads, a11y/perf audit.
+1 PDF suite (DONE: organize, split, PDF to images) -> 2 Compressor + OCR + Image editor -> 3 Scanner -> 4 Workspace (Files, Library, search, trash in IndexedDB/OPFS) -> 5 i18n, analytics, ads, a11y/perf audit.
 Open decision: password-protected PDFs (MuPDF WASM is AGPL; qpdf-wasm is an alternative).

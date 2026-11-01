@@ -52,3 +52,53 @@ describe('tool registry', () => {
     expect(toolBySlug('nope')).toBeUndefined();
   });
 });
+
+import { buildFromPages, countPages, everyPage, parseRanges, splitPdf } from '../src/lib/core/pdf-edit';
+import { zipFiles } from '../src/lib/core/zip';
+import { unzipSync } from 'fflate';
+
+const numbered = async (n: number) => { const d = await PDFDocument.create(); for (let i = 0; i < n; i++) d.addPage([100 + i * 10, 200]); return d.save(); };
+
+describe('page editing', () => {
+  it('reorders, drops and rotates pages', async () => {
+    const out = await PDFDocument.load(await buildFromPages(await numbered(4), [{ index: 2, rotate: 90 }, { index: 0, rotate: 0 }]));
+    expect(out.getPageCount()).toBe(2);
+    expect(out.getPage(0).getWidth()).toBe(120);
+    expect(out.getPage(0).getRotation().angle).toBe(90);
+    expect(out.getPage(1).getWidth()).toBe(100);
+  });
+  it('adds to an existing rotation and wraps at 360', async () => {
+    const d = await PDFDocument.create(); const p = d.addPage([100, 100]); p.setRotation({ type: 'degrees' as never, angle: 270 });
+    const out = await PDFDocument.load(await buildFromPages(await d.save(), [{ index: 0, rotate: 180 }]));
+    expect(out.getPage(0).getRotation().angle).toBe(90);
+  });
+  it('counts pages', async () => { expect(await countPages(await numbered(3))).toBe(3); });
+});
+
+describe('ranges and split', () => {
+  it('parses ranges', () => {
+    expect(parseRanges('1-3, 5', 9)).toEqual([[0, 1, 2], [4]]);
+    expect(parseRanges('', 3)).toEqual([[0, 1, 2]]);
+    expect(parseRanges('ALL', 2)).toEqual([[0, 1]]);
+  });
+  it('rejects bad input with readable messages', () => {
+    expect(() => parseRanges('0', 5)).toThrow(RangeError);
+    expect(() => parseRanges('3-1', 5)).toThrow(/valid range/);
+    expect(() => parseRanges('9', 5)).toThrow(/5 pages/);
+    expect(() => parseRanges('a', 5)).toThrow(/isn’t a page/);
+  });
+  it('splits into one PDF per group', async () => {
+    const parts = await splitPdf(await numbered(5), [[0, 1], [4]]);
+    expect((await PDFDocument.load(parts[0])).getPageCount()).toBe(2);
+    expect((await PDFDocument.load(parts[1])).getPageCount()).toBe(1);
+    expect(everyPage(3)).toEqual([[0], [1], [2]]);
+  });
+});
+
+describe('zip', () => {
+  it('round-trips and de-duplicates names', () => {
+    const z = unzipSync(zipFiles([{ name: 'a.pdf', bytes: new Uint8Array([1]) }, { name: 'a.pdf', bytes: new Uint8Array([2]) }]));
+    expect(Object.keys(z).sort()).toEqual(['a-2.pdf', 'a.pdf']);
+    expect(Array.from(z['a-2.pdf'])).toEqual([2]);
+  });
+});

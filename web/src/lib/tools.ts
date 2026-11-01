@@ -32,7 +32,21 @@ export const tools: Tool[] = [
     title: 'Merge PDFs', short: 'Join PDF files into one.',
     h1: 'Merge PDFs', intro: 'Combine several PDF files into one, in the order you choose.',
     steps: ['Choose two or more PDF files.', 'Use ▲ and ▼ to set the order.', 'Merge and download the result.'],
-    note: 'Password-protected or damaged files can’t be merged. Remove the password in your PDF app first.' }
+    note: 'Password-protected or damaged files can’t be merged. Remove the password in your PDF app first.' },
+  { slug: 'organize-pdf', kind: 'pdf', mode: 'organize-pdf', group: 'PDF',
+    title: 'Organize PDF pages', short: 'Rotate, reorder, delete, extract.',
+    h1: 'Organize PDF pages', intro: 'Rotate, reorder, remove or extract pages, with a preview of every page.',
+    steps: ['Choose a PDF.', 'Rotate, move or remove pages. Tick pages to extract them.', 'Save the PDF or extract the selected pages.'],
+    note: 'Password-protected PDFs can’t be edited yet. Remove the password in your PDF app first.' },
+  { slug: 'split-pdf', kind: 'pdf', mode: 'split-pdf', group: 'PDF',
+    title: 'Split PDF', short: 'One PDF per page or range.',
+    h1: 'Split a PDF', intro: 'Break a PDF into single pages or page ranges.',
+    steps: ['Choose a PDF.', 'Pick every page, or type ranges like 1-3, 5.', 'Download each file, or all of them as a ZIP.'] },
+  { slug: 'pdf-to-images', kind: 'pdf', mode: 'pdf-to-images', group: 'PDF',
+    title: 'PDF to images', short: 'Pages as JPG or PNG.',
+    h1: 'PDF to images', intro: 'Turn every page of a PDF into a JPG or PNG picture.',
+    steps: ['Choose a PDF.', 'Pick the format and resolution.', 'Download the pictures as a ZIP.'],
+    note: 'Long PDFs at high resolution use a lot of memory. If it stalls, pick a lower resolution.' }
 ];
 
 export const toolBySlug = (slug: string) => tools.find((t) => t.slug === slug);
