@@ -2,6 +2,11 @@ name: Build debug APK
 
 on:
   push:
+    paths-ignore:   # website-only changes don't need an APK build
+      - 'public/**'
+      - 'firebase.json'
+      - '.firebaserc'
+      - '.github/workflows/firebase-hosting.yml'
   workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
 
 permissions:
