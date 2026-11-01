@@ -48,4 +48,15 @@ class ConverterPoliciesTest {
             )
         )
     }
+
+    @Test fun mimeForExtension_mapsOutputTypes() {
+        assertThat(ConverterPolicies.mimeForExtension("PDF")).isEqualTo("application/pdf")
+        assertThat(ConverterPolicies.mimeForExtension("zip")).isEqualTo("application/zip")
+        assertThat(ConverterPolicies.mimeForExtension("txt")).isEqualTo("text/plain")
+        assertThat(ConverterPolicies.mimeForExtension("jpg")).isEqualTo("image/jpeg")
+    }
+
+    @Test fun optionsDefaultToFitImagePageSize() {
+        assertThat(ConverterOptions().pageSize).isEqualTo(ConverterPageSize.FIT_IMAGE)
+    }
 }

@@ -18,4 +18,6 @@ class LiveCameraViewModel @Inject constructor(private val store:DocumentStore,pr
     fun createOutputFile():File=store.uniqueFile(store.scansDir,"camera_${System.currentTimeMillis()}.jpg")
     fun registerCapture(sessionId:String,file:File)=viewModelScope.launch { runCatching { scanner.addPages(sessionId,listOf(Uri.fromFile(file))); file.delete() }.onSuccess{_message.value="Capture added"}.onFailure{_message.value="Unable to add capture"} }
     fun error(message:String){_message.value=message}
+    fun clearMessage(){_message.value=null}
+    fun observeSession(sessionId:String)=scanner.observeSession(sessionId)
 }

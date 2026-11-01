@@ -337,7 +337,7 @@ class AndroidFilesRepository @Inject constructor(
 
         if (missing.isEmpty() && changed.isEmpty()) return@onIo
         db.withTransaction {
-            changed.forEach(db.documentDao()::upsert)
+            changed.forEach { db.documentDao().upsert(it) }
             missing.forEach { document ->
                 db.documentDao().delete(document.id)
                 db.searchDao().deleteResource(document.id)

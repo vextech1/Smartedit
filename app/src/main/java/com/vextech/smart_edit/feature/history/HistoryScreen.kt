@@ -6,12 +6,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.Compress
@@ -21,7 +28,6 @@ import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.IosShare
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.RestoreFromTrash
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.SwapHoriz
@@ -30,7 +36,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,7 +51,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import java.io.File
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.library.DayBucket
 import com.vextech.smart_edit.core.library.HistoryDayGroup
@@ -131,13 +137,17 @@ fun HistoryScreen(onBack: (() -> Unit)?, share: ShareService, vm: HistoryViewMod
                 } else {
                     LazyColumn(Modifier.fillMaxSize()) {
                         state.groups.forEach { group ->
-                            item(key = "day_${group.date}") { SectionHeader(dayTitle(group)) }
+                            item(key = "day_${group.date}") { DayHeader(dayTitle(group)) }
                             items(group.entries, key = HistoryEntry::id) { entry ->
                                 EntryRow(entry) {
                                     val uri = entry.uri
                                     if (uri != null) {
-                                        runCatching { share.openManaged(uri, mimeFor(entry.displayName ?: uri)) }
-                                            .onFailure { screenEvents.message(UiText.res(R.string.common_open_failed)) }
+                                        if (isMissingFile(uri)) {
+                                            screenEvents.message(UiText.res(R.string.history_file_missing))
+                                        } else {
+                                            runCatching { share.openManaged(uri, mimeFor(entry.displayName ?: uri)) }
+                                                .onFailure { screenEvents.message(UiText.res(R.string.common_open_failed)) }
+                                        }
                                     }
                                 }
                             }
@@ -161,19 +171,41 @@ fun HistoryScreen(onBack: (() -> Unit)?, share: ShareService, vm: HistoryViewMod
 }
 
 @Composable
-private fun EntryRow(entry: HistoryEntry, onOpen: () -> Unit) {
-    val openable = HistoryPolicies.canOpen(entry)
-    ListItem(
-        modifier = if (openable) Modifier.clickable(onClick = onOpen) else Modifier,
-        leadingContent = { Icon(actionIcon(entry.action), contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-        headlineContent = { Text(stringResource(actionLabel(entry.action))) },
-        supportingContent = {
-            val detail = entry.displayName?.takeIf { it.isNotBlank() } ?: entry.description
-            if (detail.isNotBlank()) Text(detail, maxLines = 2)
-        },
-        trailingContent = { Text(timeText(entry.timestamp), style = MaterialTheme.typography.labelMedium) },
+private fun DayHeader(text: String) {
+    Text(
+        text,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
+
+@Composable
+private fun EntryRow(entry: HistoryEntry, onOpen: () -> Unit) {
+    val openable = HistoryPolicies.canOpen(entry)
+    val detail = entry.displayName?.takeIf { it.isNotBlank() } ?: entry.description
+    Row(
+        Modifier.fillMaxWidth().then(if (openable) Modifier.clickable(onClick = onOpen) else Modifier)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = Modifier.size(44.dp)) {
+            Box(contentAlignment = Alignment.Center) { Icon(actionIcon(entry.action), contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
+        }
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(actionLabel(entry.action)), style = MaterialTheme.typography.bodyLarge)
+            if (detail.isNotBlank()) {
+                Text(detail, maxLines = 2, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        Text(timeText(entry.timestamp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Managed outputs are file:// URIs; anything else (content://) is left to the opening app to judge. */
+private fun isMissingFile(uri: String): Boolean =
+    uri.startsWith("file:") && runCatching { !File(java.net.URI(uri)).exists() }.getOrDefault(false)
 
 @Composable
 private fun dayTitle(group: HistoryDayGroup): String = when (group.bucket) {
@@ -209,7 +241,7 @@ private fun actionLabel(action: HistoryAction?): Int = when (action) {
 }
 
 private fun actionIcon(action: HistoryAction?): ImageVector = when (action) {
-    HistoryAction.OPENED -> Icons.Rounded.OpenInNew
+    HistoryAction.OPENED -> Icons.AutoMirrored.Rounded.OpenInNew
     HistoryAction.CONVERTED -> Icons.Rounded.SwapHoriz
     HistoryAction.COMPRESSED -> Icons.Rounded.Compress
     HistoryAction.BACKED_UP -> Icons.Rounded.Backup

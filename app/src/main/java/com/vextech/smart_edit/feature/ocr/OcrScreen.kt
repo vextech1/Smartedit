@@ -1,52 +1,41 @@
 package com.vextech.smart_edit.feature.ocr
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddPhotoAlternate
-import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.automirrored.rounded.NoteAdd
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.library.OcrScript
 import com.vextech.smart_edit.core.sharing.ShareService
+import com.vextech.smart_edit.core.ui.BottomAction
 import com.vextech.smart_edit.core.ui.CollectUiEvents
 import com.vextech.smart_edit.core.ui.FeatureScaffold
 import com.vextech.smart_edit.core.ui.ProgressCard
-import com.vextech.smart_edit.core.ui.SectionHeader
 import com.vextech.smart_edit.core.ui.SourcePickerRow
 import com.vextech.smart_edit.core.ui.UiEventChannel
 import com.vextech.smart_edit.core.ui.UiText
@@ -54,7 +43,6 @@ import java.util.Locale
 
 private val imageTypes = arrayOf("image/jpeg", "image/png", "image/webp")
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OcrScreen(
     onBack: () -> Unit,
@@ -68,119 +56,127 @@ fun OcrScreen(
     val screenEvents = remember { UiEventChannel() }
     CollectUiEvents(vm.uiEvents, snackbarHostState)
     CollectUiEvents(screenEvents.events, snackbarHostState)
-    val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::pick) }
+    val source = state.source
 
     FeatureScaffold(
         title = stringResource(R.string.ocr_title),
         onBack = onBack,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            val source = state.source
-            if (source == null) {
-                SourcePickerRow(
-                    title = stringResource(R.string.ocr_choose_image),
-                    subtitle = stringResource(R.string.ocr_choose_image_hint),
-                    icon = Icons.Rounded.AddPhotoAlternate,
-                    onClick = { picker.launch(imageTypes) },
-                )
-            } else {
-                ElevatedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        state.preview?.let { bitmap ->
-                            Image(
-                                bitmap = bitmap.asImageBitmap(),
-                                contentDescription = stringResource(R.string.ocr_preview_description),
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp),
-                                contentScale = ContentScale.Fit,
-                            )
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(source.name, modifier = Modifier.weight(1f), maxLines = 1, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                            if (!state.running) TextButton(onClick = { picker.launch(imageTypes) }) { Text(stringResource(R.string.ocr_change_image)) }
-                        }
-                    }
-                }
-
-                SectionHeader(stringResource(R.string.ocr_script_title))
-                FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OcrScript.entries.forEach { script ->
-                        FilterChip(
-                            selected = state.script == script,
-                            onClick = { vm.setScript(script) },
-                            enabled = !state.running,
-                            label = { Text(stringResource(scriptLabel(script))) },
-                        )
-                    }
-                }
-
-                if (state.running) {
-                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        ProgressCard(label = stringResource(R.string.ocr_extracting), progress = null, onCancel = vm::cancel)
-                    }
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                if (source == null) {
+                    SourcePickerRow(
+                        title = stringResource(R.string.ocr_choose_image),
+                        subtitle = stringResource(R.string.ocr_choose_image_hint),
+                        icon = Icons.Rounded.AddPhotoAlternate,
+                        onClick = { picker.launch(imageTypes) },
+                    )
                 } else {
-                    Button(onClick = vm::extract, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                        Text(stringResource(R.string.ocr_extract))
-                    }
-                }
+                    SourceCard(state, source.name, onChange = { picker.launch(imageTypes) })
 
-                if (state.hasResult) {
-                    state.detectedLanguage?.let { code ->
-                        val language = Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).ifBlank { code }
-                        Text(
-                            stringResource(R.string.ocr_detected_language, language),
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    state.suggestedScript?.let { suggestion ->
-                        val label = stringResource(scriptLabel(suggestion))
-                        ElevatedCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(stringResource(R.string.ocr_try_script, label), style = MaterialTheme.typography.bodyMedium)
-                                TextButton(onClick = vm::retryWithSuggestion) { Text(stringResource(R.string.ocr_try_script_action, label)) }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(R.string.ocr_script_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OcrScript.entries.forEach { script ->
+                                FilterChip(
+                                    selected = state.script == script,
+                                    onClick = { vm.setScript(script) },
+                                    enabled = !state.running,
+                                    label = { Text(stringResource(scriptLabel(script))) },
+                                )
                             }
                         }
                     }
-                    SectionHeader(stringResource(R.string.ocr_result_label))
-                    OutlinedTextField(
-                        value = vm.text,
-                        onValueChange = vm::onText,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        minLines = 6,
-                    )
-                    Text(
-                        stringResource(R.string.ocr_stats, state.stats.words, state.stats.characters),
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    FlowRow(
-                        Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        OutlinedButton(onClick = { clipboard.setText(AnnotatedString(vm.text)); vm.copied() }, enabled = vm.text.isNotBlank()) {
-                            Text(stringResource(R.string.ocr_copy))
+
+                    if (state.hasResult) {
+                        state.suggestedScript?.let { suggestion ->
+                            val label = stringResource(scriptLabel(suggestion))
+                            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.fillMaxWidth()) {
+                                Row(Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        stringResource(R.string.ocr_try_script, label), Modifier.weight(1f),
+                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    )
+                                    TextButton(onClick = vm::retryWithSuggestion) { Text(stringResource(R.string.ocr_try_script_action, label)) }
+                                }
+                            }
                         }
-                        OutlinedButton(
-                            onClick = {
-                                runCatching { share.shareText(vm.text) }
-                                    .onFailure { screenEvents.message(UiText.res(R.string.common_share_failed)) }
-                            },
-                            enabled = vm.text.isNotBlank(),
-                        ) { Text(stringResource(R.string.ocr_share)) }
-                        OutlinedButton(onClick = vm::saveAsNote, enabled = vm.text.isNotBlank()) { Text(stringResource(R.string.ocr_save_note)) }
-                        OutlinedButton(onClick = vm::saveAsTextFile, enabled = vm.text.isNotBlank()) { Text(stringResource(R.string.ocr_save_file)) }
+                        OutlinedTextField(
+                            value = vm.text,
+                            onValueChange = vm::onText,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 240.dp),
+                            label = { Text(stringResource(R.string.ocr_result_label)) },
+                        )
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                stringResource(R.string.ocr_stats, state.stats.words, state.stats.characters),
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            // Changing the writing system does not re-read by itself, so offer it right here.
+                            TextButton(onClick = vm::extract, enabled = !state.running) { Text(stringResource(R.string.ocr_extract)) }
+                        }
+                    }
+                }
+            }
+
+            if (source != null) {
+                BottomAction {
+                    when {
+                        state.running -> ProgressCard(label = stringResource(R.string.ocr_extracting), progress = null, onCancel = vm::cancel)
+                        !state.hasResult -> Button(onClick = vm::extract, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                            Icon(Icons.Rounded.DocumentScanner, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ocr_extract))
+                        }
+                        else -> {
+                            val hasText = vm.text.isNotBlank()
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Button(
+                                    onClick = { copyToClipboard(context, vm.text); vm.copied() },
+                                    enabled = hasText, modifier = Modifier.weight(1f).height(56.dp),
+                                ) { Icon(Icons.Rounded.ContentCopy, null, Modifier.size(20.dp)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ocr_copy)) }
+                                ActionIcon(Icons.Rounded.Share, stringResource(R.string.ocr_share), hasText) {
+                                    runCatching { share.shareText(vm.text) }.onFailure { screenEvents.message(UiText.res(R.string.common_share_failed)) }
+                                }
+                                ActionIcon(Icons.AutoMirrored.Rounded.NoteAdd, stringResource(R.string.ocr_save_note), hasText, vm::saveAsNote)
+                                ActionIcon(Icons.Rounded.Save, stringResource(R.string.ocr_save_file), hasText, vm::saveAsTextFile)
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SourceCard(state: OcrUiState, name: String, onChange: () -> Unit) {
+    val preview = remember(state.preview) { state.preview?.asImageBitmap() }
+    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = Modifier.size(64.dp)) {
+                preview?.let { Image(it, stringResource(R.string.ocr_preview_description), Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)), contentScale = ContentScale.Crop) }
+            }
+            Column(Modifier.weight(1f)) {
+                Text(name, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                val code = state.detectedLanguage
+                if (state.hasResult && code != null) {
+                    val language = Locale.forLanguageTag(code).getDisplayLanguage(Locale.getDefault()).ifBlank { code }
+                    Text(stringResource(R.string.ocr_detected_language, language), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (!state.running) TextButton(onClick = onChange) { Text(stringResource(R.string.ocr_change_image)) }
+        }
+    }
+}
+
+@Composable
+private fun ActionIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, enabled: Boolean, onClick: () -> Unit) {
+    FilledTonalIconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(56.dp)) { Icon(icon, description) }
 }
 
 private fun scriptLabel(script: OcrScript): Int = when (script) {
@@ -189,4 +185,8 @@ private fun scriptLabel(script: OcrScript): Int = when (script) {
     OcrScript.DEVANAGARI -> R.string.ocr_script_devanagari
     OcrScript.JAPANESE -> R.string.ocr_script_japanese
     OcrScript.KOREAN -> R.string.ocr_script_korean
+}
+
+private fun copyToClipboard(context: Context, text: String) {
+    context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText("", text))
 }

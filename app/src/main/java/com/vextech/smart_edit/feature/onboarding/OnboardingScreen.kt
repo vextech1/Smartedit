@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.provider.Settings
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -35,11 +37,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,9 +68,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 private val DeepTeal = Color(0xFF0A4551)
 private val MidTeal = Color(0xFF0F5660)
@@ -86,13 +92,16 @@ private val pages = listOf(
 )
 
 /**
- * First-launch screen: deep teal with a soft glow, drifting document icons, three swipeable pages and one
- * "Get started" button. Finishing it stores the flag; later launches go straight to the app.
+ * First-launch screen: deep teal with a soft glow, drifting document icons and three swipeable pages.
+ * Skip leaves at any point; Next moves on and becomes "Get started" on the last page. Finishing (or skipping)
+ * stores the flag; later launches go straight to the app.
  */
 @Composable
 fun OnboardingScreen(onComplete: () -> Unit, vm: OnboardingViewModel = hiltViewModel()) {
     LightSystemBarIcons()
     val pagerState = rememberPagerState(pageCount = { pages.size })
+    val scope = rememberCoroutineScope()
+    val isLast = pagerState.currentPage == pages.lastIndex
     Box(
         Modifier
             .fillMaxSize()
@@ -108,41 +117,57 @@ fun OnboardingScreen(onComplete: () -> Unit, vm: OnboardingViewModel = hiltViewM
             },
     ) {
         ScatterLayer(Modifier.fillMaxSize())
-        Column(Modifier.fillMaxSize().systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxSize().systemBarsPadding()) {
+            Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                if (!isLast) {
+                    TextButton(onClick = { vm.complete(onComplete) }, modifier = Modifier.height(48.dp)) {
+                        Text(stringResource(R.string.onboarding_skip), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
             Spacer(Modifier.weight(1.25f))
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { index -> PageText(pages[index]) }
             Spacer(Modifier.weight(0.7f))
-            PageDots(current = pagerState.currentPage, count = pages.size)
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = { vm.complete(onComplete) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(52.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = ButtonBlue, contentColor = ButtonText),
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.onboarding_get_started), fontWeight = FontWeight.SemiBold)
+                PageDots(current = pagerState.currentPage, count = pages.size)
+                Button(
+                    onClick = {
+                        if (isLast) vm.complete(onComplete)
+                        else scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    },
+                    modifier = Modifier.height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 32.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = ButtonBlue, contentColor = ButtonText),
+                ) {
+                    Text(stringResource(if (isLast) R.string.onboarding_get_started else R.string.onboarding_next), fontWeight = FontWeight.SemiBold)
+                }
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
         }
     }
 }
 
 @Composable
 private fun PageText(page: OnboardingPage) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp), horizontalAlignment = Alignment.Start) {
         Text(
             stringResource(page.title),
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Bold,
             color = Cream,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
         )
         Spacer(Modifier.height(10.dp))
         Text(
             stringResource(page.body),
             style = MaterialTheme.typography.titleMedium,
             color = Color.White.copy(alpha = 0.92f),
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Start,
         )
     }
 }
@@ -152,9 +177,11 @@ private fun PageDots(current: Int, count: Int) {
     val description = stringResource(R.string.onboarding_page_indicator, current + 1, count)
     Row(Modifier.semantics { contentDescription = description }, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         repeat(count) { index ->
+            // The current page is a longer pill so progress reads at a glance.
+            val width by animateDpAsState(if (index == current) 24.dp else 8.dp, label = "dotWidth")
             Box(
                 Modifier
-                    .size(8.dp)
+                    .size(width = width, height = 8.dp)
                     .clip(CircleShape)
                     .background(if (index == current) Color.White else Color.White.copy(alpha = 0.35f)),
             )

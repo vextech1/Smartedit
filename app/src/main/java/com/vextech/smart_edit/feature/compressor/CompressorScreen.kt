@@ -2,34 +2,17 @@ package com.vextech.smart_edit.feature.compressor
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.NoteAdd
-import androidx.compose.material.icons.rounded.PictureAsPdf
-import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.NoteAdd
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,11 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.ads.ExportInterstitialEffect
 import com.vextech.smart_edit.core.ads.UnityAdsService
@@ -51,15 +34,15 @@ import com.vextech.smart_edit.core.library.CompressionPreset
 import com.vextech.smart_edit.core.library.CompressionVerdict
 import com.vextech.smart_edit.core.library.PdfCompressionMode
 import com.vextech.smart_edit.core.sharing.ShareService
+import com.vextech.smart_edit.core.ui.BottomAction
 import com.vextech.smart_edit.core.ui.CollectUiEvents
-import com.vextech.smart_edit.core.ui.ErrorText
 import com.vextech.smart_edit.core.ui.FeatureScaffold
 import com.vextech.smart_edit.core.ui.ProgressCard
-import com.vextech.smart_edit.core.ui.ResultCard
-import com.vextech.smart_edit.core.ui.SectionHeader
+import com.vextech.smart_edit.core.ui.SaveToDeviceAction
 import com.vextech.smart_edit.core.ui.SourcePickerRow
 import com.vextech.smart_edit.core.ui.UiEventChannel
 import com.vextech.smart_edit.core.ui.UiText
+import com.vextech.smart_edit.core.ui.UriThumbnail
 import com.vextech.smart_edit.core.ui.formatBytes
 import com.vextech.smart_edit.core.ui.rememberSaveToDevice
 
@@ -89,104 +72,124 @@ fun CompressorScreen(
         onBack = onBack,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            if (state.files.isEmpty()) {
-                SourcePickerRow(
-                    title = stringResource(R.string.compressor_choose_files),
-                    subtitle = stringResource(R.string.compressor_supported_types),
-                    icon = Icons.Rounded.NoteAdd,
-                    onClick = { picker.launch(pickerTypes) },
-                )
-            } else {
-                SectionHeader(stringResource(R.string.compressor_selected_files))
-                state.files.forEach { file ->
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            if (file.kind == CompressionKind.PDF) Icons.Rounded.PictureAsPdf else Icons.Rounded.Description,
-                            contentDescription = null, tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                            Text(file.name, maxLines = 1, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                            if (file.sizeBytes > 0) Text(formatBytes(file.sizeBytes), style = MaterialTheme.typography.bodySmall)
-                        }
-                        if (!state.running) {
-                            IconButton(onClick = { vm.remove(file) }) {
-                                Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.compressor_remove_file))
-                            }
-                        }
-                    }
-                }
-                if (!state.running) {
-                    OutlinedButton(
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                when {
+                    state.files.isEmpty() -> SourcePickerRow(
+                        title = stringResource(R.string.compressor_choose_files),
+                        subtitle = stringResource(R.string.compressor_supported_types),
+                        icon = Icons.AutoMirrored.Rounded.NoteAdd,
                         onClick = { picker.launch(pickerTypes) },
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    ) { Text(stringResource(R.string.compressor_add_more)) }
+                    )
+                    state.finished -> ResultsContent(state, share, saveToDevice, screenEvents)
+                    else -> SetupContent(state, vm, onAdd = { picker.launch(pickerTypes) })
                 }
             }
-
-            SectionHeader(stringResource(R.string.compressor_quality_title))
-            CompressionPreset.entries.forEach { preset ->
-                PresetRow(preset, selected = state.preset == preset, enabled = !state.running) { vm.setPreset(preset) }
-            }
-
-            if (state.hasPdf) {
-                SectionHeader(stringResource(R.string.compressor_pdf_mode_title))
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    PdfCompressionMode.entries.forEachIndexed { index, mode ->
-                        SegmentedButton(
-                            selected = state.pdfMode == mode,
-                            onClick = { vm.setPdfMode(mode) },
-                            enabled = !state.running,
-                            shape = SegmentedButtonDefaults.itemShape(index, PdfCompressionMode.entries.size),
-                        ) {
-                            Text(stringResource(if (mode == PdfCompressionMode.STANDARD) R.string.compressor_mode_standard else R.string.compressor_mode_maximum))
-                        }
-                    }
-                }
-                Text(
-                    stringResource(if (state.pdfMode == PdfCompressionMode.STANDARD) R.string.compressor_mode_standard_hint else R.string.compressor_mode_maximum_hint),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (state.pdfMode == PdfCompressionMode.MAXIMUM) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            if (state.running) {
-                Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            when {
+                state.running -> BottomAction {
                     ProgressCard(
                         label = stringResource(R.string.compressor_progress, state.currentIndex + 1, state.files.size, state.currentName.orEmpty()),
                         progress = state.progress,
                         onCancel = vm::cancel,
                     )
                 }
-            } else if (state.files.isNotEmpty() && !state.finished) {
-                Button(
-                    onClick = vm::start,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-                ) { Text(stringResource(R.string.compressor_start)) }
-            }
-
-            if (state.results.isNotEmpty()) {
-                SectionHeader(stringResource(R.string.compressor_results_title))
-                state.results.forEach { result -> ResultBlock(result, share, saveToDevice, screenEvents) }
-                if (state.finished) {
-                    if (state.keptResults.isNotEmpty()) {
-                        Text(
-                            stringResource(R.string.compressor_total_saved, formatBytes(state.totalSaved)),
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.titleSmall,
-                        )
+                state.finished -> BottomAction {
+                    Button(onClick = vm::reset, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                        Icon(Icons.Rounded.Compress, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.compressor_compress_more))
                     }
-                    OutlinedButton(
-                        onClick = vm::reset,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    ) { Text(stringResource(R.string.compressor_compress_more)) }
+                }
+                state.files.isNotEmpty() -> BottomAction {
+                    Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                        Icon(Icons.Rounded.Compress, null); Spacer(Modifier.width(8.dp))
+                        Text(pluralStringResource(R.plurals.compressor_start_files, state.files.size, state.files.size))
+                    }
                 }
             }
         }
+    }
+}
+
+// ───────────────────────────── Setup ─────────────────────────────
+
+@Composable
+private fun SetupContent(state: CompressorUiState, vm: CompressorViewModel, onAdd: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SectionLabel(stringResource(R.string.compressor_files_summary, state.files.size, formatBytes(state.files.sumOf { it.sizeBytes })))
+        state.files.forEach { file -> FileCard(file, removable = !state.running) { vm.remove(file) } }
+        if (!state.running) {
+            Surface(
+                onClick = onAdd, shape = RoundedCornerShape(14.dp), color = androidx.compose.ui.graphics.Color.Transparent,
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) {
+                Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Rounded.Add, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.compressor_add_more), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        SectionLabel(stringResource(R.string.compressor_quality_title))
+        CompressionPreset.entries.forEach { preset ->
+            PresetRow(preset, selected = state.preset == preset, enabled = !state.running) { vm.setPreset(preset) }
+        }
+    }
+
+    if (state.hasPdf) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SectionLabel(stringResource(R.string.compressor_pdf_mode_title))
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                PdfCompressionMode.entries.forEachIndexed { index, mode ->
+                    SegmentedButton(
+                        selected = state.pdfMode == mode,
+                        onClick = { vm.setPdfMode(mode) },
+                        enabled = !state.running,
+                        shape = SegmentedButtonDefaults.itemShape(index, PdfCompressionMode.entries.size),
+                    ) {
+                        Text(stringResource(if (mode == PdfCompressionMode.STANDARD) R.string.compressor_mode_standard else R.string.compressor_mode_maximum))
+                    }
+                }
+            }
+            Text(
+                stringResource(if (state.pdfMode == PdfCompressionMode.STANDARD) R.string.compressor_mode_standard_hint else R.string.compressor_mode_maximum_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (state.pdfMode == PdfCompressionMode.MAXIMUM) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FileCard(file: CompressorFile, removable: Boolean, onRemove: () -> Unit) {
+    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            FileThumb(file.kind, file.uri)
+            Column(Modifier.weight(1f)) {
+                Text(file.name, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                if (file.sizeBytes > 0) Text(formatBytes(file.sizeBytes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (removable) {
+                IconButton(onClick = onRemove) { Icon(Icons.Rounded.Close, stringResource(R.string.compressor_remove_file), tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+        }
+    }
+}
+
+/** A PDF shows an icon; an image shows its own preview. */
+@Composable
+private fun FileThumb(kind: CompressionKind, uri: String) {
+    if (kind == CompressionKind.PDF) {
+        Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = Modifier.size(44.dp)) {
+            Box(contentAlignment = Alignment.Center) { Icon(Icons.Rounded.PictureAsPdf, null, tint = MaterialTheme.colorScheme.primary) }
+        }
+    } else {
+        UriThumbnail(uri, Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)))
     }
 }
 
@@ -197,62 +200,105 @@ private fun PresetRow(preset: CompressionPreset, selected: Boolean, enabled: Boo
         CompressionPreset.BALANCED -> R.string.compressor_preset_balanced to R.string.compressor_preset_balanced_desc
         CompressionPreset.SMALLER -> R.string.compressor_preset_smaller to R.string.compressor_preset_smaller_desc
     }
-    Row(
-        Modifier.fillMaxWidth().selectable(selected = selected, enabled = enabled, role = Role.RadioButton, onClick = onSelect).padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        onClick = onSelect, enabled = enabled, shape = RoundedCornerShape(14.dp),
+        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        RadioButton(selected = selected, onClick = null, enabled = enabled)
-        Column(Modifier.padding(start = 12.dp)) {
-            Text(stringResource(title), style = MaterialTheme.typography.bodyLarge)
-            Text(stringResource(description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            RadioButton(selected = selected, onClick = null, enabled = enabled)
+            Column {
+                Text(stringResource(title), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+// ───────────────────────────── Results ─────────────────────────────
+
+@Composable
+private fun ResultsContent(state: CompressorUiState, share: ShareService, saveToDevice: SaveToDeviceAction, events: UiEventChannel) {
+    if (state.keptResults.isNotEmpty()) {
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(48.dp)) {
+                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Rounded.Check, null, tint = MaterialTheme.colorScheme.onSecondaryContainer) }
+                }
+                Column {
+                    Text(stringResource(R.string.compressor_total_saved_label), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(formatBytes(state.totalSaved), style = MaterialTheme.typography.headlineSmall)
+                }
+            }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        state.results.forEach { result -> ResultBlock(result, share, saveToDevice, events) }
+    }
+}
+
+@Composable
+private fun ResultBlock(result: CompressorResult, share: ShareService, saveToDevice: SaveToDeviceAction, events: UiEventChannel) {
+    val kept = result.outputUri != null
+    val failed = result.error != null
+    val barely = kept && result.verdict == CompressionVerdict.UNCHANGED
+    val percent = if (kept) CompressionPolicies.percentSaved(result.originalBytes, result.compressedBytes) else 0
+    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(result.outputName ?: result.name, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                    Text(
+                        when {
+                            failed -> result.error.asString()
+                            !kept -> stringResource(R.string.compressor_already_optimized)
+                            else -> stringResource(R.string.compressor_size_change, formatBytes(result.originalBytes), formatBytes(result.compressedBytes))
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                ResultChip(
+                    text = when {
+                        failed -> stringResource(R.string.compressor_chip_failed)
+                        !kept -> stringResource(R.string.compressor_chip_skipped)
+                        else -> stringResource(R.string.compressor_percent_saved, percent)
+                    },
+                    container = when { failed -> MaterialTheme.colorScheme.errorContainer; barely || !kept -> MaterialTheme.colorScheme.tertiaryContainer; else -> MaterialTheme.colorScheme.secondaryContainer },
+                    content = when { failed -> MaterialTheme.colorScheme.onErrorContainer; barely || !kept -> MaterialTheme.colorScheme.onTertiaryContainer; else -> MaterialTheme.colorScheme.onSecondaryContainer },
+                )
+            }
+            if (kept) {
+                val uri = result.outputUri
+                val mime = result.outputMime.orEmpty()
+                val name = result.outputName.orEmpty()
+                if (barely) Text(stringResource(R.string.compressor_barely_smaller, percent), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { runCatching { share.openManaged(uri, mime) }.onFailure { events.message(UiText.res(R.string.common_open_failed)) } },
+                        modifier = Modifier.weight(1f),
+                    ) { Icon(Icons.AutoMirrored.Rounded.OpenInNew, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.compressor_open)) }
+                    FilledTonalButton(
+                        onClick = { runCatching { share.shareManaged(uri, mime) }.onFailure { events.message(UiText.res(R.string.common_share_failed)) } },
+                        modifier = Modifier.weight(1f),
+                    ) { Icon(Icons.Rounded.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.compressor_share)) }
+                    FilledTonalButton(onClick = { saveToDevice.save(uri, name, mime) }, modifier = Modifier.weight(1f)) {
+                        Icon(Icons.Rounded.Download, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.compressor_save))
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ResultBlock(
-    result: CompressorResult,
-    share: ShareService,
-    saveToDevice: com.vextech.smart_edit.core.ui.SaveToDeviceAction,
-    events: UiEventChannel,
-) {
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        when {
-            result.error != null -> {
-                Text(result.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                ErrorText(result.error.asString())
-            }
-            result.outputUri == null -> ElevatedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(result.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                    Text(stringResource(R.string.compressor_already_optimized), style = MaterialTheme.typography.bodySmall)
-                }
-            }
-            else -> {
-                val mime = result.outputMime.orEmpty()
-                val uri = result.outputUri
-                val name = result.outputName.orEmpty()
-                ResultCard(
-                    name = name,
-                    sizeBytes = result.compressedBytes,
-                    onOpen = {
-                        runCatching { share.openManaged(uri, mime) }
-                            .onFailure { events.message(UiText.res(R.string.common_open_failed)) }
-                    },
-                    onShare = {
-                        runCatching { share.shareManaged(uri, mime) }
-                            .onFailure { events.message(UiText.res(R.string.common_share_failed)) }
-                    },
-                    onSaveToDevice = { saveToDevice.save(uri, name, mime) },
-                )
-                val percent = CompressionPolicies.percentSaved(result.originalBytes, result.compressedBytes)
-                Text(
-                    if (result.verdict == CompressionVerdict.UNCHANGED) stringResource(R.string.compressor_barely_smaller, percent)
-                    else stringResource(R.string.compressor_saved, percent, formatBytes(result.originalBytes), formatBytes(result.compressedBytes)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
+private fun ResultChip(text: String, container: androidx.compose.ui.graphics.Color, content: androidx.compose.ui.graphics.Color) {
+    Surface(shape = RoundedCornerShape(8.dp), color = container) {
+        Text(text, Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelMedium, color = content)
     }
+}
+
+@Composable
+private fun SectionLabel(text: String) {
+    Text(text, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }

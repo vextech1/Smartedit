@@ -11,6 +11,8 @@ import com.vextech.smart_edit.feature.converter.domain.ConversionRequest
 import com.vextech.smart_edit.feature.converter.domain.ConverterFailure
 import com.vextech.smart_edit.feature.converter.domain.ConverterMessageKey
 import com.vextech.smart_edit.feature.converter.domain.ConverterOptions
+import com.vextech.smart_edit.feature.converter.domain.ConverterPageSize
+import com.vextech.smart_edit.feature.converter.domain.ConverterPolicies
 import com.vextech.smart_edit.feature.converter.domain.ConverterOutput
 import com.vextech.smart_edit.feature.converter.domain.ConverterSource
 import com.vextech.smart_edit.feature.converter.domain.ConverterSourceKind
@@ -18,6 +20,7 @@ import com.vextech.smart_edit.feature.converter.domain.ConverterTarget
 import com.vextech.smart_edit.feature.converter.domain.ImageTargetFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -41,6 +44,13 @@ data class ConverterUiState(
     val progress: Float = 0f,
     val outputs: List<ConverterOutput> = emptyList(),
     val message: ConverterMessageKey? = null,
+    val pageSize: ConverterPageSize = ConverterPageSize.FIT_IMAGE,
+    /** Page count of the selected PDF, once it could be read. Null while unknown or still locked. */
+    val pageCount: Int? = null,
+    val pdfProtected: Boolean = false,
+    val passwordError: Boolean = false,
+    /** True only for a result just produced; false when an older output is reopened from history. */
+    val freshResult: Boolean = false,
 )
 
 @HiltViewModel
@@ -66,29 +76,55 @@ class ConverterViewModel @Inject constructor(
         if (uri.lastPathSegment.orEmpty().endsWith(".pdf", ignoreCase = true)) selectPdf(uri) else selectImages(listOf(uri))
     }
 
+    private suspend fun readImages(uris: List<Uri>): List<ConverterSource> = withContext(io) {
+        uris.mapNotNull { uri ->
+            metadataReader.persistReadPermission(uri)
+            runCatching { metadataReader.read(uri) }.getOrNull()?.let { meta ->
+                if (meta.mimeType.startsWith("image/")) ConverterSource(uri.toString(), meta.name, meta.mimeType, meta.size) else null
+            }
+        }
+    }
+
     fun selectImages(uris: List<Uri>) {
         if (uris.isEmpty()) return
         viewModelScope.launch {
-            val sources = withContext(io) {
-                uris.mapNotNull { uri ->
-                    metadataReader.persistReadPermission(uri)
-                    runCatching { metadataReader.read(uri) }.getOrNull()?.let { meta ->
-                        if (meta.mimeType.startsWith("image/")) {
-                            ConverterSource(uri.toString(), meta.name, meta.mimeType, meta.size)
-                        } else null
-                    }
-                }
-            }
+            val sources = readImages(uris)
             _state.value = if (sources.isEmpty()) {
                 _state.value.copy(message = ConverterMessageKey.IMAGE_SOURCE_REQUIRED)
             } else {
-                ConverterUiState(
-                    sourceKind = ConverterSourceKind.IMAGES,
-                    sources = sources,
-                    target = ConverterTarget.PDF,
-                )
+                ConverterUiState(sourceKind = ConverterSourceKind.IMAGES, sources = sources, target = ConverterTarget.PDF)
             }
         }
+    }
+
+    /** Appends more images to the current selection (duplicates are ignored). */
+    fun addImages(uris: List<Uri>) {
+        if (uris.isEmpty() || _state.value.busy) return
+        viewModelScope.launch {
+            val added = readImages(uris)
+            val current = _state.value
+            if (added.isEmpty()) {
+                _state.value = current.copy(message = ConverterMessageKey.IMAGE_SOURCE_REQUIRED)
+            } else {
+                val known = current.sources.map { it.uri }.toSet()
+                _state.value = current.copy(sources = current.sources + added.filter { it.uri !in known }, outputs = emptyList(), message = null)
+            }
+        }
+    }
+
+    fun removeImage(index: Int) {
+        val current = _state.value
+        if (current.busy || index !in current.sources.indices) return
+        _state.value = if (current.sources.size == 1) ConverterUiState()
+        else current.copy(sources = current.sources.filterIndexed { i, _ -> i != index }, outputs = emptyList(), message = null)
+    }
+
+    fun moveImage(from: Int, to: Int) {
+        val current = _state.value
+        if (current.busy || from !in current.sources.indices || to !in current.sources.indices || from == to) return
+        val list = current.sources.toMutableList()
+        list.add(to, list.removeAt(from))
+        _state.value = current.copy(sources = list, outputs = emptyList(), message = null)
     }
 
     fun selectPdf(uri: Uri) {
@@ -108,6 +144,11 @@ class ConverterViewModel @Inject constructor(
                     sources = listOf(source),
                     target = ConverterTarget.PDF_IMAGES_ZIP,
                 )
+                // Learn the page count, and whether a password is needed, before the user presses Convert.
+                val info = runCatching { repository.inspectPdf(source, "") }.getOrNull()
+                if (info != null && _state.value.sources.firstOrNull()?.uri == source.uri) {
+                    _state.value = _state.value.copy(pageCount = info.pageCount, pdfProtected = info.passwordRequired)
+                }
             }
         }
     }
@@ -115,6 +156,27 @@ class ConverterViewModel @Inject constructor(
     fun setTarget(target: ConverterTarget) {
         if (_state.value.busy) return
         _state.value = _state.value.copy(target = target, outputs = emptyList(), message = null)
+    }
+
+    fun setPageSize(value: ConverterPageSize) {
+        _state.value = _state.value.copy(pageSize = value)
+    }
+
+    /** Leaves the result screen: back to the options when a source is still selected, else to the start. */
+    fun dismissResult() {
+        _state.value = if (_state.value.sources.isEmpty()) ConverterUiState() else _state.value.copy(outputs = emptyList(), message = null, freshResult = false)
+    }
+
+    /** Reopens the output of a finished conversion from the history list. */
+    fun openJob(job: ConversionJob) {
+        val uri = job.outputUri ?: return
+        if (!job.status.equals("COMPLETED", ignoreCase = true) || _state.value.busy) return
+        val file = runCatching { File(java.net.URI(uri)) }.getOrNull()
+        _state.value = if (file == null || !file.exists()) {
+            _state.value.copy(message = ConverterMessageKey.OUTPUT_MISSING)
+        } else {
+            ConverterUiState(outputs = listOf(ConverterOutput(file.name, uri, ConverterPolicies.mimeForExtension(file.extension), file.length())))
+        }
     }
 
     fun setQuality(value: Int) {
@@ -130,7 +192,7 @@ class ConverterViewModel @Inject constructor(
     }
 
     fun setPdfPassword(value: String) {
-        _state.value = _state.value.copy(pdfPassword = value)
+        _state.value = _state.value.copy(pdfPassword = value, passwordError = false)
     }
 
     fun clearMessage() {
@@ -153,8 +215,18 @@ class ConverterViewModel @Inject constructor(
             return
         }
         conversionJob = viewModelScope.launch {
-            _state.value = _state.value.copy(busy = true, progress = 0f, outputs = emptyList(), message = null)
+            _state.value = _state.value.copy(busy = true, progress = 0f, outputs = emptyList(), message = null, passwordError = false, freshResult = false)
             try {
+                val locked = _state.value
+                if (locked.sourceKind == ConverterSourceKind.PDF && locked.pdfProtected && locked.pageCount == null) {
+                    // Check the password first so a wrong one is reported next to the field, before any work starts.
+                    val info = repository.inspectPdf(locked.sources.first(), locked.pdfPassword)
+                    if (!info.unlocked) {
+                        _state.value = _state.value.copy(busy = false, progress = 0f, passwordError = true, message = ConverterMessageKey.PASSWORD_REQUIRED_OR_INCORRECT)
+                        return@launch
+                    }
+                    _state.value = _state.value.copy(pageCount = info.pageCount)
+                }
                 val result = repository.convert(request) { progress ->
                     _state.value = _state.value.copy(progress = progress.coerceIn(0f, 1f))
                 }
@@ -162,6 +234,7 @@ class ConverterViewModel @Inject constructor(
                     busy = false,
                     progress = 1f,
                     outputs = result.outputs,
+                    freshResult = true,
                     message = ConverterMessageKey.CONVERSION_COMPLETE,
                 )
             } catch (_: CancellationException) {
@@ -171,7 +244,10 @@ class ConverterViewModel @Inject constructor(
                     message = ConverterMessageKey.CONVERSION_CANCELLED,
                 )
             } catch (failure: ConverterFailure) {
-                _state.value = _state.value.copy(busy = false, progress = 0f, message = failure.key)
+                _state.value = _state.value.copy(
+                    busy = false, progress = 0f, message = failure.key,
+                    passwordError = failure.key == ConverterMessageKey.PASSWORD_REQUIRED_OR_INCORRECT,
+                )
             } catch (_: Throwable) {
                 _state.value = _state.value.copy(
                     busy = false,
@@ -192,6 +268,7 @@ class ConverterViewModel @Inject constructor(
             dpi = current.dpi,
             pageRange = current.pageRange,
             pdfPassword = current.pdfPassword,
+            pageSize = current.pageSize,
         )
         return when (current.sourceKind) {
             ConverterSourceKind.IMAGES -> when (target) {

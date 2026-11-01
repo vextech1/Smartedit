@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -40,7 +40,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.library.SearchFilter
 import com.vextech.smart_edit.core.library.SearchPolicies
@@ -50,6 +50,7 @@ import com.vextech.smart_edit.core.sharing.ShareService
 import com.vextech.smart_edit.core.ui.CollectUiEvents
 import com.vextech.smart_edit.core.ui.EmptyState
 import com.vextech.smart_edit.core.ui.FeatureScaffold
+import com.vextech.smart_edit.core.ui.TileRowRich
 import com.vextech.smart_edit.core.ui.UiEventChannel
 import com.vextech.smart_edit.core.ui.UiText
 
@@ -77,6 +78,7 @@ fun SearchScreen(
                 onValueChange = { query = it; vm.onQuery(it) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
                 placeholder = { Text(stringResource(R.string.search_hint)) },
                 leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                 trailingIcon = {
@@ -135,14 +137,18 @@ fun SearchScreen(
 private fun HitRow(hit: SearchHit, terms: List<String>, onClick: () -> Unit) {
     val isNote = hit.type == ResourceType.NOTE
     val title = hit.title.ifBlank { stringResource(R.string.notes_untitled) }
-    ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
-        leadingContent = { Icon(if (isNote) Icons.Rounded.Notes else Icons.Rounded.Description, contentDescription = null) },
-        overlineContent = { Text(stringResource(if (isNote) R.string.search_type_note else R.string.search_type_file)) },
-        headlineContent = { Text(highlight(title, terms), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        supportingContent = if (isNote && hit.snippet.isNotBlank()) {
-            { Text(highlight(hit.snippet, terms), maxLines = 3, overflow = TextOverflow.Ellipsis) }
-        } else null,
+    val typeLabel = stringResource(if (isNote) R.string.search_type_note else R.string.search_type_file)
+    val snippet = if (isNote && hit.snippet.isNotBlank()) highlight(hit.snippet, terms) else null
+    TileRowRich(
+        icon = if (isNote) Icons.AutoMirrored.Rounded.Notes else Icons.Rounded.Description,
+        title = highlight(title, terms),
+        subtitle = buildAnnotatedString {
+            append(typeLabel)
+            if (snippet != null) { append(" · "); append(snippet) }
+        },
+        iconTint = if (isNote) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        onClick = onClick,
     )
 }
 

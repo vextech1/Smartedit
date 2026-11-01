@@ -48,13 +48,26 @@ class NotesViewModel @Inject constructor(private val repository: NotesRepository
     fun togglePin(note: Note) = run(R.string.notes_action_failed) { repository.setPinned(note.id, !note.isPinned) }
     fun toggleFavorite(note: Note) = run(R.string.notes_action_failed) { repository.setFavorite(note.id, !note.isFavorite) }
 
+    fun setPinned(notes: List<Note>, pinned: Boolean) = run(R.string.notes_action_failed) {
+        notes.filter { it.isPinned != pinned }.forEach { repository.setPinned(it.id, pinned) }
+    }
+
+    fun setFavorite(notes: List<Note>, favorite: Boolean) = run(R.string.notes_action_failed) {
+        notes.filter { it.isFavorite != favorite }.forEach { repository.setFavorite(it.id, favorite) }
+    }
+
+    fun moveToTrash(notes: List<Note>) = run(R.string.notes_action_failed) {
+        notes.forEach { repository.moveToTrash(it.id) }
+        events.message(UiText.res(R.string.notes_trashed), UiAction(UiText.res(R.string.notes_undo), UNDO_PREFIX + notes.joinToString(",") { it.id }))
+    }
+
     fun moveToTrash(note: Note) = run(R.string.notes_action_failed) {
         repository.moveToTrash(note.id)
         events.message(UiText.res(R.string.notes_trashed), UiAction(UiText.res(R.string.notes_undo), UNDO_PREFIX + note.id))
     }
 
     fun onAction(id: String) {
-        if (id.startsWith(UNDO_PREFIX)) run(R.string.notes_action_failed) { repository.restore(id.removePrefix(UNDO_PREFIX)) }
+        if (id.startsWith(UNDO_PREFIX)) run(R.string.notes_action_failed) { id.removePrefix(UNDO_PREFIX).split(",").filter(String::isNotEmpty).forEach { repository.restore(it) } }
     }
 
     private fun run(failure: Int, block: suspend () -> Unit) {

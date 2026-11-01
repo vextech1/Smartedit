@@ -18,7 +18,7 @@ data class CropQuad(val topLeft: NormalizedPoint, val topRight: NormalizedPoint,
 enum class ScanFilter { ORIGINAL, GRAYSCALE, BLACK_WHITE, ENHANCE }
 enum class ScanStatus { DRAFT, EXPORTED }
 
-data class ScanPageDraft(val id:String, val position:Int, val renderedUri:String, val filter:ScanFilter, val rotationDegrees:Int, val ocrText:String?, val ocrLanguage:String?)
+data class ScanPageDraft(val id:String, val position:Int, val renderedUri:String, val filter:ScanFilter, val rotationDegrees:Int, val ocrText:String?, val ocrLanguage:String?, val originalUri:String = "", val cropPoints:String = "0,0;1,0;1,1;0,1", val updatedAt:Long = 0L)
 
 data class ScanSessionDraft(val id:String, val title:String, val status:ScanStatus, val pages:List<ScanPageDraft>, val exportedPdfUri:String?)
 
@@ -30,4 +30,15 @@ object ScannerPolicies {
     }
     fun normalizeRotation(degrees: Int): Int = ((degrees % 360) + 360) % 360
     fun canExport(pageCount: Int) = pageCount > 0
+}
+
+/**
+ * A page's orientation packed into the existing `rotationDegrees` column (no schema change):
+ * `value = rotation (0/90/180/270) + 360 if mirrored`. Old rows (0..270) decode as "not mirrored".
+ * Edits apply in this order: crop, then mirror (left-right), then rotate.
+ */
+object PageOrientation {
+    fun encode(rotation: Int, flipped: Boolean): Int = ScannerPolicies.normalizeRotation(rotation) + if (flipped) 360 else 0
+    fun rotation(value: Int): Int = ScannerPolicies.normalizeRotation(value % 360)
+    fun flipped(value: Int): Boolean = value >= 360
 }

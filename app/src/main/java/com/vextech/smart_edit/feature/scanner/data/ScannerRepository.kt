@@ -29,6 +29,8 @@ import javax.inject.Singleton
 interface ScannerRepository {
     fun observeSessions(): Flow<List<ScanSessionEntity>>
     fun observeSession(id:String): Flow<ScanSessionDraft?>
+    fun observeCovers(): Flow<List<com.vextech.smart_edit.core.database.dao.ScanCover>>
+    suspend fun rename(sessionId:String, title:String)
     suspend fun createSession(title:String = "Scan"): String
     suspend fun addPages(sessionId:String, sources:List<Uri>)
     suspend fun deletePage(sessionId:String, pageId:String)
@@ -51,6 +53,11 @@ class AndroidScannerRepository @Inject constructor(
 ) : ScannerRepository {
     private val io: CoroutineDispatcher = Dispatchers.IO
     override fun observeSessions() = db.scanSessionDao().observeAll()
+    override fun observeCovers() = db.scanPageDao().observeCovers()
+    override suspend fun rename(sessionId:String, title:String) = withContext(io) {
+        val session=requireNotNull(db.scanSessionDao().get(sessionId))
+        db.scanSessionDao().upsert(session.copy(title=title.trim().take(60).ifBlank { "Scan" },updatedAt=System.currentTimeMillis()))
+    }
     override fun observeSession(id:String): Flow<ScanSessionDraft?> = combine(db.scanSessionDao().observe(id), db.scanPageDao().observeForSession(id)) { session,pages ->
         session?.let { s -> ScanSessionDraft(s.id,s.title,ScanStatus.valueOf(s.status),pages.map { it.toDraft() },s.exportedPdfUri) }
     }
@@ -86,13 +93,14 @@ class AndroidScannerRepository @Inject constructor(
         val page=requireNotNull(db.scanPageDao().get(pageId)); val original=requireFile(page.originalUri)
         var bitmap=images.decode(original)
         val warped=PerspectiveCropper.crop(bitmap,crop); if(warped!==bitmap) bitmap.recycle(); bitmap=warped
-        val rot=ScannerPolicies.normalizeRotation(rotationDegrees)
+        val rot=PageOrientation.rotation(rotationDegrees); val flipped=PageOrientation.flipped(rotationDegrees)
+        if(flipped) { val next=images.flipHorizontal(bitmap); bitmap.recycle(); bitmap=next }
         if(rot!=0) { val next=images.rotate(bitmap,rot.toFloat()); bitmap.recycle(); bitmap=next }
         val filtered=when(filter){ ScanFilter.ORIGINAL->bitmap; ScanFilter.GRAYSCALE->images.grayscale(bitmap); ScanFilter.BLACK_WHITE->images.blackAndWhite(bitmap); ScanFilter.ENHANCE->images.adjust(bitmap,8f,1.12f,.85f) }
         if(filtered!==bitmap) bitmap.recycle()
         val out=store.writeBitmap(filtered,store.scansDir,"${page.id}_rendered.jpg",Bitmap.CompressFormat.JPEG,94); filtered.recycle()
         store.asFile(page.renderedUri)?.takeIf { it.absolutePath!=original.absolutePath }?.delete()
-        db.scanPageDao().upsert(page.copy(croppedUri=out.toURI().toString(),renderedUri=out.toURI().toString(),cropPoints=crop.encode(),rotationDegrees=rot,filter=filter.name,updatedAt=System.currentTimeMillis()))
+        db.scanPageDao().upsert(page.copy(croppedUri=out.toURI().toString(),renderedUri=out.toURI().toString(),cropPoints=crop.encode(),rotationDegrees=PageOrientation.encode(rot,flipped),filter=filter.name,updatedAt=System.currentTimeMillis()))
         touch(page.sessionId)
     }
     override suspend fun runOcr(pageId:String)=withContext(io) {
@@ -103,7 +111,7 @@ class AndroidScannerRepository @Inject constructor(
         val session=requireNotNull(db.scanSessionDao().get(sessionId)); val pages=db.scanPageDao().forSession(sessionId); require(ScannerPolicies.canExport(pages.size))
         val bitmaps=pages.map { images.decode(requireFile(it.renderedUri)) }
         try {
-            val out=store.uniqueFile(store.scansDir,"${session.title.ifBlank{"Scan"}}_${System.currentTimeMillis()}.pdf")
+            val out=store.uniqueFile(store.scansDir,"${session.title.ifBlank{"Scan"}.replace(Regex("[\\\\/:*?\"<>|]"),"_")}_${System.currentTimeMillis()}.pdf")
             pdf.imagesToPdf(bitmaps,out)
             appRepo.registerFile(out,ResourceType.PDF,"application/pdf")
             appRepo.recordHistory(HistoryAction.SCANNED,"Scanned ${pages.size} page${if(pages.size==1)"" else "s"}",ResourceType.SCAN,sessionId,out.toURI().toString(),out.name)
@@ -119,7 +127,7 @@ class AndroidScannerRepository @Inject constructor(
     private suspend fun touch(id:String) { db.scanSessionDao().get(id)?.let { db.scanSessionDao().upsert(it.copy(updatedAt=System.currentTimeMillis())) } }
     private fun requireFile(uri:String)=requireNotNull(store.asFile(uri)) { "Managed scan file required" }.also { require(it.exists()) }
     private fun cleanupPageFiles(p:ScanPageEntity) { setOf(p.originalUri,p.croppedUri,p.renderedUri).mapNotNull(store::asFile).forEach(File::delete) }
-    private fun ScanPageEntity.toDraft()=ScanPageDraft(id,position,renderedUri,ScanFilter.valueOf(filter),rotationDegrees,ocrText,ocrLanguage)
+    private fun ScanPageEntity.toDraft()=ScanPageDraft(id,position,renderedUri,ScanFilter.valueOf(filter),rotationDegrees,ocrText,ocrLanguage,originalUri,cropPoints,updatedAt)
 }
 
 object PerspectiveCropper {

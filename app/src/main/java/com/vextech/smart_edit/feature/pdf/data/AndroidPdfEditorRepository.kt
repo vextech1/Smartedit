@@ -71,7 +71,7 @@ class AndroidPdfEditorRepository @Inject constructor(
         }
     }
 
-    override suspend fun close(sessionId: String, discard: Boolean = true): Unit = withContext(io) {
+    override suspend fun close(sessionId: String, discard: Boolean): Unit = withContext(io) {
         val holder = sessions.remove(sessionId)
         if (holder != null && (discard || !holder.dirty)) {
             holder.dir.deleteRecursively()

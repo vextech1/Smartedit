@@ -1,6 +1,7 @@
 package com.vextech.smart_edit.feature.notes
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -39,6 +40,16 @@ class NoteEditorViewModel @Inject constructor(private val repository: NotesRepos
         private set
     var load by mutableStateOf(EditorLoad.LOADING)
         private set
+    var isPinned by mutableStateOf(false)
+        private set
+    var isFavorite by mutableStateOf(false)
+        private set
+    /** True once the note exists in storage, so pin, favorite and trash have something to act on. */
+    var isStored by mutableStateOf(false)
+        private set
+    /** When the note was last written; 0 for a note that has not been saved yet. */
+    var updatedAt by mutableLongStateOf(0L)
+        private set
 
     private var started = false
     private var noteId: String? = null
@@ -50,6 +61,34 @@ class NoteEditorViewModel @Inject constructor(private val repository: NotesRepos
     fun onTitle(value: String) { title = value }
     fun onContent(value: String) { content = value }
     fun onTags(value: String) { tags = value }
+
+    fun addTag(raw: String) {
+        val combined = NotePolicies.parseTags(tags + "," + raw)
+        tags = NotePolicies.tagsForEditing(combined)
+    }
+
+    fun removeTag(tag: String) {
+        tags = NotePolicies.tagsForEditing(NotePolicies.parseTags(tags).filterNot { it.equals(tag, ignoreCase = true) })
+    }
+
+    fun togglePin() {
+        val id = noteId ?: return
+        viewModelScope.launch { runCatching { repository.setPinned(id, !isPinned) }.onSuccess { isPinned = !isPinned } }
+    }
+
+    fun toggleFavorite() {
+        val id = noteId ?: return
+        viewModelScope.launch { runCatching { repository.setFavorite(id, !isFavorite) }.onSuccess { isFavorite = !isFavorite } }
+    }
+
+    /** Moves the note to the trash after saving anything pending, then leaves the editor. */
+    fun trash(onDone: () -> Unit) {
+        viewModelScope.launch {
+            if (load == EditorLoad.READY) persist(Draft(title, content, tags), finishing = false)
+            noteId?.let { runCatching { repository.moveToTrash(it) } }
+            onDone()
+        }
+    }
 
     fun start(id: String?) {
         if (started) return
@@ -70,6 +109,10 @@ class NoteEditorViewModel @Inject constructor(private val repository: NotesRepos
             title = note.title
             content = note.content
             tags = NotePolicies.tagsForEditing(note.tags)
+            isPinned = note.isPinned
+            isFavorite = note.isFavorite
+            isStored = true
+            updatedAt = note.updatedAt
             lastSaved = Draft(title, content, tags)
             load = EditorLoad.READY
             watchForChanges()
@@ -110,6 +153,8 @@ class NoteEditorViewModel @Inject constructor(private val repository: NotesRepos
             if (isFirstSave) createdThisSession = true
             unrecordedEdit = if (record) false else unrecordedEdit || (!isFirstSave && !createdThisSession)
             noteId = saved.id
+            isStored = true
+            updatedAt = saved.updatedAt
             lastSaved = draft
             status = SaveStatus.SAVED
         } catch (cancelled: CancellationException) {

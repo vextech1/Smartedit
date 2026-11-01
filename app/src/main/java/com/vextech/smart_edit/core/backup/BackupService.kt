@@ -159,7 +159,7 @@ class BackupService @Inject constructor(
     private fun sha256(file: File): String = MessageDigest.getInstance("SHA-256").let { md -> file.inputStream().use { input -> val b=ByteArray(64*1024); while(true){ val n=input.read(b); if(n<0) break; md.update(b,0,n) } }; md.digest().joinToString("") { "%02x".format(it) } }
     private inline fun JSONArray.forEachObject(block: (JSONObject)->Unit) { for(i in 0 until length()) block(getJSONObject(i)) }
     private fun JSONObject.s(k:String)=getString(k)
-    private fun JSONObject.ns(k:String)=if(isNull(k)) null else optString(k,null)
+    private fun JSONObject.ns(k:String)=if(!has(k) || isNull(k)) null else getString(k)
     private fun JSONObject.l(k:String)=getLong(k)
     private fun JSONObject.nl(k:String)=if(isNull(k)) null else getLong(k)
     private fun JSONObject.i(k:String)=getInt(k)
