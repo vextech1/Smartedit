@@ -377,23 +377,13 @@
     <string name="pdf_redaction_requires_unprotected">Remove PDF password protection before applying secure redaction. You can reapply protection afterward.</string>
 
     <!-- Converter -->
-    <string name="converter_intro">Convert images and PDFs into useful output formats. Long conversions can be cancelled and every completed output is saved in Smart Edit.</string>
-    <string name="converter_choose_images">Choose images</string>
-    <string name="converter_choose_pdf">Choose PDF</string>
-    <string name="converter_images_selected">%1$d images selected</string>
-    <string name="converter_output_format">Output format</string>
     <string name="converter_pdf_password">PDF password</string>
-    <string name="converter_pdf_password_hint">Only needed for protected PDFs</string>
-    <string name="converter_page_options">Page options</string>
     <string name="converter_page_range">Pages</string>
     <string name="converter_page_range_hint">Use all or a range such as 1-3,5</string>
     <string name="converter_resolution">Resolution: %1$d DPI</string>
     <string name="converter_quality">Quality: %1$d%%</string>
     <string name="converter_docx_note">DOCX conversion creates an editable text document from extractable PDF text. Complex page layout may not be preserved.</string>
-    <string name="converter_progress">Converting… %1$d%%</string>
     <string name="converter_cancel_conversion">Cancel conversion</string>
-    <string name="converter_start">Convert</string>
-    <string name="converter_outputs">Outputs</string>
     <string name="converter_recent_jobs">Recent conversions</string>
     <string name="converter_target_pdf">PDF</string>
     <string name="converter_target_jpeg">JPEG</string>
