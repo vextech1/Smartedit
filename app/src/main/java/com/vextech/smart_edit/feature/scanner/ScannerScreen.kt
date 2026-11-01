@@ -1,391 +1,86 @@
 package com.vextech.smart_edit.feature.scanner
 
 import android.app.Activity
-import android.text.format.DateUtils
-import androidx.activity.compose.BackHandler
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items as gridItems
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.mlkit.vision.documentscanner.*
 import com.vextech.smart_edit.R
-import com.vextech.smart_edit.core.database.dao.ScanCover
-import com.vextech.smart_edit.core.database.entity.ScanSessionEntity
-import com.vextech.smart_edit.core.sharing.ShareService
 import com.vextech.smart_edit.core.ui.FeatureScaffold
-import com.vextech.smart_edit.core.ui.ImageScrim
-import com.vextech.smart_edit.core.ui.UiText
-import com.vextech.smart_edit.core.ui.rememberSaveToDevice
 import com.vextech.smart_edit.feature.scanner.domain.*
 
 @Composable
-fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: ShareService, vm: ScannerViewModel = hiltViewModel()) {
-    val state by vm.state.collectAsState()
-    val context = LocalContext.current
-    val activity = context as Activity
+fun ScannerScreen(onBack:()->Unit,onLiveCamera:(String)->Unit,vm:ScannerViewModel=hiltViewModel()) {
+    val state by vm.state.collectAsState(); val context=LocalContext.current; val activity=context as Activity
     var edit by remember { mutableStateOf<ScanPageDraft?>(null) }
-    var selectedId by remember { mutableStateOf<String?>(null) }
-    var confirmDiscard by remember { mutableStateOf(false) }
-    var renaming by remember { mutableStateOf(false) }
-    var localMessage by remember { mutableStateOf<UiText?>(null) }
-    val saveToDevice = rememberSaveToDevice(share) { localMessage = it }
-
-    val gallery = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.isNotEmpty()) vm.importUris(it) }
-    val scanLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) GmsDocumentScanningResult.fromActivityResultIntent(result.data)?.let(vm::importScanResult)
-    }
-    val scanner = remember {
-        GmsDocumentScanning.getClient(
-            GmsDocumentScannerOptions.Builder().setGalleryImportAllowed(true).setPageLimit(50)
-                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG).setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL).build()
-        )
-    }
-    fun autoScan() { scanner.getStartScanIntent(activity).addOnSuccessListener { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) }.addOnFailureListener { vm.error() } }
-    fun importImages() = gallery.launch(arrayOf("image/*"))
-
-    val msg = state.message?.let { scannerMessage(it) } ?: localMessage?.asString()
-    LaunchedEffect(msg) { if (msg != null) { kotlinx.coroutines.delay(2500); vm.clearMessage(); localMessage = null } }
-
-    val session = state.session
-    val editing = edit
-    BackHandler(enabled = session != null && editing == null) { vm.closeSession() }
-
-    if (editing != null) {
-        ScanPageEditor(editing, { edit = null }) { crop, filter, rotation -> vm.editPage(editing.id, crop, filter, rotation); edit = null }
-    } else {
-        FeatureScaffold(
-            title = session?.title ?: stringResource(R.string.scanner_title),
-            onBack = { if (session != null) vm.closeSession() else onBack() },
-            actions = {
-                if (session != null) {
-                    var menu by remember { mutableStateOf(false) }
-                    IconButton(onClick = { renaming = true }) { Icon(Icons.Rounded.Edit, stringResource(R.string.scanner_rename)) }
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Rounded.MoreVert, stringResource(R.string.scanner_more_options)) }
-                    DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.scanner_discard)) },
-                            leadingIcon = { Icon(Icons.Rounded.Delete, null) },
-                            onClick = { menu = false; confirmDiscard = true },
-                        )
-                    }
-                }
-            },
-        ) { padding ->
-            Column(Modifier.fillMaxSize().padding(padding)) {
-                if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-                msg?.let {
-                    Surface(Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                        Text(it, Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    }
-                }
-                if (session == null) {
-                    ScannerHome(
-                        recent = state.recentSessions, covers = state.covers, busy = state.busy,
-                        onNew = { vm.newSession() },
-                        onCamera = { vm.newSession(onLiveCamera) },
-                        onImport = ::importImages, onAuto = ::autoScan,
-                        onOpen = { selectedId = null; vm.openSession(it) },
-                    )
-                } else {
-                    val selected = session.pages.firstOrNull { it.id == selectedId } ?: session.pages.firstOrNull()
-                    ScannerSession(
-                        session = session, selected = selected, busy = state.busy,
-                        onSelect = { selectedId = it.id },
-                        onMove = { from, to -> vm.movePage(from, to) },
-                        onEdit = { edit = it }, onOcr = { vm.ocr(it.id) }, onDelete = { vm.deletePage(it.id) },
-                        onCamera = { onLiveCamera(session.id) }, onImport = ::importImages, onAuto = ::autoScan,
-                        onExport = vm::export,
-                        onOpenPdf = { uri -> runCatching { share.openManaged(uri, "application/pdf") }.onFailure { localMessage = UiText.res(R.string.common_open_failed) } },
-                        onSharePdf = { uri -> runCatching { share.shareManaged(uri, "application/pdf") }.onFailure { localMessage = UiText.res(R.string.common_share_failed) } },
-                        onSavePdf = { uri -> saveToDevice.save(uri, android.net.Uri.parse(uri).lastPathSegment ?: "scan.pdf", "application/pdf") },
-                    )
-                }
-            }
-        }
-    }
-
-    if (renaming && session != null) {
-        RenameDialog(session.title, { renaming = false }) { renaming = false; vm.rename(it) }
-    }
-
-    if (confirmDiscard) {
-        AlertDialog(
-            onDismissRequest = { confirmDiscard = false },
-            title = { Text(stringResource(R.string.scanner_discard)) },
-            confirmButton = { TextButton(onClick = { confirmDiscard = false; vm.discard() }) { Text(stringResource(R.string.scanner_discard)) } },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(android.R.string.cancel)) } },
-        )
-    }
-}
-
-// ───────────────────────────── Home ─────────────────────────────
-
-@Composable
-private fun ScannerHome(
-    recent: List<ScanSessionEntity>, covers: Map<String, ScanCover>, busy: Boolean,
-    onNew: () -> Unit, onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onOpen: (String) -> Unit,
-) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item {
-            Button(onClick = onNew, enabled = !busy, modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                Icon(Icons.Rounded.Add, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.scanner_new_session))
-            }
-        }
-        item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ActionTile(Icons.Rounded.PhotoCamera, stringResource(R.string.scanner_live_camera), !busy, onCamera, Modifier.weight(1f))
-                ActionTile(Icons.Rounded.AddPhotoAlternate, stringResource(R.string.scanner_import), !busy, onImport, Modifier.weight(1f))
-                ActionTile(Icons.Rounded.DocumentScanner, stringResource(R.string.scanner_auto), !busy, onAuto, Modifier.weight(1f))
-            }
-        }
-        if (recent.isEmpty()) {
-            item { Text(stringResource(R.string.scanner_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        } else {
-            item { Text(stringResource(R.string.scanner_recent_scans), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            items(recent.take(20), key = { it.id }) { RecentScanCard(it, covers[it.id]) { onOpen(it.id) } }
-        }
-    }
-}
-
-@Composable
-private fun ActionTile(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(onClick = onClick, enabled = enabled, modifier = modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
-        Column(Modifier.padding(vertical = 16.dp, horizontal = 4.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2)
-        }
-    }
-}
-
-@Composable
-private fun RecentScanCard(session: ScanSessionEntity, cover: ScanCover?, onClick: () -> Unit) {
-    Surface(onClick = onClick, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (cover != null) {
-                ScanThumbnail(cover.renderedUri, Modifier.size(56.dp, 72.dp).clip(RoundedCornerShape(8.dp)), version = cover.updatedAt, maxDim = 256)
+    val gallery=rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if(it.isNotEmpty()) vm.importUris(it) }
+    val scanLauncher=rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result -> if(result.resultCode==Activity.RESULT_OK) GmsDocumentScanningResult.fromActivityResultIntent(result.data)?.let(vm::importScanResult) }
+    val scanner=remember { GmsDocumentScanning.getClient(GmsDocumentScannerOptions.Builder().setGalleryImportAllowed(true).setPageLimit(50).setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG).setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL).build()) }
+    fun autoScan(){ scanner.getStartScanIntent(activity).addOnSuccessListener { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) }.addOnFailureListener { vm.error() } }
+    val msg=state.message?.let { scannerMessage(it) }
+    LaunchedEffect(msg){ if(msg!=null) { kotlinx.coroutines.delay(2500); vm.clearMessage() } }
+    FeatureScaffold(stringResource(R.string.scanner_title),onBack,actions={
+        IconButton(onClick={ vm.newSession(onLiveCamera) },enabled=!state.busy){ Icon(Icons.Rounded.PhotoCamera,stringResource(R.string.scanner_live_camera)) }
+        IconButton(onClick={ gallery.launch(arrayOf("image/*")) },enabled=!state.busy){ Icon(Icons.Rounded.AddPhotoAlternate,stringResource(R.string.scanner_import)) }
+        IconButton(onClick=::autoScan,enabled=!state.busy){ Icon(Icons.Rounded.DocumentScanner,stringResource(R.string.scanner_auto)) }
+    }) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).padding(12.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            if(state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+            msg?.let { Text(it,color=MaterialTheme.colorScheme.primary) }
+            val session=state.session
+            if(session==null) {
+                Text(stringResource(R.string.scanner_intro),style=MaterialTheme.typography.bodyLarge)
+                Button(onClick={vm.newSession()},enabled=!state.busy){ Text(stringResource(R.string.scanner_new_session)) }
+                state.recentSessions.take(8).forEach { recent -> TextButton(onClick={vm.openSession(recent.id)}) { Text("${recent.title} • ${recent.status}") } }
             } else {
-                Box(Modifier.size(56.dp, 72.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.Description, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(session.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                val whenText = DateUtils.getRelativeTimeSpanString(session.updatedAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()
-                Text(
-                    if (cover != null) stringResource(R.string.scanner_session_summary, stringResource(R.string.scanner_pages_count, cover.pageCount), whenText) else whenText,
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                StatusChip(session.status == ScanStatus.EXPORTED.name)
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusChip(exported: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = if (exported) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer,
-    ) {
-        Text(
-            stringResource(if (exported) R.string.scanner_status_exported else R.string.scanner_status_draft),
-            Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall,
-            color = if (exported) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onTertiaryContainer,
-        )
-    }
-}
-
-// ───────────────────────────── Session ─────────────────────────────
-
-@Composable
-private fun ColumnScope.ScannerSession(
-    session: ScanSessionDraft, selected: ScanPageDraft?, busy: Boolean,
-    onSelect: (ScanPageDraft) -> Unit, onMove: (Int, Int) -> Unit,
-    onEdit: (ScanPageDraft) -> Unit, onOcr: (ScanPageDraft) -> Unit, onDelete: (ScanPageDraft) -> Unit,
-    onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onExport: () -> Unit,
-    onOpenPdf: (String) -> Unit, onSharePdf: (String) -> Unit, onSavePdf: (String) -> Unit,
-) {
-    val status = stringResource(if (session.status == ScanStatus.EXPORTED) R.string.scanner_status_exported else R.string.scanner_status_draft)
-    Text(
-        stringResource(R.string.scanner_session_summary, stringResource(R.string.scanner_pages_count, session.pages.size), status),
-        Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    session.exportedPdfUri?.takeIf { session.status == ScanStatus.EXPORTED }?.let { uri ->
-        ExportedPdfCard(
-            name = android.net.Uri.parse(uri).lastPathSegment ?: uri,
-            onOpen = { onOpenPdf(uri) }, onShare = { onSharePdf(uri) }, onSave = { onSavePdf(uri) },
-        )
-    }
-    if (session.pages.isEmpty()) {
-        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.scanner_empty_session), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    } else {
-        LazyVerticalGrid(
-            GridCells.Fixed(2), Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            gridItems(session.pages, key = { it.id }) { page ->
-                val index = session.pages.indexOf(page)
-                PageTile(
-                    number = index + 1, page = page, selected = page.id == selected?.id,
-                    canLeft = index > 0, canRight = index < session.pages.lastIndex,
-                    onClick = { onSelect(page) }, onLeft = { onMove(index, index - 1) }, onRight = { onMove(index, index + 1) },
-                )
-            }
-        }
-    }
-    SessionBar(
-        enabledPageActions = selected != null && !busy, canExport = session.pages.isNotEmpty() && !busy,
-        onEdit = { selected?.let(onEdit) }, onOcr = { selected?.let(onOcr) }, onDelete = { selected?.let(onDelete) },
-        onCamera = onCamera, onImport = onImport, onAuto = onAuto, onExport = onExport,
-    )
-}
-
-@Composable
-private fun PageTile(number: Int, page: ScanPageDraft, selected: Boolean, canLeft: Boolean, canRight: Boolean, onClick: () -> Unit, onLeft: () -> Unit, onRight: () -> Unit) {
-    val shape = RoundedCornerShape(14.dp)
-    Box(
-        Modifier.fillMaxWidth().aspectRatio(3f / 4f).clip(shape)
-            .then(if (selected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, shape) else Modifier)
-            .clickable(onClick = onClick),
-    ) {
-        ScanThumbnail(page.renderedUri, Modifier.fillMaxSize(), version = page.updatedAt)
-        Surface(Modifier.align(Alignment.TopStart).padding(8.dp), shape = CircleShape, color = ImageScrim) {
-            Text("$number", Modifier.padding(horizontal = 9.dp, vertical = 3.dp), color = Color.White, style = MaterialTheme.typography.labelMedium)
-        }
-        if (!page.ocrText.isNullOrBlank()) {
-            Surface(Modifier.align(Alignment.BottomStart).padding(8.dp), shape = RoundedCornerShape(8.dp), color = ImageScrim) {
-                Text(stringResource(R.string.scanner_ocr_done), Modifier.padding(horizontal = 8.dp, vertical = 3.dp), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
-            }
-        }
-        if (selected && (canLeft || canRight)) {
-            Row(Modifier.align(Alignment.BottomEnd).padding(6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (canLeft) TileArrow(Icons.Rounded.ChevronLeft, stringResource(R.string.scanner_move_left), onLeft)
-                if (canRight) TileArrow(Icons.Rounded.ChevronRight, stringResource(R.string.scanner_move_right), onRight)
-            }
-        }
-    }
-}
-
-@Composable
-private fun TileArrow(icon: ImageVector, description: String, onClick: () -> Unit) {
-    Surface(onClick = onClick, shape = CircleShape, color = ImageScrim, modifier = Modifier.size(36.dp)) {
-        Box(contentAlignment = Alignment.Center) { Icon(icon, description, tint = Color.White) }
-    }
-}
-
-@Composable
-private fun SessionBar(
-    enabledPageActions: Boolean, canExport: Boolean,
-    onEdit: () -> Unit, onOcr: () -> Unit, onDelete: () -> Unit,
-    onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onExport: () -> Unit,
-) {
-    Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
-        Column(Modifier.navigationBarsPadding().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                BarAction(Icons.Rounded.Edit, stringResource(R.string.scanner_edit), enabledPageActions, onClick = onEdit)
-                BarAction(Icons.Rounded.TextFields, stringResource(R.string.scanner_run_ocr), enabledPageActions, onClick = onOcr)
-                Box {
-                    var menu by remember { mutableStateOf(false) }
-                    BarAction(Icons.Rounded.Add, stringResource(R.string.scanner_add_page), true, onClick = { menu = true })
-                    DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem(text = { Text(stringResource(R.string.scanner_live_camera)) }, leadingIcon = { Icon(Icons.Rounded.PhotoCamera, null) }, onClick = { menu = false; onCamera() })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.scanner_import)) }, leadingIcon = { Icon(Icons.Rounded.AddPhotoAlternate, null) }, onClick = { menu = false; onImport() })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.scanner_auto)) }, leadingIcon = { Icon(Icons.Rounded.DocumentScanner, null) }, onClick = { menu = false; onAuto() })
+                Text(session.title,style=MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.scanner_pages_count,session.pages.size))
+                LazyRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    itemsIndexed(session.pages,key={_,p->p.id}) { index,page ->
+                        ElevatedCard { Column(Modifier.width(180.dp).padding(10.dp)) {
+                            Text(stringResource(R.string.scanner_page_number,index+1),style=MaterialTheme.typography.titleMedium)
+                            Text(page.filter.name.replace('_',' '),style=MaterialTheme.typography.bodySmall)
+                            page.ocrText?.takeIf(String::isNotBlank)?.let { Text(it.take(90),maxLines=3) }
+                            Row { IconButton(onClick={ if(index>0) vm.movePage(index,index-1) },enabled=index>0){Icon(Icons.Rounded.ArrowBack,"Move left")}; IconButton(onClick={ if(index<session.pages.lastIndex) vm.movePage(index,index+1) },enabled=index<session.pages.lastIndex){Icon(Icons.Rounded.ArrowForward,"Move right")} }
+                            Row { TextButton(onClick={edit=page}){Text(stringResource(R.string.scanner_edit))}; TextButton(onClick={vm.ocr(page.id)}){Text("OCR")}; IconButton(onClick={vm.deletePage(page.id)}){Icon(Icons.Rounded.Delete,stringResource(R.string.scanner_delete_page))} }
+                        } }
                     }
                 }
-                BarAction(Icons.Rounded.Delete, stringResource(R.string.scanner_delete_short), enabledPageActions, MaterialTheme.colorScheme.error, onDelete)
-            }
-            Button(onClick = onExport, enabled = canExport, modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                Icon(Icons.Rounded.PictureAsPdf, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.scanner_export_pdf))
-            }
-        }
-    }
-}
-
-@Composable
-private fun BarAction(icon: ImageVector, label: String, enabled: Boolean, tint: Color = MaterialTheme.colorScheme.primary, onClick: () -> Unit) {
-    val color = if (enabled) tint else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-    Column(
-        Modifier.defaultMinSize(minWidth = 64.dp, minHeight = 48.dp).clip(RoundedCornerShape(12.dp)).clickable(enabled = enabled, onClick = onClick).padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        Icon(icon, null, tint = color)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = if (enabled) MaterialTheme.colorScheme.onSurface else color)
-    }
-}
-
-@Composable
-private fun scannerMessage(m: ScannerMessage) = stringResource(
-    when (m) {
-        ScannerMessage.SESSION_FAILED -> R.string.scanner_error_session
-        ScannerMessage.IMPORT_FAILED -> R.string.scanner_error_import
-        ScannerMessage.EDIT_FAILED -> R.string.scanner_error_edit
-        ScannerMessage.OCR_FAILED -> R.string.scanner_error_ocr
-        ScannerMessage.EXPORT_FAILED -> R.string.scanner_error_export
-        ScannerMessage.PAGE_DELETED -> R.string.scanner_page_deleted
-        ScannerMessage.EXPORTED -> R.string.scanner_exported
-    }
-)
-
-@Composable
-private fun RenameDialog(current: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
-    var name by remember { mutableStateOf(current) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.scanner_rename)) },
-        text = {
-            OutlinedTextField(
-                value = name, onValueChange = { name = it.take(60) }, singleLine = true,
-                label = { Text(stringResource(R.string.scanner_rename_label)) },
-            )
-        },
-        confirmButton = { TextButton(enabled = name.isNotBlank(), onClick = { onSave(name) }) { Text(stringResource(R.string.scanner_save)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) } },
-    )
-}
-
-@Composable
-private fun ExportedPdfCard(name: String, onOpen: () -> Unit, onShare: () -> Unit, onSave: () -> Unit) {
-    Surface(Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Icon(Icons.Rounded.PictureAsPdf, null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.scanner_pdf_ready), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                    Text(name, style = MaterialTheme.typography.bodyMedium, maxLines = 1, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    Button(onClick=vm::export,enabled=session.pages.isNotEmpty()&&!state.busy){ Icon(Icons.Rounded.PictureAsPdf,null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.scanner_export_pdf)) }
+                    OutlinedButton(onClick=vm::discard,enabled=!state.busy){ Text(stringResource(R.string.scanner_discard)) }
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onOpen, Modifier.weight(1f)) { Icon(Icons.Rounded.FileOpen, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.scanner_open_pdf)) }
-                OutlinedButton(onClick = onShare, Modifier.weight(1f)) { Icon(Icons.Rounded.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.scanner_share_pdf)) }
-                IconButton(onClick = onSave) { Icon(Icons.Rounded.Download, stringResource(R.string.scanner_save_pdf), tint = MaterialTheme.colorScheme.onSecondaryContainer) }
+                session.exportedPdfUri?.let { Text(stringResource(R.string.scanner_pdf_ready)) }
             }
         }
     }
+    edit?.let { page -> ScanEditDialog(page,{edit=null}) { crop,filter,rotation -> vm.editPage(page.id,crop,filter,rotation); edit=null } }
 }
+
+@Composable private fun ScanEditDialog(page:ScanPageDraft,onDismiss:()->Unit,onApply:(CropQuad,ScanFilter,Int)->Unit){
+    var left by remember{mutableFloatStateOf(0f)}; var top by remember{mutableFloatStateOf(0f)}; var right by remember{mutableFloatStateOf(1f)}; var bottom by remember{mutableFloatStateOf(1f)}
+    var filter by remember{mutableStateOf(page.filter)}; var rotation by remember{mutableIntStateOf(page.rotationDegrees)}
+    AlertDialog(onDismissRequest=onDismiss,title={Text(stringResource(R.string.scanner_edit_page))},text={ Column {
+        Text(stringResource(R.string.scanner_crop_left)); Slider(left,{left=it},valueRange=0f..0.8f)
+        Text(stringResource(R.string.scanner_crop_top)); Slider(top,{top=it},valueRange=0f..0.8f)
+        Text(stringResource(R.string.scanner_crop_right)); Slider(right,{right=it},valueRange=0.2f..1f)
+        Text(stringResource(R.string.scanner_crop_bottom)); Slider(bottom,{bottom=it},valueRange=0.2f..1f)
+        SingleChoiceSegmentedButtonRow { ScanFilter.entries.forEachIndexed { i,f -> SegmentedButton(selected=filter==f,onClick={filter=f},shape=SegmentedButtonDefaults.itemShape(i,ScanFilter.entries.size)){Text(f.name.replace('_',' '))} } }
+        TextButton(onClick={rotation=(rotation+90)%360}){Text(stringResource(R.string.scanner_rotate,rotation))}
+    } },confirmButton={Button(enabled=left<right&&top<bottom,onClick={onApply(CropQuad(NormalizedPoint(left,top),NormalizedPoint(right,top),NormalizedPoint(right,bottom),NormalizedPoint(left,bottom)),filter,rotation)}){Text(stringResource(R.string.scanner_apply))}},dismissButton={TextButton(onClick=onDismiss){Text(stringResource(android.R.string.cancel))}})
+}
+
+@Composable private fun scannerMessage(m:ScannerMessage)=stringResource(when(m){ScannerMessage.SESSION_FAILED->R.string.scanner_error_session;ScannerMessage.IMPORT_FAILED->R.string.scanner_error_import;ScannerMessage.EDIT_FAILED->R.string.scanner_error_edit;ScannerMessage.OCR_FAILED->R.string.scanner_error_ocr;ScannerMessage.EXPORT_FAILED->R.string.scanner_error_export;ScannerMessage.PAGE_DELETED->R.string.scanner_page_deleted;ScannerMessage.EXPORTED->R.string.scanner_exported})

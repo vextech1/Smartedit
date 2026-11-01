@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
@@ -25,8 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.library.FavoriteItem
 import com.vextech.smart_edit.core.sharing.ShareService
@@ -35,7 +34,6 @@ import com.vextech.smart_edit.core.ui.EmptyState
 import com.vextech.smart_edit.core.ui.FeatureScaffold
 import com.vextech.smart_edit.core.ui.LoadingState
 import com.vextech.smart_edit.core.ui.SectionHeader
-import com.vextech.smart_edit.core.ui.TileRow
 import com.vextech.smart_edit.core.ui.UiEventChannel
 import com.vextech.smart_edit.core.ui.UiText
 import com.vextech.smart_edit.core.ui.formatBytes
@@ -103,14 +101,12 @@ fun FavoritesScreen(
 
 @Composable
 private fun FavoriteRow(item: FavoriteItem, onClick: () -> Unit, onRemove: () -> Unit) {
-    TileRow(
-        icon = if (item.isNote) Icons.AutoMirrored.Rounded.Notes else Icons.Rounded.Description,
-        title = item.displayName.ifBlank { stringResource(R.string.notes_untitled) },
-        subtitle = item.sizeBytes?.let(::formatBytes),
-        iconTint = if (item.isNote) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        onClick = onClick,
-        trailing = {
+    ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
+        leadingContent = { Icon(if (item.isNote) Icons.Rounded.Notes else Icons.Rounded.Description, contentDescription = null) },
+        headlineContent = { Text(item.displayName.ifBlank { stringResource(R.string.notes_untitled) }, maxLines = 1) },
+        supportingContent = item.sizeBytes?.let { size -> { Text(formatBytes(size)) } },
+        trailingContent = {
             IconButton(onClick = onRemove) {
                 Icon(Icons.Rounded.Star, contentDescription = stringResource(R.string.favorites_remove), tint = MaterialTheme.colorScheme.tertiary)
             }

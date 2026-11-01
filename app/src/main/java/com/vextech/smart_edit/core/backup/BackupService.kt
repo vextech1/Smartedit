@@ -134,7 +134,7 @@ class BackupService @Inject constructor(
         state.optJSONObject("settings")?.let { o ->
             val restored = AppSettings(
                 theme = runCatching { ThemePreference.valueOf(o.optString("theme", "SYSTEM")) }.getOrDefault(ThemePreference.SYSTEM),
-                language = o.optString("language", "en"),
+                language = o.optString("language", ""),
                 notificationsEnabled = o.optBoolean("notificationsEnabled", true),
                 autoBackupEnabled = o.optBoolean("autoBackupEnabled", false),
                 confirmDeleteEnabled = o.optBoolean("confirmDeleteEnabled", true),

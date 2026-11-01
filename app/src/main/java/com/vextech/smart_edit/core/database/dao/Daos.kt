@@ -84,6 +84,9 @@ interface ScanSessionDao {
     @Query("SELECT * FROM scan_sessions WHERE id=:id LIMIT 1") suspend fun get(id: String): ScanSessionEntity?
     @Upsert suspend fun upsert(entity: ScanSessionEntity)
     @Query("DELETE FROM scan_sessions WHERE id=:id") suspend fun delete(id: String)
+    /** Draft sessions last touched before [before] that own no pages. */
+    @Query("SELECT id FROM scan_sessions WHERE status='DRAFT' AND updatedAt < :before AND id NOT IN (SELECT DISTINCT sessionId FROM scan_pages)")
+    suspend fun emptyDraftIds(before: Long): List<String>
 }
 
 /** First page (cover) and page count of a scan session, derived from scan_pages (no schema change). */

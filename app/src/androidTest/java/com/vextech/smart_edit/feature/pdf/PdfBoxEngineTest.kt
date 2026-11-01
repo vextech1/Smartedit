@@ -8,6 +8,7 @@ import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
+import com.tom_roush.pdfbox.pdmodel.encryption.InvalidPasswordException
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDAcroForm
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDTextField
@@ -15,6 +16,7 @@ import com.vextech.smart_edit.core.pdf.PdfBoxEngine
 import com.vextech.smart_edit.feature.pdf.domain.PdfRect
 import com.vextech.smart_edit.feature.pdf.domain.PdfSecurityOptions
 import java.io.File
+import java.util.concurrent.CancellationException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -238,6 +240,63 @@ class PdfBoxEngineTest {
         val parts = engine.split(merged, splitDir)
         assertThat(parts).hasSize(3)
         parts.forEach { assertThat(engine.pageCount(it)).isEqualTo(1) }
+    }
+
+    @Test
+    fun rasterCompress_reportsProgressAndWritesNothingWhenCancelled() {
+        val source = samplePdf("raster-progress.pdf", 3)
+        val reported = mutableListOf<Float>()
+        val output = file("raster-progress-out.pdf")
+        engine.rasterCompress(source, output, 72, 60, onProgress = { reported += it })
+        assertThat(engine.pageCount(output)).isEqualTo(3)
+        assertThat(reported.first()).isEqualTo(0f)
+        assertThat(reported.last()).isEqualTo(1f)
+        assertThat(reported).isInOrder()
+
+        val cancelled = file("raster-cancelled.pdf")
+        val failure = runCatching {
+            engine.rasterCompress(source, cancelled, 72, 60, onProgress = { if (it > 0f) throw CancellationException("stop") })
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(CancellationException::class.java)
+        assertThat(cancelled.exists()).isFalse()
+    }
+
+    @Test
+    fun rasterCompress_keepsTheShapeOfRotatedPages() {
+        val source = file("rotated-source.pdf")
+        PDDocument().use { document ->
+            document.addPage(PDPage(PDRectangle(200f, 100f)).apply { rotation = 90 })
+            document.save(source)
+        }
+        val output = file("rotated-raster.pdf")
+        engine.rasterCompress(source, output, 72, 60)
+
+        val page = engine.pageInfo(output).single()
+        assertThat(page.widthPoints).isWithin(0.5f).of(100f)
+        assertThat(page.heightPoints).isWithin(0.5f).of(200f)
+        assertThat(page.rotation).isEqualTo(0)
+    }
+
+    @Test
+    fun compression_keepsProtectedPdfProtectedAndNeedsThePassword() {
+        val source = samplePdf("compress-plain.pdf", 2)
+        val protected = file("compress-protected.pdf")
+        engine.protect(source, PdfSecurityOptions(userPassword = "reader", ownerPassword = "owner-secret"), protected)
+
+        val withoutPassword = runCatching { engine.optimizeImages(protected, file("no-password.pdf"), 1200, 60) }.exceptionOrNull()
+        assertThat(withoutPassword).isInstanceOf(InvalidPasswordException::class.java)
+        val wrongPassword = runCatching { engine.rasterCompress(protected, file("wrong-password.pdf"), 72, 60, password = "nope") }.exceptionOrNull()
+        assertThat(wrongPassword).isInstanceOf(InvalidPasswordException::class.java)
+
+        val optimized = file("optimized-protected.pdf")
+        engine.optimizeImages(protected, optimized, 1200, 60, password = "reader")
+        assertThat(runCatching { engine.pageCount(optimized) }.isFailure).isTrue()
+        assertThat(engine.pageCount(optimized, "reader")).isEqualTo(2)
+
+        val raster = file("raster-protected.pdf")
+        engine.rasterCompress(protected, raster, 72, 60, password = "reader")
+        assertThat(runCatching { engine.pageCount(raster) }.isFailure).isTrue()
+        assertThat(engine.pageCount(raster, "reader")).isEqualTo(2)
     }
 
     private fun formPdf(name: String): File {

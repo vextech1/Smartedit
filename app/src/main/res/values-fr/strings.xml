@@ -39,9 +39,8 @@
     <string name="scanner_title">Scanner</string>
     <string name="scanner_live_camera">Caméra en direct</string>
     <string name="scanner_import">Importer des images</string>
-    <string name="scanner_auto">Numérisation automatique</string>
-    <string name="scanner_intro">Créez une session, capturez les pages, vérifiez-les, lancez l’OCR puis exportez un PDF ordonné.</string>
-    <string name="scanner_new_session">Nouveau scan</string>
+    <string name="scanner_auto">Auto</string>
+    <string name="scanner_intro">Choisissez l’une des options ci-dessus pour numériser.</string>
     <string name="scanner_pages_count">%1$d pages</string>
     <string name="scanner_page_number">Page %1$d</string>
     <string name="scanner_edit">Modifier</string>
@@ -158,23 +157,13 @@
     <string name="pdf_redaction_requires_unprotected">Supprimez la protection par mot de passe du PDF avant d’appliquer un caviardage sécurisé. Vous pourrez la réactiver ensuite.</string>
 
     <!-- Converter -->
-    <string name="converter_intro">Convertissez des images et des PDF vers des formats de sortie utiles. Les conversions longues peuvent être annulées et chaque résultat terminé est enregistré dans Smart Edit.</string>
-    <string name="converter_choose_images">Choisir des images</string>
-    <string name="converter_choose_pdf">Choisir un PDF</string>
-    <string name="converter_images_selected">%1$d images sélectionnées</string>
-    <string name="converter_output_format">Format de sortie</string>
     <string name="converter_pdf_password">Mot de passe PDF</string>
-    <string name="converter_pdf_password_hint">Nécessaire uniquement pour les PDF protégés</string>
-    <string name="converter_page_options">Options de pages</string>
     <string name="converter_page_range">Pages</string>
     <string name="converter_page_range_hint">Utilisez all ou une plage comme 1-3,5</string>
     <string name="converter_resolution">Résolution : %1$d DPI</string>
     <string name="converter_quality">Qualité : %1$d%%</string>
     <string name="converter_docx_note">La conversion DOCX crée un document texte modifiable à partir du texte extractible du PDF. La mise en page complexe peut ne pas être conservée.</string>
-    <string name="converter_progress">Conversion… %1$d%%</string>
     <string name="converter_cancel_conversion">Annuler la conversion</string>
-    <string name="converter_start">Convertir</string>
-    <string name="converter_outputs">Résultats</string>
     <string name="converter_recent_jobs">Conversions récentes</string>
     <string name="converter_target_pdf">PDF</string>
     <string name="converter_target_jpeg">JPEG</string>
@@ -197,6 +186,43 @@
     <string name="converter_job_failed">Échec</string>
     <string name="converter_job_cancelled">Annulée</string>
     <string name="converter_job_running">En cours</string>
+    <string name="converter_add_images">Ajouter des images</string>
+    <string name="converter_change">Modifier</string>
+    <string name="converter_complete_title">Conversion terminée</string>
+    <string name="converter_convert_another">Convertir un autre fichier</string>
+    <string name="converter_convert_to">Convertir en</string>
+    <string name="converter_convert_to_format">Convertir en %1$s</string>
+    <string name="converter_error_output_missing">Ce fichier n’est plus disponible.</string>
+    <string name="converter_home_images">Images</string>
+    <string name="converter_home_images_desc">Créer un PDF ou changer le format des images</string>
+    <string name="converter_home_intro">Choisissez ce que vous voulez convertir. Chaque résultat est enregistré dans Smart Edit.</string>
+    <string name="converter_home_pdf">PDF</string>
+    <string name="converter_home_pdf_desc">Pages en images, Word ou texte brut</string>
+    <string name="converter_images_hint">%1$d images · %2$s · touchez une image pour la déplacer</string>
+    <string name="converter_move_image_left">Déplacer l’image plus tôt</string>
+    <string name="converter_move_image_right">Déplacer l’image plus tard</string>
+    <string name="converter_page_size">Taille de page</string>
+    <string name="converter_page_size_a4">A4</string>
+    <string name="converter_page_size_fit">Adapter à l’image</string>
+    <string name="converter_page_size_letter">Lettre US</string>
+    <string name="converter_pages_all">Toutes</string>
+    <string name="converter_pages_custom">Plage personnalisée</string>
+    <string name="converter_pdf_summary">%1$d pages · %2$s</string>
+    <string name="converter_progress_caption">%1$s → %2$s</string>
+    <string name="converter_protected_hint">Le mot de passe n’est utilisé que pour cette conversion.</string>
+    <string name="converter_protected_title">Ce PDF est protégé par mot de passe</string>
+    <string name="converter_remove_image">Supprimer l’image</string>
+    <string name="converter_saved_note">Enregistré dans Smart Edit</string>
+    <string name="converter_target_docx_desc">Texte modifiable issu du PDF</string>
+    <string name="converter_target_jpeg_zip_desc">Archive ZIP avec une image par page</string>
+    <string name="converter_target_png_zip_desc">Archive ZIP, images sans perte</string>
+    <string name="converter_target_text_desc">Texte brut uniquement</string>
+    <string name="converter_target_webp_zip_desc">Archive ZIP, fichiers plus légers</string>
+    <string name="converter_title_done">Terminé</string>
+    <string name="converter_title_images">Convertir des images</string>
+    <string name="converter_title_pdf">Convertir un PDF</string>
+    <string name="converter_title_progress">Conversion en cours</string>
+    <string name="converter_unlock_convert">Déverrouiller et convertir</string>
     <!-- Shared UI kit -->
     <string name="common_retry">Réessayer</string>
     <string name="common_loading">Chargement…</string>
@@ -360,7 +386,7 @@
     <string name="compressor_error_protected">Ce PDF est protégé par mot de passe.</string>
     <string name="compressor_limit_reached">Jusqu’à %1$d fichiers peuvent être compressés à la fois.</string>
     <string name="compressor_mode_maximum">Maximum</string>
-    <string name="compressor_mode_maximum_hint">Transforme chaque page en image pour une taille minimale. Le texte ne sera plus sélectionnable ni consultable.</string>
+    <string name="compressor_mode_maximum_hint">Transforme chaque page en image pour une taille minimale. Le texte ne sera plus sélectionnable ni consultable, et les liens, signets et champs de formulaire seront supprimés.</string>
     <string name="compressor_mode_standard">Conserver le texte</string>
     <string name="compressor_mode_standard_hint">Réduit les images du PDF. Le texte reste sélectionnable et consultable.</string>
     <string name="compressor_pdf_mode_title">Méthode pour les PDF</string>
@@ -442,4 +468,12 @@
         <item quantity="many">%1$d fichiers ont été ignorés car ce ne sont ni des PDF ni des images.</item>
         <item quantity="other">%1$d fichiers ont été ignorés car ce ne sont ni des PDF ni des images.</item>
     </plurals>
+    <string name="compressor_enter_password">Saisir le mot de passe</string>
+    <string name="compressor_no_images_hint">Aucune image de ce PDF n’a pu être réduite. Essayez la méthode Maximum pour le réduire davantage.</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="one">%1$d image réduite</item>
+        <item quantity="many">%1$d images réduites</item>
+        <item quantity="other">%1$d images réduites</item>
+    </plurals>
+    <string name="settings_language_system">Langue du système</string>
 </resources>

@@ -9,17 +9,11 @@ plugins {
 
 android {
     namespace = "com.vextech.smart_edit"
-    // Compose 1.12.1, Navigation3 1.2, Lifecycle 2.11, Core 1.19 and Hilt-Navigation 1.4 are built against
-    // API 37.1, so the app has to compile against it. targetSdk is unchanged: compileSdk only
-    // decides which APIs the compiler can see, runtime behavior stays that of targetSdk 36.
-    // minSdk is 24 because Navigation3 (navigation3-runtime 1.2.0) declares minSdk 24.
-    compileSdk {
-        version = release(37) { minorApiLevel = 1 }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.vextech.smart_edit"
-        minSdk = 24
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
@@ -99,7 +93,6 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.60.1")
     ksp("com.google.dagger:hilt-compiler:2.60.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
-    implementation("androidx.hilt:hilt-lifecycle-viewmodel-compose:1.4.0")
     implementation("androidx.hilt:hilt-work:1.4.0")
     ksp("androidx.hilt:hilt-compiler:1.4.0")
 

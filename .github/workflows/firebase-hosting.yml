@@ -1,0 +1,51 @@
+name: Deploy website (Firebase Hosting)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - 'firebase.json'
+      - '.firebaserc'
+      - 'tools/site_test/**'
+      - '.github/workflows/firebase-hosting.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Website tool tests
+        run: node tools/site_test/run.js
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-24.04
+    env:
+      FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      # Skip quietly (instead of failing) until the FIREBASE_SERVICE_ACCOUNT secret has been added.
+      - name: Check deploy secret
+        id: gate
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then
+            echo "::notice::FIREBASE_SERVICE_ACCOUNT secret is not set - skipping deploy"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: steps.gate.outputs.go == 'true'
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: smartedit-2000
+          channelId: live

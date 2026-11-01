@@ -13,10 +13,6 @@ class ImageProcessor @Inject constructor() {
         source, 0, 0, source.width, source.height, Matrix().apply { postRotate(degrees) }, true
     )
 
-    fun flipHorizontal(source: Bitmap): Bitmap = Bitmap.createBitmap(
-        source, 0, 0, source.width, source.height, Matrix().apply { postScale(-1f, 1f) }, true
-    )
-
     fun crop(source: Bitmap, left: Float, top: Float, right: Float, bottom: Float): Bitmap {
         val l = (source.width * left.coerceIn(0f, 1f)).toInt()
         val t = (source.height * top.coerceIn(0f, 1f)).toInt()

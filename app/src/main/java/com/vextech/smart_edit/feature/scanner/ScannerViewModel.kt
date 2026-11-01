@@ -16,25 +16,21 @@ enum class ScannerMessage { SESSION_FAILED, IMPORT_FAILED, EDIT_FAILED, OCR_FAIL
 data class ScannerUiState(
     val session: ScanSessionDraft? = null,
     val recentSessions: List<com.vextech.smart_edit.core.database.entity.ScanSessionEntity> = emptyList(),
-    val covers: Map<String, com.vextech.smart_edit.core.database.dao.ScanCover> = emptyMap(),
     val busy: Boolean = false,
     val message: ScannerMessage? = null,
 )
 
 @HiltViewModel
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ScannerViewModel @Inject constructor(private val repository: ScannerRepository) : ViewModel() {
     private val activeId=MutableStateFlow<String?>(null)
     private val busy=MutableStateFlow(false)
     private val message=MutableStateFlow<ScannerMessage?>(null)
     private val activeSession=activeId.flatMapLatest { id -> if(id==null) flowOf(null) else repository.observeSession(id) }
-    val state: StateFlow<ScannerUiState> = combine(activeSession,repository.observeSessions(),repository.observeCovers(),busy,message) { session,recent,covers,isBusy,msg -> ScannerUiState(session,recent,covers.associateBy { it.sessionId },isBusy,msg) }
+    val state: StateFlow<ScannerUiState> = combine(activeSession,repository.observeSessions(),busy,message) { session,recent,isBusy,msg -> ScannerUiState(session,recent,isBusy,msg) }
         .stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),ScannerUiState())
 
     fun clearMessage(){ message.value=null }
     fun openSession(id:String){ activeId.value=id }
-    fun closeSession(){ activeId.value=null }
-    fun rename(title:String)=activeId.value?.let { id -> task(ScannerMessage.EDIT_FAILED) { repository.rename(id,title) } }
     fun newSession(onReady:(String)->Unit = {}) = task(ScannerMessage.SESSION_FAILED) { repository.createSession().also { activeId.value=it; onReady(it) } }
     fun importUris(uris:List<Uri>) { ensureSession { id -> task(ScannerMessage.IMPORT_FAILED) { repository.addPages(id,uris) } } }
     fun importScanResult(result:GmsDocumentScanningResult) { importUris(result.pages.orEmpty().map { it.imageUri }) }

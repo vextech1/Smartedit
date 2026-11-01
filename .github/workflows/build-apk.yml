@@ -1,0 +1,84 @@
+name: Build debug APK
+
+on:
+  push:
+    paths-ignore:   # website-only changes don't need an APK build
+      - 'public/**'
+      - 'firebase.json'
+      - '.firebaserc'
+      - 'tools/site_test/**'
+      - '.github/workflows/firebase-hosting.yml'
+  workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      # gradle/gradle-daemon-jvm.properties asks for a JDK 25 daemon.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      # ubuntu-24.04 ships with the Android SDK at $ANDROID_HOME. Run sdkmanager under
+      # the preinstalled JDK 17 (it does not support JDK 25); Gradle still uses JDK 25.
+      - name: Install Android 37.1 platform and build tools
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          ls "$ANDROID_HOME" "$ANDROID_HOME/cmdline-tools" || true
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
+
+      # local.properties in the repo may point at a Windows path (C:\Android); replace it.
+      - name: Point Gradle at the SDK
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests (do not block the APK)
+        continue-on-error: true
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon testDebugUnitTest 2>&1 | tee test.log
+
+      - name: Build debug APK
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleDebug 2>&1 | tee build.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smart-edit-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload build reports if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            app/build/reports/**
+            app/build/test-results/**
+
+      # Publish logs to a branch so they can be read without downloading artifacts.
+      - name: Publish logs to ci-logs branch
+        if: always()
+        run: |
+          mkdir -p /tmp/logs && cp -f build.log test.log /tmp/logs/ 2>/dev/null || true
+          git config user.name "ci"; git config user.email "ci@example.com"
+          git checkout --orphan ci-logs
+          git rm -rf . > /dev/null 2>&1 || true
+          cp /tmp/logs/* . 2>/dev/null || true
+          git add build.log test.log
+          git commit -m "logs for ${GITHUB_SHA}" || true
+          git push -f origin ci-logs

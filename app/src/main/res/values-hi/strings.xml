@@ -39,9 +39,8 @@
     <string name="scanner_title">स्कैनर</string>
     <string name="scanner_live_camera">लाइव कैमरा</string>
     <string name="scanner_import">चित्र आयात करें</string>
-    <string name="scanner_auto">स्वचालित दस्तावेज़ स्कैन</string>
-    <string name="scanner_intro">स्कैन सत्र बनाएँ, पृष्ठ कैप्चर करें, समीक्षा करें, OCR चलाएँ और क्रमबद्ध PDF निर्यात करें।</string>
-    <string name="scanner_new_session">नया स्कैन</string>
+    <string name="scanner_auto">ऑटो</string>
+    <string name="scanner_intro">स्कैन करने के लिए ऊपर दिए गए विकल्पों में से चुनें।</string>
     <string name="scanner_pages_count">%1$d पृष्ठ</string>
     <string name="scanner_page_number">पृष्ठ %1$d</string>
     <string name="scanner_edit">संपादित करें</string>
@@ -158,23 +157,13 @@
     <string name="pdf_redaction_requires_unprotected">सुरक्षित रिडैक्शन लगाने से पहले PDF की पासवर्ड सुरक्षा हटाएँ। बाद में सुरक्षा फिर से लागू की जा सकती है।</string>
 
     <!-- Converter -->
-    <string name="converter_intro">छवियों और PDF को उपयोगी आउटपुट फ़ॉर्मैट में बदलें। लंबे रूपांतरण रद्द किए जा सकते हैं और हर पूर्ण आउटपुट Smart Edit में सहेजा जाता है।</string>
-    <string name="converter_choose_images">छवियाँ चुनें</string>
-    <string name="converter_choose_pdf">PDF चुनें</string>
-    <string name="converter_images_selected">%1$d छवियाँ चुनी गईं</string>
-    <string name="converter_output_format">आउटपुट फ़ॉर्मैट</string>
     <string name="converter_pdf_password">PDF पासवर्ड</string>
-    <string name="converter_pdf_password_hint">केवल सुरक्षित PDF के लिए आवश्यक</string>
-    <string name="converter_page_options">पेज विकल्प</string>
     <string name="converter_page_range">पेज</string>
     <string name="converter_page_range_hint">all या 1-3,5 जैसी रेंज उपयोग करें</string>
     <string name="converter_resolution">रिज़ॉल्यूशन: %1$d DPI</string>
     <string name="converter_quality">गुणवत्ता: %1$d%%</string>
     <string name="converter_docx_note">DOCX रूपांतरण PDF से निकाले जा सकने वाले टेक्स्ट का संपादन योग्य दस्तावेज़ बनाता है। जटिल पेज लेआउट सुरक्षित नहीं रह सकता।</string>
-    <string name="converter_progress">रूपांतरण… %1$d%%</string>
     <string name="converter_cancel_conversion">रूपांतरण रद्द करें</string>
-    <string name="converter_start">रूपांतरित करें</string>
-    <string name="converter_outputs">आउटपुट</string>
     <string name="converter_recent_jobs">हाल के रूपांतरण</string>
     <string name="converter_target_pdf">PDF</string>
     <string name="converter_target_jpeg">JPEG</string>
@@ -197,6 +186,43 @@
     <string name="converter_job_failed">विफल</string>
     <string name="converter_job_cancelled">रद्द</string>
     <string name="converter_job_running">चल रहा है</string>
+    <string name="converter_add_images">छवियाँ जोड़ें</string>
+    <string name="converter_change">बदलें</string>
+    <string name="converter_complete_title">रूपांतरण पूरा हुआ</string>
+    <string name="converter_convert_another">दूसरी फ़ाइल रूपांतरित करें</string>
+    <string name="converter_convert_to">इसमें रूपांतरित करें</string>
+    <string name="converter_convert_to_format">%1$s में रूपांतरित करें</string>
+    <string name="converter_error_output_missing">वह फ़ाइल अब उपलब्ध नहीं है।</string>
+    <string name="converter_home_images">छवियाँ</string>
+    <string name="converter_home_images_desc">PDF बनाएँ या छवि का फ़ॉर्मैट बदलें</string>
+    <string name="converter_home_intro">चुनें कि क्या रूपांतरित करना है। हर परिणाम Smart Edit में सहेजा जाता है।</string>
+    <string name="converter_home_pdf">PDF</string>
+    <string name="converter_home_pdf_desc">पेज से छवियाँ, Word या सादा टेक्स्ट</string>
+    <string name="converter_images_hint">%1$d छवियाँ · %2$s · किसी छवि को हिलाने के लिए उस पर टैप करें</string>
+    <string name="converter_move_image_left">छवि को पहले ले जाएँ</string>
+    <string name="converter_move_image_right">छवि को बाद में ले जाएँ</string>
+    <string name="converter_page_size">पेज का आकार</string>
+    <string name="converter_page_size_a4">A4</string>
+    <string name="converter_page_size_fit">छवि के अनुसार</string>
+    <string name="converter_page_size_letter">Letter</string>
+    <string name="converter_pages_all">सभी</string>
+    <string name="converter_pages_custom">कस्टम रेंज</string>
+    <string name="converter_pdf_summary">%1$d पेज · %2$s</string>
+    <string name="converter_progress_caption">%1$s → %2$s</string>
+    <string name="converter_protected_hint">पासवर्ड का उपयोग केवल इसी रूपांतरण के लिए किया जाता है।</string>
+    <string name="converter_protected_title">यह PDF पासवर्ड से सुरक्षित है</string>
+    <string name="converter_remove_image">छवि हटाएँ</string>
+    <string name="converter_saved_note">Smart Edit में सहेजा गया</string>
+    <string name="converter_target_docx_desc">PDF से संपादन योग्य टेक्स्ट</string>
+    <string name="converter_target_jpeg_zip_desc">हर पेज के लिए एक छवि वाली ZIP</string>
+    <string name="converter_target_png_zip_desc">ZIP, बिना गुणवत्ता हानि वाली छवियाँ</string>
+    <string name="converter_target_text_desc">केवल सादा टेक्स्ट</string>
+    <string name="converter_target_webp_zip_desc">ZIP, छोटी फ़ाइलें</string>
+    <string name="converter_title_done">पूरा हुआ</string>
+    <string name="converter_title_images">छवियाँ रूपांतरित करें</string>
+    <string name="converter_title_pdf">PDF रूपांतरित करें</string>
+    <string name="converter_title_progress">रूपांतरित हो रहा है</string>
+    <string name="converter_unlock_convert">अनलॉक करके रूपांतरित करें</string>
     <!-- Shared UI kit -->
     <string name="common_retry">पुनः प्रयास करें</string>
     <string name="common_loading">लोड हो रहा है…</string>
@@ -359,7 +385,7 @@
     <string name="compressor_error_protected">यह PDF पासवर्ड से सुरक्षित है।</string>
     <string name="compressor_limit_reached">एक बार में अधिकतम %1$d फ़ाइलें संपीड़ित की जा सकती हैं।</string>
     <string name="compressor_mode_maximum">अधिकतम</string>
-    <string name="compressor_mode_maximum_hint">सबसे छोटे आकार के लिए हर पेज को छवि में बदलता है। इसके बाद टेक्स्ट चुना या खोजा नहीं जा सकेगा।</string>
+    <string name="compressor_mode_maximum_hint">सबसे छोटे आकार के लिए हर पेज को छवि में बदलता है। इसके बाद टेक्स्ट चुना या खोजा नहीं जा सकेगा, और लिंक, बुकमार्क व फ़ॉर्म फ़ील्ड हट जाएँगे।</string>
     <string name="compressor_mode_standard">टेक्स्ट बनाए रखें</string>
     <string name="compressor_mode_standard_hint">PDF के अंदर की छवियाँ छोटी करता है। टेक्स्ट चुना और खोजा जा सकता है।</string>
     <string name="compressor_pdf_mode_title">PDF की विधि</string>
@@ -440,4 +466,11 @@
         <item quantity="one">%1$d फ़ाइल छोड़ी गई क्योंकि वह PDF या छवि नहीं है।</item>
         <item quantity="other">%1$d फ़ाइलें छोड़ी गईं क्योंकि वे PDF या छवियाँ नहीं हैं।</item>
     </plurals>
+    <string name="compressor_enter_password">पासवर्ड दर्ज करें</string>
+    <string name="compressor_no_images_hint">इस PDF की कोई भी छवि छोटी नहीं की जा सकी। इसे और छोटा करने के लिए “अधिकतम” तरीका आज़माएँ।</string>
+    <plurals name="compressor_images_shrunk">
+        <item quantity="one">%1$d छवि छोटी की गई</item>
+        <item quantity="other">%1$d छवियाँ छोटी की गईं</item>
+    </plurals>
+    <string name="settings_language_system">सिस्टम भाषा</string>
 </resources>

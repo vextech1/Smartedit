@@ -12,6 +12,8 @@ import com.vextech.smart_edit.core.library.CompressionPreset
 import com.vextech.smart_edit.core.library.CompressionVerdict
 import com.vextech.smart_edit.core.library.ImageOutput
 import com.vextech.smart_edit.core.library.PdfCompressionMode
+import com.vextech.smart_edit.core.library.PdfPasswordIssue
+import com.tom_roush.pdfbox.pdmodel.encryption.InvalidPasswordException
 import com.vextech.smart_edit.core.model.HistoryAction
 import com.vextech.smart_edit.core.model.ResourceType
 import com.vextech.smart_edit.core.pdf.PdfEngine
@@ -45,6 +47,9 @@ data class CompressionResult(
 
 class UnsupportedCompressionInputException(val name: String) : IllegalArgumentException("Unsupported file: $name")
 
+/** The PDF is protected. [issue] says whether no password was given or the given one was wrong. */
+class PdfPasswordException(val issue: PdfPasswordIssue) : IllegalArgumentException("PDF password ${issue.name.lowercase()}")
+
 @Singleton
 class CompressionService @Inject constructor(
     private val store: DocumentStore,
@@ -56,7 +61,9 @@ class CompressionService @Inject constructor(
 ) {
     /**
      * Compresses a PDF or an image. [onProgress] gets 0..1 when the work can report it.
+     * [password] opens a protected PDF; the compressed copy stays protected with it. It is never stored.
      * Partial files are always removed on failure or cancellation.
+     * @throws PdfPasswordException when a PDF needs a password or the one given is wrong.
      */
     suspend fun compress(
         uri: Uri,
@@ -64,6 +71,7 @@ class CompressionService @Inject constructor(
         mimeType: String,
         preset: CompressionPreset,
         pdfMode: PdfCompressionMode,
+        password: String? = null,
         onProgress: (Float) -> Unit = {},
     ): CompressionResult {
         val kind = CompressionPolicies.kindOf(displayName, mimeType)
@@ -75,13 +83,14 @@ class CompressionService @Inject constructor(
 
         var staged: File? = null
         var produced: File? = null
+        var sourceBytes = 0L
         try {
             val result = withContext(io) {
                 val input = store.stageContent(uri, if (kind == CompressionKind.PDF) ".pdf" else ".img").also { staged = it }
-                val originalBytes = input.length()
+                val originalBytes = input.length().also { sourceBytes = it }
                 val job = currentCoroutineContext()[Job]
                 when (kind) {
-                    CompressionKind.PDF -> compressPdf(input, displayName, originalBytes, preset, pdfMode, { job?.ensureActive(); onProgress(it) }) { produced = it }
+                    CompressionKind.PDF -> compressPdf(input, displayName, originalBytes, preset, pdfMode, password, { job?.ensureActive(); onProgress(it) }) { produced = it }
                     else -> compressImage(input, displayName, originalBytes, preset) { produced = it }
                 }
             }
@@ -102,13 +111,14 @@ class CompressionService @Inject constructor(
         } catch (cancelled: CancellationException) {
             withContext(NonCancellable) {
                 produced?.delete()
-                db.jobDao().upsert(jobRow(jobId, uri, null, sourceFormat, "compressed", 0, null, 0f, "CANCELLED", startedAt, System.currentTimeMillis(), null))
+                db.jobDao().upsert(jobRow(jobId, uri, null, sourceFormat, "compressed", sourceBytes, null, 0f, "CANCELLED", startedAt, System.currentTimeMillis(), null))
             }
             throw cancelled
         } catch (error: Exception) {
             produced?.delete()
-            db.jobDao().upsert(jobRow(jobId, uri, null, sourceFormat, "compressed", 0, null, 0f, "FAILED", startedAt, System.currentTimeMillis(), error.message))
-            throw error
+            val failure = if (error is InvalidPasswordException) PdfPasswordException(CompressionPolicies.passwordIssue(password)) else error
+            db.jobDao().upsert(jobRow(jobId, uri, null, sourceFormat, "compressed", sourceBytes, null, 0f, "FAILED", startedAt, System.currentTimeMillis(), failure.message))
+            throw failure
         } finally {
             staged?.delete()
         }
@@ -120,6 +130,7 @@ class CompressionService @Inject constructor(
         originalBytes: Long,
         preset: CompressionPreset,
         mode: PdfCompressionMode,
+        password: String?,
         onProgress: (Float) -> Unit,
         onOutput: (File) -> Unit,
     ): CompressionResult {
@@ -129,11 +140,11 @@ class CompressionService @Inject constructor(
         when (mode) {
             PdfCompressionMode.STANDARD -> {
                 val params = CompressionPolicies.embeddedImageParams(preset)
-                optimized = pdf.optimizeImages(input, target, params.maxDimension, params.jpegQuality, onProgress).imagesReplaced
+                optimized = pdf.optimizeImages(input, target, params.maxDimension, params.jpegQuality, onProgress, password).imagesReplaced
             }
             PdfCompressionMode.MAXIMUM -> {
                 val raster = CompressionPolicies.rasterParams(preset)
-                pdf.rasterCompress(input, target, raster.dpi, raster.jpegQuality)
+                pdf.rasterCompress(input, target, raster.dpi, raster.jpegQuality, password, onProgress)
             }
         }
         return finish(displayName, originalBytes, target, "application/pdf", optimized)
@@ -149,7 +160,7 @@ class CompressionService @Inject constructor(
         val params = CompressionPolicies.imageParams(preset)
         val bitmap = processor.decodeOriented(input, params.maxDimension)
         try {
-            val output = CompressionPolicies.imageOutput(bitmap.hasAlpha())
+            val output = CompressionPolicies.imageOutput(processor.hasTransparentPixels(bitmap))
             val format = if (output == ImageOutput.PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
             val target = store.writeBitmap(bitmap, store.compressedDir, CompressionPolicies.outputName(displayName, output.extension), format, params.jpegQuality)
             onOutput(target)

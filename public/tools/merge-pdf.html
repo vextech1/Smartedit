@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merge PDF files, free and private | Smart Edit</title>
+<meta name="description" content="Merge PDF files into one document in your browser. Free, private, no upload.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/">Smart Edit</a>
+  <nav><a href="/tools">Tools</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/contact">Contact</a></nav>
+</div></header>
+<main class="doc"><div class="wrap">
+<h1>Merge PDFs</h1>
+<p>Combine several PDF files into one, in the order you choose.</p>
+<div class="tool" id="tool" data-tool="merge-pdf">
+  <input id="file" class="sr" type="file" accept="application/pdf" multiple>
+  <label class="drop" for="file">Choose PDF files<small>Nothing is uploaded. Use the arrows to set the order.</small></label>
+  
+  <ul id="list" class="filelist"></ul>
+  <button type="button" class="btn" id="run" disabled style="margin-top:14px">Merge PDFs</button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="result" class="results"></div>
+  <noscript><p class="warn">This tool needs JavaScript. Please turn it on in your browser.</p></noscript>
+</div>
+<p class="sub">Your files never leave your device. Nothing is uploaded, and there is no sign-up.</p>
+<h2>How it works</h2>
+<ol><li>Choose two or more PDF files.</li><li>Use ▲ and ▼ to set the order.</li><li>Tap <strong>Merge PDFs</strong> and download the result.</li></ol><p>Password-protected or damaged files can’t be merged. The tool will tell you which one is the problem. Remove the password in your PDF app first.</p>
+<p>Want the same tools on your phone, plus a document scanner, PDF editing and text recognition? See <a href="/">the Smart Edit app</a>.</p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <a href="/tools">Free tools</a><a href="/faq">FAQ</a><a href="/privacy">Privacy policy</a><a href="/terms">Terms of use</a><a href="/contact">Contact</a><a href="/delete-account">Delete your account</a>
+  <p>© 2026 Smart Edit. Files you scan, convert or edit stay on your device.</p>
+</div></footer>
+<script src="/vendor/pdf-lib-1.17.1.min.js" defer></script>
+<script src="/js/common.js" defer></script>
+<script src="/js/pdf-tools.js" defer></script>
+</body>
+</html>

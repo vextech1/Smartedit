@@ -125,7 +125,7 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 rememberViewModelStoreNavEntryDecorator(),
             ),
             entryProvider = entryProvider {
-                entry<HomeRoute> { HomeScreen(onOpen = ::push, share = shareService) }
+                entry<HomeRoute> { HomeScreen(onOpen = ::push) }
                 entry<FilesTabRoute> {
                     FilesTabScreen(
                         share = shareService,
@@ -138,14 +138,14 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 entry<ActivityRoute> { HistoryScreen(onBack = null, share = shareService) }
                 entry<ProfileRoute> { ProfileScreen(onOpen = ::push) }
 
-                entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService) }
+                entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }) }
                 entry<LiveCameraRoute> { route -> LiveCameraScreen(route.sessionId, ::back) }
                 entry<OcrRoute> { route -> OcrScreen(::back, shareService, initialUri = route.uri) }
                 entry<PdfToolsRoute> { route -> PdfToolsScreen(::back, shareService, adsService, initialUri = route.uri) }
                 entry<ConverterRoute> { route -> ConverterScreen(::back, shareService, adsService, initialUri = route.uri) }
                 entry<CompressorRoute> { route -> CompressorScreen(::back, shareService, adsService, initialUri = route.uri) }
                 entry<ImageEditorRoute> { route -> ImageEditorScreen(::back, shareService, adsService, initialUri = route.uri) }
-                entry<NoteEditorRoute> { route -> NoteEditorScreen(route.noteId, ::back, shareService) }
+                entry<NoteEditorRoute> { route -> NoteEditorScreen(route.noteId, ::back) }
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }
                 entry<BackupRoute> { BackupScreen(::back, shareService) }

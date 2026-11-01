@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "239509467852",
-    "project_id": "smart-edit-2b7a0",
-    "storage_bucket": "smart-edit-2b7a0.firebasestorage.app"
+    "project_number": "221746697920",
+    "project_id": "smartedit-2000",
+    "storage_bucket": "smartedit-2000.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:239509467852:android:241f9c841b376723028869",
+        "mobilesdk_app_id": "1:221746697920:android:2f21337fe430b3bc12ff25",
         "android_client_info": {
-          "package_name": "com.vextech.smart_edit"
+          "package_name": "com.vextech.smartedit"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB0SsQL9yE5LbN4_0hMXAMEwxQfsFodUAA"
+          "current_key": "AIzaSyAhKtmVrdzSheAqoRB08Ijef5YM3dSKozc"
         }
       ],
       "services": {

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Images to PDF, free and private | Smart Edit</title>
+<meta name="description" content="Combine JPG, PNG and WebP images into a single PDF in your browser. Free, no upload.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="/">Smart Edit</a>
+  <nav><a href="/tools">Tools</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/contact">Contact</a></nav>
+</div></header>
+<main class="doc"><div class="wrap">
+<h1>Images to PDF</h1>
+<p>Turn photos and scans into one PDF. Put the pages in order, choose a page size and download.</p>
+<div class="tool" id="tool" data-tool="images-to-pdf">
+  <input id="file" class="sr" type="file" accept="image/*" multiple>
+  <label class="drop" for="file">Choose images<small>Nothing is uploaded. Use the arrows to set the order.</small></label>
+  <div class="opts"><label>Page size<select id="size"><option value="fit">Fit to each image</option><option value="a4">A4</option><option value="letter">US Letter</option></select></label><label>Margin<select id="margin"><option value="0">None</option><option value="36">Small</option><option value="72">Large</option></select></label></div>
+  <ul id="list" class="filelist"></ul>
+  <button type="button" class="btn" id="run" disabled style="margin-top:14px">Create PDF</button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="result" class="results"></div>
+  <noscript><p class="warn">This tool needs JavaScript. Please turn it on in your browser.</p></noscript>
+</div>
+<p class="sub">Your files never leave your device. Nothing is uploaded, and there is no sign-up.</p>
+<h2>How it works</h2>
+<ol><li>Choose your images. You can add more later.</li><li>Use ▲ and ▼ to put the pages in order, and ✕ to remove one.</li><li>Pick a page size and tap <strong>Create PDF</strong>.</li></ol><p>Photos are saved at high quality (very large images are scaled down to keep the PDF a sensible size). With A4 or Letter, wide images get landscape pages automatically.</p>
+<p>Want the same tools on your phone, plus a document scanner, PDF editing and text recognition? See <a href="/">the Smart Edit app</a>.</p>
+</div></main>
+<footer class="site"><div class="wrap">
+  <a href="/tools">Free tools</a><a href="/faq">FAQ</a><a href="/privacy">Privacy policy</a><a href="/terms">Terms of use</a><a href="/contact">Contact</a><a href="/delete-account">Delete your account</a>
+  <p>© 2026 Smart Edit. Files you scan, convert or edit stay on your device.</p>
+</div></footer>
+<script src="/vendor/pdf-lib-1.17.1.min.js" defer></script>
+<script src="/js/common.js" defer></script>
+<script src="/js/pdf-tools.js" defer></script>
+</body>
+</html>

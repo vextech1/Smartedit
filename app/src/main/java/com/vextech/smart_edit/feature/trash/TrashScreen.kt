@@ -1,11 +1,5 @@
 package com.vextech.smart_edit.feature.trash
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.automirrored.rounded.Notes
-import androidx.compose.material3.Surface
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,6 +10,7 @@ import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Notes
 import androidx.compose.material.icons.rounded.RestoreFromTrash
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.vextech.smart_edit.R
 import com.vextech.smart_edit.core.library.TrashItem
 import com.vextech.smart_edit.core.library.TrashKind
@@ -43,7 +37,6 @@ import com.vextech.smart_edit.core.ui.EmptyState
 import com.vextech.smart_edit.core.ui.FeatureScaffold
 import com.vextech.smart_edit.core.ui.LoadingState
 import com.vextech.smart_edit.core.ui.SectionHeader
-import com.vextech.smart_edit.core.ui.TileRow
 import com.vextech.smart_edit.core.ui.UiText
 import com.vextech.smart_edit.core.ui.formatBytes
 
@@ -73,20 +66,6 @@ fun TrashScreen(onBack: () -> Unit, vm: TrashViewModel = hiltViewModel()) {
                 Modifier.padding(padding),
             )
             else -> LazyColumn(Modifier.fillMaxSize().padding(padding)) {
-                item(key = "retention_note") {
-                    Surface(
-                        Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer,
-                    ) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(Icons.Rounded.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Text(
-                                stringResource(R.string.trash_empty_message, TrashPolicies.DEFAULT_RETENTION_DAYS),
-                                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
                 if (state.files.isNotEmpty()) {
                     item(key = "header_files") { SectionHeader(stringResource(R.string.trash_section_files)) }
                     items(state.files, key = { "file_" + it.id }) { item ->
@@ -132,20 +111,23 @@ private fun TrashRow(item: TrashItem, onRestore: () -> Unit, onDelete: () -> Uni
         else UiText.plural(R.plurals.trash_days_left, days, days).asString()
     }
     val detail = listOfNotNull(item.sizeBytes?.let(::formatBytes), expiry).joinToString(" · ")
-    TileRow(
-        icon = when {
-            item.kind == TrashKind.NOTE -> Icons.AutoMirrored.Rounded.Notes
-            item.isDirectory -> Icons.Rounded.Folder
-            else -> Icons.Rounded.Description
+    ListItem(
+        leadingContent = {
+            Icon(
+                when {
+                    item.kind == TrashKind.NOTE -> Icons.Rounded.Notes
+                    item.isDirectory -> Icons.Rounded.Folder
+                    else -> Icons.Rounded.Description
+                },
+                contentDescription = null,
+            )
         },
-        title = item.name.ifBlank { stringResource(R.string.notes_untitled) },
-        subtitle = detail.ifEmpty { null },
-        iconTint = if (item.kind == TrashKind.NOTE) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        trailing = {
+        headlineContent = { Text(item.name.ifBlank { stringResource(R.string.notes_untitled) }, maxLines = 1) },
+        supportingContent = if (detail.isNotEmpty()) { { Text(detail) } } else null,
+        trailingContent = {
             Row {
                 IconButton(onClick = onRestore) { Icon(Icons.Rounded.RestoreFromTrash, contentDescription = stringResource(R.string.trash_restore)) }
-                IconButton(onClick = onDelete) { Icon(Icons.Rounded.DeleteForever, contentDescription = stringResource(R.string.trash_delete_forever), tint = MaterialTheme.colorScheme.error) }
+                IconButton(onClick = onDelete) { Icon(Icons.Rounded.DeleteForever, contentDescription = stringResource(R.string.trash_delete_forever)) }
             }
         },
     )

@@ -68,7 +68,6 @@ private fun aspectLockFor(a: CropAspect, rotation: Int, imageAspect: Float): Flo
  * Crop is applied to the original first, then rotation, matching [AndroidScannerRepository.applyEdit].
  */
 @Composable
-fun ScanPageEditor(page: ScanPageDraft, onDismiss: () -> Unit, onApply: (CropQuad, ScanFilter, Int) -> Unit) {
     BackHandler(onBack = onDismiss)
     val initialQuad = remember(page.id) { runCatching { CropQuad.decode(page.cropPoints) }.getOrDefault(CropQuad.Full) }
     val initialCorners = remember(page.id) { listOf(initialQuad.topLeft, initialQuad.topRight, initialQuad.bottomRight, initialQuad.bottomLeft).map { Offset(it.x, it.y) } }
@@ -112,7 +111,6 @@ fun ScanPageEditor(page: ScanPageDraft, onDismiss: () -> Unit, onApply: (CropQua
                         NormalizedPoint(crop.left, crop.top), NormalizedPoint(crop.right, crop.top),
                         NormalizedPoint(crop.right, crop.bottom), NormalizedPoint(crop.left, crop.bottom),
                     )
-                    onApply(quad, filter, PageOrientation.encode(rotation, flipped))
                 },
             ) { Text(stringResource(R.string.scanner_apply)) }
         }

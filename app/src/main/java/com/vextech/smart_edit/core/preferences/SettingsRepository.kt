@@ -28,7 +28,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
         AppSettings(
             theme = runCatching { ThemePreference.valueOf(p[Keys.theme] ?: "SYSTEM") }.getOrDefault(ThemePreference.SYSTEM),
-            language = p[Keys.language] ?: "en",
+            language = p[Keys.language] ?: "",
             notificationsEnabled = p[Keys.notifications] ?: true,
             autoBackupEnabled = p[Keys.autoBackup] ?: false,
             confirmDeleteEnabled = p[Keys.confirmDelete] ?: true,
@@ -43,7 +43,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
         context.dataStore.edit { p ->
             val current = AppSettings(
                 theme = runCatching { ThemePreference.valueOf(p[Keys.theme] ?: "SYSTEM") }.getOrDefault(ThemePreference.SYSTEM),
-                language = p[Keys.language] ?: "en",
+                language = p[Keys.language] ?: "",
                 notificationsEnabled = p[Keys.notifications] ?: true,
                 autoBackupEnabled = p[Keys.autoBackup] ?: false,
                 confirmDeleteEnabled = p[Keys.confirmDelete] ?: true,
