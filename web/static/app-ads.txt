@@ -1,0 +1,3 @@
+# app-ads.txt for Smart Edit
+# Add the authorized-seller lines from the Unity Ads dashboard here, one per line.
+# Lines beginning with "#" are comments and are ignored by crawlers.
