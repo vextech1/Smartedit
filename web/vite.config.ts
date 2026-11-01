@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     sveltekit({
       // Everything is prerendered. The fallback page lets /app (later phases) run as a client-side SPA.
-      adapter: adapter({ pages: 'build', assets: 'build', fallback: '200.html', strict: false }),
+      adapter: adapter({ pages: 'build', assets: 'build', fallback: '404.html', strict: false }),
       paths: { relative: false }
     })
   ],

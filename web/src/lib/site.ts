@@ -2,7 +2,7 @@
 export const SITE = {
   name: 'Smart Edit',
   // Set to the real origin once the domain is connected, e.g. 'https://smartedit.com'. Empty = relative URLs only.
-  origin: '',
+  origin: 'https://smartedit-2000.web.app',
   tagline: 'Scan, convert and edit documents. Private by design.',
   contactEmail: ''
 };
