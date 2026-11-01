@@ -64,3 +64,8 @@ main { padding: 40px 0 0; }
 .acts { display: flex; gap: 4px; justify-content: space-between; }
 .acts .icon { width: 100%; max-width: 38px; height: 34px; padding: 0; }
 .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.out { width: 100%; font: .95rem/1.5 ui-monospace, Menlo, Consolas, monospace; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.view { display: block; width: 100%; max-width: 720px; height: auto; border-radius: 12px; border: 1px solid var(--line); background: repeating-conic-gradient(var(--line) 0 25%, var(--card) 0 50%) 0 0 / 16px 16px; touch-action: none; }
+.view.crop { cursor: crosshair; }
+.editor[hidden] { display: none; }
+.editor .bar { margin: 12px 0; }

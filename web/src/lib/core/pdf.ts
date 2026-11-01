@@ -51,3 +51,14 @@ export async function mergePdfs(inputs: { name: string; bytes: Uint8Array }[]): 
   }
   return out.save();
 }
+
+/** Pages at their exact size in points, each filled by one JPEG. Used by "Maximum" compression (text becomes pixels). */
+export async function pagesToPdf(pages: { bytes: Uint8Array; wPt: number; hPt: number }[]): Promise<Uint8Array> {
+  const { PDFDocument } = await import('pdf-lib');
+  const doc = await PDFDocument.create();
+  for (const p of pages) {
+    const img = await doc.embedJpg(new Uint8Array(p.bytes));
+    doc.addPage([p.wPt, p.hPt]).drawImage(img, { x: 0, y: 0, width: p.wPt, height: p.hPt });
+  }
+  return doc.save({ useObjectStreams: true });
+}

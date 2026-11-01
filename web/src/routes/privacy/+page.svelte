@@ -49,4 +49,6 @@
 
 <h2>12. Changes</h2>
 <p>If we change this policy, we will update the date above and, for significant changes, tell you in the app.</p>
+<h2>Text recognition and third-party downloads</h2>
+<p>The “Extract text” tool reads your images on your device. The first time you use it, your browser downloads the text engine and the data for your chosen language from a public content delivery network (jsDelivr and the Tesseract language-data host). Those requests reveal your IP address to that network, as any file download does, but your images and the text found in them are never sent anywhere.</p>
 </article>

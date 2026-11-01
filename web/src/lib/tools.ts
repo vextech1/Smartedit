@@ -46,7 +46,21 @@ export const tools: Tool[] = [
     title: 'PDF to images', short: 'Pages as JPG or PNG.',
     h1: 'PDF to images', intro: 'Turn every page of a PDF into a JPG or PNG picture.',
     steps: ['Choose a PDF.', 'Pick the format and resolution.', 'Download the pictures as a ZIP.'],
-    note: 'Long PDFs at high resolution use a lot of memory. If it stalls, pick a lower resolution.' }
+    note: 'Long PDFs at high resolution use a lot of memory. If it stalls, pick a lower resolution.' },
+  { slug: 'compress-pdf', kind: 'pdf', mode: 'compress-pdf', group: 'PDF',
+    title: 'Compress PDF', short: 'Make PDFs smaller.',
+    h1: 'Compress PDF files', intro: 'Shrink PDFs so they are easy to email and store. Text stays selectable by default.',
+    steps: ['Choose up to 20 PDFs.', 'Pick how much to shrink them.', 'Compress, then download each result.'],
+    note: 'If a file can’t be made smaller, the original is kept and you are told. “Maximum” turns pages into pictures, so text can no longer be selected.' },
+  { slug: 'extract-text', kind: 'image', mode: 'ocr', group: 'Images',
+    title: 'Extract text (OCR)', short: 'Read text from photos and scans.',
+    h1: 'Extract text from photos and PDFs', intro: 'Read the text in a photo, a scan or a PDF, then copy it or save it as a .txt file.',
+    steps: ['Choose photos or a PDF.', 'Pick the language of the text.', 'Extract, then copy or download the text.'],
+    note: 'Clear, well-lit, straight-on photos give the best results. PDFs are read up to 20 pages.' },
+  { slug: 'edit-image', kind: 'image', mode: 'edit', group: 'Images',
+    title: 'Image editor', short: 'Crop, rotate and adjust.',
+    h1: 'Edit an image', intro: 'Crop, rotate, flip and adjust brightness, contrast and colour. Try Clean document for scans and receipts.',
+    steps: ['Choose an image.', 'Crop, rotate or adjust it.', 'Pick a format and download.'] }
 ];
 
 export const toolBySlug = (slug: string) => tools.find((t) => t.slug === slug);

@@ -102,3 +102,64 @@ describe('zip', () => {
     expect(Array.from(z['a-2.pdf'])).toEqual([2]);
   });
 });
+
+import { compressPdfImages, savingsLabel } from '../src/lib/core/pdf-compress';
+import { applyAdjust, cropRect, isNeutral, NO_ADJUST } from '../src/lib/core/image-edit';
+import { joinPages } from '../src/lib/core/ocr';
+import { pagesToPdf } from '../src/lib/core/pdf';
+
+const withJpegs = async (n: number) => {
+  const d = await PDFDocument.create(); const jpg = b64(JPEG_40x20);
+  for (let i = 0; i < n; i++) { const im = await d.embedJpg(jpg); d.addPage([100, 100]).drawImage(im, { x: 0, y: 0, width: 40, height: 20 }); }
+  return d.save();
+};
+
+describe('pdf image compression', () => {
+  it('replaces pictures only when the new one is smaller', async () => {
+    const src = await withJpegs(2);
+    const keep = await compressPdfImages(src, async (j) => ({ bytes: j, width: 40, height: 20 }));
+    expect(keep.found).toBe(2); expect(keep.replaced).toBe(0);
+    const small = await compressPdfImages(src, async (j) => ({ bytes: j.slice(0, Math.floor(j.length / 2)), width: 20, height: 10 }));
+    expect(small.replaced).toBe(2);
+    expect((await PDFDocument.load(small.bytes)).getPageCount()).toBe(2); // still a valid PDF with its pages
+  });
+  it('skips pictures the encoder cannot handle', async () => {
+    const r = await compressPdfImages(await withJpegs(1), async () => null);
+    expect(r.found).toBe(1); expect(r.replaced).toBe(0);
+  });
+  it('labels results like the Android app', () => {
+    expect(savingsLabel(100, 100)).toBe('optimized'); expect(savingsLabel(100, 120)).toBe('optimized');
+    expect(savingsLabel(1000, 990)).toBe('barely'); expect(savingsLabel(1000, 500)).toBe('smaller');
+  });
+  it('rebuilds pages at their exact size', async () => {
+    const out = await PDFDocument.load(await pagesToPdf([{ bytes: b64(JPEG_40x20), wPt: 300, hPt: 150 }]));
+    expect([out.getPage(0).getWidth(), out.getPage(0).getHeight()]).toEqual([300, 150]);
+  });
+});
+
+describe('image editing', () => {
+  const px = (r: number, g: number, b: number) => new Uint8ClampedArray([r, g, b, 255]);
+  it('leaves neutral settings alone', () => { const p = px(10, 120, 240); applyAdjust(p, NO_ADJUST); expect(Array.from(p)).toEqual([10, 120, 240, 255]); expect(isNeutral(NO_ADJUST)).toBe(true); });
+  it('brightens and darkens', () => {
+    const up = px(100, 100, 100); applyAdjust(up, { ...NO_ADJUST, brightness: 20 }); expect(up[0]).toBeGreaterThan(100);
+    const dn = px(100, 100, 100); applyAdjust(dn, { ...NO_ADJUST, brightness: -20 }); expect(dn[0]).toBeLessThan(100);
+  });
+  it('grey mode equalises channels and keeps alpha', () => { const p = px(255, 0, 0); applyAdjust(p, { ...NO_ADJUST, mode: 'gray' }); expect(p[0]).toBe(p[1]); expect(p[1]).toBe(p[2]); expect(p[3]).toBe(255); });
+  it('document mode pushes light paper to white and dark ink to black', () => {
+    const paper = px(215, 215, 210); const ink = px(70, 70, 75);
+    applyAdjust(paper, { ...NO_ADJUST, mode: 'document' }); applyAdjust(ink, { ...NO_ADJUST, mode: 'document' });
+    expect(paper[0]).toBeGreaterThan(215); expect(ink[0]).toBeLessThan(70);
+  });
+  it('normalises and clamps crop drags', () => {
+    expect(cropRect(50, 60, 10, 20, 100, 100)).toEqual({ x: 10, y: 20, w: 40, h: 40 });
+    expect(cropRect(-20, -20, 500, 500, 100, 80)).toEqual({ x: 0, y: 0, w: 100, h: 80 });
+    expect(cropRect(10, 10, 12, 12, 100, 100)).toBeNull();
+  });
+});
+
+describe('ocr text', () => {
+  it('joins pages with markers only when there are several', () => {
+    expect(joinPages([' hi '])).toBe('hi');
+    expect(joinPages(['a', ''])).toBe('--- Page 1 ---\na\n\n--- Page 2 ---\n(no text found)');
+  });
+});
