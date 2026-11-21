@@ -4,7 +4,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") apply false
+}
+
+if (file("google-services.json").isFile) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 android {

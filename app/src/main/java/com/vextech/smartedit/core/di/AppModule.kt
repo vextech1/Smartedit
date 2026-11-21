@@ -2,7 +2,7 @@ package com.vextech.smartedit.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.vextech.smartedit.core.analytics.AnalyticsService
 import com.vextech.smartedit.core.database.SmartEditDatabase
 import com.vextech.smartedit.core.pdf.PdfBoxEngine
 import com.vextech.smartedit.core.pdf.PdfEngine
@@ -29,7 +29,7 @@ object AppProvidesModule {
         Room.databaseBuilder(context, SmartEditDatabase::class.java, "smartedit.db")
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
-    @Provides @Singleton fun analytics(@ApplicationContext context: Context): FirebaseAnalytics = FirebaseAnalytics.getInstance(context)
+    @Provides @Singleton fun analytics(@ApplicationContext context: Context): AnalyticsService = AnalyticsService(context)
 }
 
 @Module
