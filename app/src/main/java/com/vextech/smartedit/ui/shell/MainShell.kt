@@ -4,17 +4,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +29,9 @@ import com.vextech.smartedit.feature.backup.BackupScreen
 import com.vextech.smartedit.feature.compressor.CompressorScreen
 import com.vextech.smartedit.feature.converter.ConverterScreen
 import com.vextech.smartedit.feature.history.HistoryScreen
+import com.vextech.smartedit.feature.home.EditProIcons
+import com.vextech.smartedit.feature.home.EditProTabBar
+import com.vextech.smartedit.feature.home.EditProTabItem
 import com.vextech.smartedit.feature.home.HomeScreen
 import com.vextech.smartedit.feature.imageeditor.ImageEditorScreen
 import com.vextech.smartedit.feature.notes.NoteEditorScreen
@@ -68,10 +63,10 @@ import com.vextech.smartedit.ui.navigation.TrashRoute
 import com.vextech.smartedit.ui.navigation.routeFor
 
 enum class MainTab(val label: Int, val icon: ImageVector) {
-    HOME(R.string.nav_home, Icons.Rounded.Home),
-    FILES(R.string.files, Icons.Rounded.Folder),
-    ACTIVITY(R.string.nav_activity, Icons.Rounded.History),
-    PROFILE(R.string.nav_profile, Icons.Rounded.AccountCircle),
+    HOME(R.string.nav_home, EditProIcons.Home),
+    FILES(R.string.files, EditProIcons.Files),
+    ACTIVITY(R.string.nav_activity, EditProIcons.Activity),
+    PROFILE(R.string.nav_profile, EditProIcons.Profile),
 }
 
 /**
@@ -158,14 +153,11 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
 
 @Composable
 fun AppBottomBar(selected: MainTab, onSelect: (MainTab) -> Unit) {
-    NavigationBar {
-        MainTab.entries.forEach { item ->
-            NavigationBarItem(
-                selected = item == selected,
-                onClick = { onSelect(item) },
-                icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(stringResource(item.label)) },
-            )
-        }
-    }
+    val tabs = MainTab.entries
+    EditProTabBar(
+        items = tabs.map { EditProTabItem(stringResource(it.label), it.icon) },
+        selectedIndex = tabs.indexOf(selected),
+        onSelect = { onSelect(tabs[it]) },
+        modifier = Modifier.navigationBarsPadding(),
+    )
 }
