@@ -1,12 +1,51 @@
-.gradle/
-.kotlin/
+# IDE and OS files
 .idea/
-build/
-**/build/
-local.properties
+.vscode/
 *.iml
 .DS_Store
+Thumbs.db
+
+# Gradle and Kotlin caches
+.gradle/
+.kotlin/
+gradle-app.setting
+
+# Android build outputs
+build/
+**/build/
 /app/release/
+captures/
+.cxx/
+.externalNativeBuild/
+
+# Local SDK and machine-specific configuration
+local.properties
+gradle.properties.local
+
+# Signing and secret material
 keystore.properties
 *.jks
 *.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.p8
+service-account*.json
+firebase-adminsdk*.json
+credentials*.json
+secrets*.json
+.env
+.env.*
+!.env.example
+
+# Logs and test artifacts
+*.log
+coverage/
+htmlcov/
+reports/
+
+# Web dependencies and build outputs (if added later)
+node_modules/
+dist/
+.svelte-kit/
