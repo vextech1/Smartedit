@@ -130,6 +130,12 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation("com.google.firebase:firebase-analytics")
+    // Accounts: Google sign-in through Firebase Auth, and the admin lists in Firestore (same project and rules as the EditPro site)
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("com.unity3d.ads:unity-ads:4.20.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")

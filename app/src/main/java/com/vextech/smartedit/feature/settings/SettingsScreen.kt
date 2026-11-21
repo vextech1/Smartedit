@@ -30,7 +30,7 @@ private val languages = listOf("en" to "English", "fr" to "Français", "es" to "
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(onBack: (() -> Unit)?, onOpenProfile: (() -> Unit)? = null, vm: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(onBack: (() -> Unit)?, onOpenProfile: (() -> Unit)? = null, onOpenAdmin: (() -> Unit)? = null, vm: SettingsViewModel = hiltViewModel()) {
     val settings by vm.settings.collectAsState()
     var languageDialog by remember { mutableStateOf(false) }
     val systemLanguageLabel = stringResource(R.string.settings_language_system)
@@ -46,6 +46,14 @@ fun SettingsScreen(onBack: (() -> Unit)?, onOpenProfile: (() -> Unit)? = null, v
                     title = stringResource(R.string.nav_profile),
                     description = stringResource(R.string.settings_profile_desc),
                     modifier = Modifier.clickable(onClick = onOpenProfile),
+                ) { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                HorizontalDivider()
+            }
+            if (onOpenAdmin != null) {
+                SettingRow(
+                    title = stringResource(R.string.admin_title),
+                    description = stringResource(R.string.settings_admin_desc),
+                    modifier = Modifier.clickable(onClick = onOpenAdmin),
                 ) { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
                 HorizontalDivider()
             }

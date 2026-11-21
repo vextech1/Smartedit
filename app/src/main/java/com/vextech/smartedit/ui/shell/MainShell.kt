@@ -24,6 +24,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.vextech.smartedit.R
 import com.vextech.smartedit.core.ads.UnityAdsService
 import com.vextech.smartedit.core.sharing.ShareService
+import com.vextech.smartedit.feature.admin.AdminScreen
 import com.vextech.smartedit.feature.ai.AiAssistScreen
 import com.vextech.smartedit.feature.backup.BackupScreen
 import com.vextech.smartedit.feature.compressor.CompressorScreen
@@ -45,6 +46,7 @@ import com.vextech.smartedit.feature.settings.SettingsScreen
 import com.vextech.smartedit.feature.tools.ToolsTabScreen
 import com.vextech.smartedit.feature.trash.TrashScreen
 import com.vextech.smartedit.ui.navigation.ActivityRoute
+import com.vextech.smartedit.ui.navigation.AdminRoute
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
 import com.vextech.smartedit.ui.navigation.BackupRoute
 import com.vextech.smartedit.ui.navigation.CompressorRoute
@@ -151,7 +153,8 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }
                 entry<BackupRoute> { BackupScreen(::back, shareService) }
-                entry<SettingsRoute> { SettingsScreen(onBack = null, onOpenProfile = { push(ProfileRoute) }) }
+                entry<SettingsRoute> { SettingsScreen(onBack = null, onOpenProfile = { push(ProfileRoute) }, onOpenAdmin = { push(AdminRoute) }) }
+                entry<AdminRoute> { AdminScreen(::back) }
                 entry<AiAssistRoute> { AiAssistScreen(::back) }
             },
         )

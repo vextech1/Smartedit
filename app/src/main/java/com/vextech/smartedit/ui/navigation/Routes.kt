@@ -29,3 +29,4 @@ import kotlinx.serialization.Serializable
 @Serializable data object BackupRoute : NavKey
 @Serializable data object SettingsRoute : NavKey
 @Serializable data object AiAssistRoute : NavKey
+@Serializable data object AdminRoute : NavKey

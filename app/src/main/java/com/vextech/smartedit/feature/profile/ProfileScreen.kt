@@ -44,6 +44,7 @@ import androidx.navigation3.runtime.NavKey
 import com.vextech.smartedit.R
 import com.vextech.smartedit.core.model.DashboardSummary
 import com.vextech.smartedit.core.ui.FeatureScaffold
+import com.vextech.smartedit.feature.account.AccountCard
 import com.vextech.smartedit.core.ui.SectionHeader
 import com.vextech.smartedit.core.ui.formatBytes
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
@@ -73,37 +74,6 @@ fun ProfileScreen(onOpen: (NavKey) -> Unit, onBack: (() -> Unit)? = null, vm: Pr
     }
 
     if (showAbout) AboutDialog(onDismiss = { showAbout = false })
-}
-
-/**
- * Signed-out account card. Accounts are not built yet, so the action is disabled and marked "Coming soon".
- * When accounts arrive, replace this composable's state and keep the rest of the screen as is.
- */
-@Composable
-fun AccountCard(modifier: Modifier = Modifier) {
-    ElevatedCard(modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Rounded.AccountCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(56.dp),
-                    tint = MaterialTheme.colorScheme.outline,
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(stringResource(R.string.profile_account_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        stringResource(R.string.profile_account_message),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            Button(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.profile_account_button) + " · " + stringResource(R.string.profile_coming_soon))
-            }
-        }
-    }
 }
 
 @Composable
