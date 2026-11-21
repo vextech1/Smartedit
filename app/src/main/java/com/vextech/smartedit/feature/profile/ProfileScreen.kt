@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
@@ -49,23 +48,18 @@ import com.vextech.smartedit.core.ui.SectionHeader
 import com.vextech.smartedit.core.ui.formatBytes
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
 import com.vextech.smartedit.ui.navigation.BackupRoute
-import com.vextech.smartedit.ui.navigation.SettingsRoute
 
 @Composable
-fun ProfileScreen(onOpen: (NavKey) -> Unit, vm: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(onOpen: (NavKey) -> Unit, onBack: (() -> Unit)? = null, vm: ProfileViewModel = hiltViewModel()) {
     val summary by vm.summary.collectAsState()
     var showAbout by remember { mutableStateOf(false) }
 
-    FeatureScaffold(title = stringResource(R.string.nav_profile), onBack = null) { padding ->
+    FeatureScaffold(title = stringResource(R.string.nav_profile), onBack = onBack) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(bottom = 16.dp)) {
             item(key = "account") { AccountCard(Modifier.padding(16.dp)) }
             item(key = "library_header") { SectionHeader(stringResource(R.string.profile_storage_title)) }
             item(key = "library") { LibraryStats(summary, Modifier.padding(horizontal = 16.dp)) }
             item(key = "more_header") { SectionHeader(stringResource(R.string.profile_more_title)) }
-            // Settings used to be the gear on Home; Home now matches EditPro's header, which has no gear.
-            item(key = "settings") {
-                NavRow(Icons.Rounded.Settings, stringResource(R.string.settings), stringResource(R.string.profile_settings_desc)) { onOpen(SettingsRoute) }
-            }
             item(key = "backup") {
                 NavRow(Icons.Rounded.Backup, stringResource(R.string.backup), stringResource(R.string.profile_backup_desc)) { onOpen(BackupRoute) }
             }

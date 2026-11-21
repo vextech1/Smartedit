@@ -42,6 +42,7 @@ import com.vextech.smartedit.feature.scanner.LiveCameraScreen
 import com.vextech.smartedit.feature.scanner.ScannerScreen
 import com.vextech.smartedit.feature.search.SearchScreen
 import com.vextech.smartedit.feature.settings.SettingsScreen
+import com.vextech.smartedit.feature.tools.ToolsTabScreen
 import com.vextech.smartedit.feature.trash.TrashScreen
 import com.vextech.smartedit.ui.navigation.ActivityRoute
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
@@ -59,14 +60,17 @@ import com.vextech.smartedit.ui.navigation.ProfileRoute
 import com.vextech.smartedit.ui.navigation.ScannerRoute
 import com.vextech.smartedit.ui.navigation.SearchRoute
 import com.vextech.smartedit.ui.navigation.SettingsRoute
+import com.vextech.smartedit.ui.navigation.ToolsTabRoute
 import com.vextech.smartedit.ui.navigation.TrashRoute
 import com.vextech.smartedit.ui.navigation.routeFor
 
+/** The five tabs EditPro has, in its order. Library shows Activity (everything you scanned, converted and edited); My files shows Files, Notes and Favorites. */
 enum class MainTab(val label: Int, val icon: ImageVector) {
     HOME(R.string.nav_home, EditProIcons.Home),
-    FILES(R.string.files, EditProIcons.Files),
-    ACTIVITY(R.string.nav_activity, EditProIcons.Activity),
-    PROFILE(R.string.nav_profile, EditProIcons.Profile),
+    TOOLS(R.string.nav_tools, EditProIcons.Tools),
+    LIBRARY(R.string.nav_library, EditProIcons.Library),
+    FILES(R.string.nav_my_files, EditProIcons.Files),
+    SETTINGS(R.string.settings, EditProIcons.Settings),
 }
 
 /**
@@ -77,14 +81,16 @@ enum class MainTab(val label: Int, val icon: ImageVector) {
 fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
     val homeStack = rememberNavBackStack(HomeRoute)
+    val toolsStack = rememberNavBackStack(ToolsTabRoute)
+    val libraryStack = rememberNavBackStack(ActivityRoute)
     val filesStack = rememberNavBackStack(FilesTabRoute)
-    val activityStack = rememberNavBackStack(ActivityRoute)
-    val profileStack = rememberNavBackStack(ProfileRoute)
+    val settingsStack = rememberNavBackStack(SettingsRoute)
     val stack = when (tab) {
         MainTab.HOME -> homeStack
+        MainTab.TOOLS -> toolsStack
+        MainTab.LIBRARY -> libraryStack
         MainTab.FILES -> filesStack
-        MainTab.ACTIVITY -> activityStack
-        MainTab.PROFILE -> profileStack
+        MainTab.SETTINGS -> settingsStack
     }
     val atRoot = stack.size <= 1
 
@@ -120,7 +126,8 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 rememberViewModelStoreNavEntryDecorator(),
             ),
             entryProvider = entryProvider {
-                entry<HomeRoute> { HomeScreen(onOpen = ::push, share = shareService) }
+                entry<HomeRoute> { HomeScreen(onOpen = ::push, onSeeAll = { tab = MainTab.TOOLS }, share = shareService) }
+                entry<ToolsTabRoute> { ToolsTabScreen(onOpen = ::push) }
                 entry<FilesTabRoute> {
                     FilesTabScreen(
                         share = shareService,
@@ -131,7 +138,7 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                     )
                 }
                 entry<ActivityRoute> { HistoryScreen(onBack = null, share = shareService) }
-                entry<ProfileRoute> { ProfileScreen(onOpen = ::push) }
+                entry<ProfileRoute> { ProfileScreen(onOpen = ::push, onBack = ::back) }
 
                 entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService) }
                 entry<LiveCameraRoute> { route -> LiveCameraScreen(route.sessionId, ::back, shareService) }
@@ -144,7 +151,7 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }
                 entry<BackupRoute> { BackupScreen(::back, shareService) }
-                entry<SettingsRoute> { SettingsScreen(::back) }
+                entry<SettingsRoute> { SettingsScreen(onBack = null, onOpenProfile = { push(ProfileRoute) }) }
                 entry<AiAssistRoute> { AiAssistScreen(::back) }
             },
         )

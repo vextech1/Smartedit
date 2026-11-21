@@ -5,6 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.res.stringResource
+import com.vextech.smartedit.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,9 +103,15 @@ object EditProIcons {
 
     // Bottom bar (stroke 1.8, square caps)
     val Home = stroke("Home", "M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z", 1.8f, StrokeCap.Butt)
+    val Tools = stroke("Tools", "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z", 1.8f, StrokeCap.Butt)
+    val Library = stroke("Library", "M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z", 1.8f, StrokeCap.Butt)
     val Files = stroke("Files", "M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", 1.8f, StrokeCap.Butt)
-    val Activity = stroke("Activity", "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v5l3 2", 1.8f, StrokeCap.Butt)
-    val Profile = stroke("Profile", "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 20c0-3.5 3.6-6 8-6s8 2.5 8 6", 1.8f, StrokeCap.Butt)
+    val Settings = stroke(
+        "Settings",
+        "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.5-2.3 1a7.6 7.6 0 0 0-1.7-1L15 3.5h-4L10.6 6a7.6 7.6 0 0 0-1.7 1l-2.3-1-2 3.5 2 1.5a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7.6 7.6 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7.6 7.6 0 0 0 1.7-1l2.3 1 2-3.5z",
+        1.8f,
+        StrokeCap.Butt,
+    )
 
     // Upload card
     val Upload = stroke("Upload", "M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5 4 4 0 0 1 17.5 18M12 11v8M9 14l3-3 3 3", 1.8f)
@@ -140,10 +155,10 @@ fun HeroTitle(lead: String, accent: String, size: Float, modifier: Modifier = Mo
 
 /** A section heading with an optional link on the right ("Popular Tools" ... "See all →"). */
 @Composable
-fun SectionHeading(title: String, modifier: Modifier = Modifier, action: String? = null, onAction: () -> Unit = {}) {
+fun SectionHeading(title: String, modifier: Modifier = Modifier, tint: Color? = null, action: String? = null, onAction: () -> Unit = {}) {
     val c = editProColors()
     Row(modifier.fillMaxWidth().padding(top = 28.dp, bottom = 10.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(title, color = c.ink, fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = (-0.2f).sp, fontWeight = FontWeight.Bold)
+        Text(title, color = tint ?: c.ink, fontSize = 20.sp, lineHeight = 26.sp, letterSpacing = (-0.2f).sp, fontWeight = FontWeight.Bold)
         if (action != null) {
             Text(
                 action,
@@ -230,3 +245,44 @@ fun EditProTabBar(items: List<EditProTabItem>, selectedIndex: Int, onSelect: (In
 }
 
 class EditProTabItem(val label: String, val icon: ImageVector)
+
+/** White bar with the app name in bold, a hairline under it (EditPro's phone header). */
+@Composable
+fun BrandHeader() {
+    val c = editProColors()
+    Column(Modifier.fillMaxWidth().background(c.card).statusBarsPadding()) {
+        Box(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 20.dp), contentAlignment = Alignment.CenterStart) {
+            Text(stringResource(R.string.app_name), color = c.ink, fontSize = 18.4.sp, letterSpacing = (-0.18f).sp, fontWeight = FontWeight.ExtraBold)
+        }
+        Spacer(Modifier.fillMaxWidth().height(1.dp).background(c.line))
+    }
+}
+
+/** A page in EditPro's shape: the brand header, then a scrolling column on the paper colour, 20dp side gutters, 920dp at most. */
+@Composable
+fun EditProPage(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    val c = editProColors()
+    Scaffold(containerColor = c.paper, topBar = { BrandHeader() }) { padding ->
+        Box(modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            Column(
+                Modifier.widthIn(max = 920.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 24.dp),
+                content = content,
+            )
+        }
+    }
+}
+
+/** A filter chip: pill, bordered, muted; the chosen one is filled with the accent colour. */
+@Composable
+fun EditProChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    val c = editProColors()
+    Text(
+        label,
+        modifier = Modifier.clip(CircleShape).background(if (selected) c.accent else c.card, CircleShape)
+            .border(BorderStroke(1.dp, if (selected) c.accent else c.line), CircleShape).clickable(onClick = onClick).padding(horizontal = 18.dp, vertical = 8.dp),
+        color = if (selected) c.accentInk else c.muted,
+        fontSize = 16.sp,
+        lineHeight = 25.6.sp,
+        fontWeight = if (selected) FontWeight(650) else FontWeight.Normal,
+    )
+}

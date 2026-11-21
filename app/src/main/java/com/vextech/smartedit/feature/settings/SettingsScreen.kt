@@ -30,7 +30,7 @@ private val languages = listOf("en" to "English", "fr" to "Français", "es" to "
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(onBack: (() -> Unit)?, onOpenProfile: (() -> Unit)? = null, vm: SettingsViewModel = hiltViewModel()) {
     val settings by vm.settings.collectAsState()
     var languageDialog by remember { mutableStateOf(false) }
     val systemLanguageLabel = stringResource(R.string.settings_language_system)
@@ -41,6 +41,14 @@ fun SettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) 
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (onOpenProfile != null) {
+                SettingRow(
+                    title = stringResource(R.string.nav_profile),
+                    description = stringResource(R.string.settings_profile_desc),
+                    modifier = Modifier.clickable(onClick = onOpenProfile),
+                ) { Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+                HorizontalDivider()
+            }
             SectionLabel(stringResource(R.string.settings_appearance))
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 ThemePreference.entries.forEachIndexed { index, theme ->

@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 
 // Tab roots (bottom navigation)
 @Serializable data object HomeRoute : NavKey
+@Serializable data object ToolsTabRoute : NavKey
 @Serializable data object FilesTabRoute : NavKey
 @Serializable data object ActivityRoute : NavKey
 @Serializable data object ProfileRoute : NavKey

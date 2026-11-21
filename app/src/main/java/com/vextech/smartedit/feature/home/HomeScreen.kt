@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,10 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -57,10 +52,8 @@ import com.vextech.smartedit.core.sharing.ShareService
 import com.vextech.smartedit.core.ui.CollectUiEvents
 import com.vextech.smartedit.core.ui.UiEventChannel
 import com.vextech.smartedit.core.ui.UiText
-import com.vextech.smartedit.ui.navigation.CompressorRoute
 import com.vextech.smartedit.ui.navigation.ConverterRoute
 import com.vextech.smartedit.ui.navigation.ImageEditorRoute
-import com.vextech.smartedit.ui.navigation.OcrRoute
 import com.vextech.smartedit.ui.navigation.PdfToolsRoute
 import com.vextech.smartedit.ui.navigation.ScannerRoute
 
@@ -75,19 +68,12 @@ private val popularTools: List<HomeTool> = listOf(
     HomeTool(R.string.home_tool_create_pdf, EditProIcons.CreatePdf, EditProTint.Pdf, ConverterRoute()),
 )
 
-/** The rest of Smart Edit's tools, shown after tapping "See all →" so nothing on the old Home grid is lost. */
-private val moreTools: List<HomeTool> = listOf(
-    HomeTool(R.string.converter, EditProIcons.Convert, EditProTint.Image, ConverterRoute()),
-    HomeTool(R.string.compressor, EditProIcons.Compress, EditProTint.Pdf, CompressorRoute()),
-    HomeTool(R.string.ocr_title, EditProIcons.ExtractText, EditProTint.Document, OcrRoute()),
-)
-
+/** [onSeeAll] switches to the Tools tab, like "See all →" on EditPro opens /tools. */
 @Composable
-fun HomeScreen(onOpen: (NavKey) -> Unit, share: ShareService, vm: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(onOpen: (NavKey) -> Unit, onSeeAll: () -> Unit, share: ShareService, vm: HomeViewModel = hiltViewModel()) {
     val c = editProColors()
     val continueEditing by vm.continueEditing.collectAsState()
     val recent by vm.recent.collectAsState()
-    var allTools by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val events = remember { UiEventChannel() }
     CollectUiEvents(events.events, snackbarHostState)
@@ -150,14 +136,9 @@ fun HomeScreen(onOpen: (NavKey) -> Unit, share: ShareService, vm: HomeViewModel 
                     }
                 }
 
-                SectionHeading(
-                    stringResource(R.string.home_popular_tools),
-                    action = stringResource(if (allTools) R.string.home_show_less else R.string.home_see_all),
-                    onAction = { allTools = !allTools },
-                )
-                val tools = if (allTools) popularTools + moreTools else popularTools
+                SectionHeading(stringResource(R.string.home_popular_tools), action = stringResource(R.string.home_see_all), onAction = onSeeAll)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    tools.chunked(2).forEach { pair ->
+                    popularTools.chunked(2).forEach { pair ->
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             pair.forEach { t -> ToolTile(stringResource(t.label), t.icon, t.tint, Modifier.weight(1f)) { onOpen(t.route) } }
                             if (pair.size == 1) Spacer(Modifier.weight(1f))
@@ -188,18 +169,6 @@ fun HomeScreen(onOpen: (NavKey) -> Unit, share: ShareService, vm: HomeViewModel 
                 }
             }
         }
-    }
-}
-
-/** White bar with the app name in bold, a hairline under it (EditPro's phone header). */
-@Composable
-private fun BrandHeader() {
-    val c = editProColors()
-    Column(Modifier.fillMaxWidth().background(c.card).statusBarsPadding()) {
-        Box(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 20.dp), contentAlignment = Alignment.CenterStart) {
-            Text(stringResource(R.string.app_name), color = c.ink, fontSize = 18.4.sp, letterSpacing = (-0.18f).sp, fontWeight = FontWeight.ExtraBold)
-        }
-        Spacer(Modifier.fillMaxWidth().height(1.dp).background(c.line))
     }
 }
 
