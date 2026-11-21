@@ -1,0 +1,81 @@
+name: Android build
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!README.md'
+      - '.github/workflows/android-build.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!README.md'
+  workflow_dispatch:   # lets you press "Run workflow" manually from the Actions tab
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      # gradle/gradle-daemon-jvm.properties asks for a JDK 25 daemon.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      # ubuntu-24.04 ships with the Android SDK at $ANDROID_HOME. Run sdkmanager under
+      # the preinstalled JDK 17 (it does not support JDK 25); Gradle still uses JDK 25.
+      - name: Install Android 37.1 platform and build tools
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          ls "$ANDROID_HOME" "$ANDROID_HOME/cmdline-tools" || true
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
+
+      # local.properties in the repo may point at a Windows path (C:\Android); replace it.
+      - name: Point Gradle at the SDK
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Fast checks that need no SDK: imports, duplicate types, string/locale parity, XML validity.
+      - name: Static checks
+        run: python3 tools/static_checks.py
+
+      - name: Build debug APK
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleDebug 2>&1 | tee build.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smart-edit-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon testDebugUnitTest 2>&1 | tee test.log
+
+      - name: Upload logs and reports if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-logs
+          path: |
+            build.log
+            test.log
+            app/build/reports/**
+            app/build/test-results/**

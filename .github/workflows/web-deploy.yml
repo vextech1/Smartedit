@@ -1,0 +1,70 @@
+name: Web deploy (Firebase Hosting)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/web-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx svelte-kit sync
+      - name: Type check
+        run: npx svelte-check --tsconfig ./tsconfig.json
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: web/build
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    env:
+      FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      # Skip quietly (instead of failing) until the FIREBASE_SERVICE_ACCOUNT secret has been added.
+      - name: Check deploy secret
+        id: gate
+        run: |
+          if [ -z "$FIREBASE_SA" ]; then
+            echo "::notice::FIREBASE_SERVICE_ACCOUNT secret is not set - skipping deploy"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.go == 'true'
+      - uses: actions/download-artifact@v4
+        if: steps.gate.outputs.go == 'true'
+        with:
+          name: site
+          path: web/build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: steps.gate.outputs.go == 'true'
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: smartedit-2000
+          channelId: live
+          entryPoint: web
