@@ -31,13 +31,14 @@ keystore.properties
 *.pem
 *.key
 *.p8
+
+# Firebase and Google credentials
+app/google-services.json
+google-services.json
 service-account*.json
 firebase-adminsdk*.json
 credentials*.json
 secrets*.json
-.env
-.env.*
-!.env.example
 
 # Logs and test artifacts
 *.log
