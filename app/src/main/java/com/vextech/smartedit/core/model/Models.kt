@@ -14,6 +14,8 @@ data class AppSettings(
     val confirmDeleteEnabled: Boolean = true,
     val defaultExportFormat: String = "pdf",
     val onboardingCompleted: Boolean = false,
+    /** The writing system text recognition starts on (an [com.vextech.smartedit.core.library.OcrScript] name). */
+    val ocrScript: String = "LATIN",
 )
 
 data class ManagedResource(

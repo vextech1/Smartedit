@@ -23,6 +23,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
         val confirmDelete = booleanPreferencesKey("confirm_delete")
         val exportFormat = stringPreferencesKey("export_format")
         val onboarding = booleanPreferencesKey("onboarding")
+        val ocrScript = stringPreferencesKey("ocr_script")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -34,6 +35,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
             confirmDeleteEnabled = p[Keys.confirmDelete] ?: true,
             defaultExportFormat = p[Keys.exportFormat] ?: "pdf",
             onboardingCompleted = p[Keys.onboarding] ?: false,
+            ocrScript = p[Keys.ocrScript] ?: "LATIN",
         )
     }
 
@@ -49,6 +51,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
                 confirmDeleteEnabled = p[Keys.confirmDelete] ?: true,
                 defaultExportFormat = p[Keys.exportFormat] ?: "pdf",
                 onboardingCompleted = p[Keys.onboarding] ?: false,
+            ocrScript = p[Keys.ocrScript] ?: "LATIN",
             )
             val next = transform(current)
             p[Keys.theme] = next.theme.name
@@ -58,6 +61,7 @@ class SettingsRepository @Inject constructor(@ApplicationContext private val con
             p[Keys.confirmDelete] = next.confirmDeleteEnabled
             p[Keys.exportFormat] = next.defaultExportFormat
             p[Keys.onboarding] = next.onboardingCompleted
+            p[Keys.ocrScript] = next.ocrScript
         }
     }
 }

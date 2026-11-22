@@ -2,21 +2,52 @@ package com.vextech.smartedit.feature.home
 
 import android.text.format.DateUtils
 import android.webkit.MimeTypeMap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.NavKey
 import com.vextech.smartedit.R
@@ -24,69 +55,135 @@ import com.vextech.smartedit.core.library.HistoryEntry
 import com.vextech.smartedit.core.model.HistoryAction
 import com.vextech.smartedit.core.sharing.ShareService
 import com.vextech.smartedit.core.ui.CollectUiEvents
-import com.vextech.smartedit.core.ui.TileRow
 import com.vextech.smartedit.core.ui.UiEventChannel
 import com.vextech.smartedit.core.ui.UiText
 import com.vextech.smartedit.ui.navigation.CompressorRoute
 import com.vextech.smartedit.ui.navigation.ConverterRoute
+import com.vextech.smartedit.ui.navigation.ImageEditorRoute
 import com.vextech.smartedit.ui.navigation.OcrRoute
+import com.vextech.smartedit.ui.navigation.PdfToolsRoute
 import com.vextech.smartedit.ui.navigation.ScannerRoute
-import com.vextech.smartedit.ui.navigation.SearchRoute
-import com.vextech.smartedit.ui.navigation.SettingsRoute
 
-/** One card on the Home grid. Add an entry to [homeTools] to add a card. */
-data class HomeTool(val title: Int, val description: Int, val icon: ImageVector, val route: NavKey)
+/** One tile in "Popular Tools". Add an entry to [popularTools] (or [moreTools]) to add a tile. */
+data class HomeTool(val label: Int, val icon: ImageVector, val tint: Color, val route: NavKey)
 
-val homeTools: List<HomeTool> = listOf(
-    HomeTool(R.string.scanner_title, R.string.home_scanner_desc, Icons.Rounded.DocumentScanner, ScannerRoute),
-    HomeTool(R.string.converter, R.string.home_converter_desc, Icons.Rounded.SwapHoriz, ConverterRoute()),
-    HomeTool(R.string.compressor, R.string.home_compressor_desc, Icons.Rounded.Compress, CompressorRoute()),
-    HomeTool(R.string.ocr_title, R.string.home_ocr_desc, Icons.Rounded.TextFields, OcrRoute()),
+/** The four tiles EditPro shows. */
+private val popularTools: List<HomeTool> = listOf(
+    HomeTool(R.string.home_tool_edit_pdf, EditProIcons.EditPdf, EditProTint.Pdf, PdfToolsRoute()),
+    HomeTool(R.string.home_tool_edit_image, EditProIcons.EditImage, EditProTint.Image, ImageEditorRoute()),
+    HomeTool(R.string.home_tool_scan_document, EditProIcons.ScanDocument, EditProTint.Document, ScannerRoute),
+    HomeTool(R.string.home_tool_create_pdf, EditProIcons.CreatePdf, EditProTint.Pdf, ConverterRoute()),
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** The rest of Smart Edit's tools, shown after tapping "See all →" so nothing on the old Home grid is lost. */
+private val moreTools: List<HomeTool> = listOf(
+    HomeTool(R.string.converter, EditProIcons.Convert, EditProTint.Image, ConverterRoute()),
+    HomeTool(R.string.compressor, EditProIcons.Compress, EditProTint.Pdf, CompressorRoute()),
+    HomeTool(R.string.ocr_title, EditProIcons.ExtractText, EditProTint.Document, OcrRoute()),
+)
+
 @Composable
 fun HomeScreen(onOpen: (NavKey) -> Unit, share: ShareService, vm: HomeViewModel = hiltViewModel()) {
+    val c = editProColors()
+    val continueEditing by vm.continueEditing.collectAsState()
     val recent by vm.recent.collectAsState()
+    var allTools by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val events = remember { UiEventChannel() }
     CollectUiEvents(events.events, snackbarHostState)
 
+    // "Upload Document": one PDF opens in the PDF editor, one image in the photo editor.
+    val context = LocalContext.current
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) onOpen(routeForPicked(uri.toString(), context.contentResolver.getType(uri)))
+    }
+
+    fun open(entry: HistoryEntry, label: String) {
+        val uri = entry.uri ?: return
+        when (kindOf(label)) {
+            FileKind.PDF -> onOpen(PdfToolsRoute(uri))
+            FileKind.IMAGE -> onOpen(ImageEditorRoute(uri))
+            else -> runCatching { share.openManaged(uri, mimeFor(label)) }.onFailure { events.message(UiText.res(R.string.common_open_failed)) }
+        }
+    }
+
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = c.paper,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.SemiBold) },
-                actions = {
-                    IconButton(onClick = { onOpen(SearchRoute) }) { Icon(Icons.Rounded.Search, stringResource(R.string.search)) }
-                    IconButton(onClick = { onOpen(SettingsRoute) }) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-            )
-        },
+        topBar = { BrandHeader() },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            homeTools.chunked(2).forEach { rowTools ->
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    rowTools.forEach { tool -> ToolCard(tool, Modifier.weight(1f)) { onOpen(tool.route) } }
+        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            Column(
+                Modifier.widthIn(max = 920.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 24.dp),
+            ) {
+                // Hero: "Edit. Create. Organize." and one line about the app
+                val heroSize = (LocalConfiguration.current.screenWidthDp * 0.08f).coerceIn(32f, 48f)
+                Column(Modifier.padding(top = 12.dp, bottom = 6.dp)) {
+                    HeroTitle(stringResource(R.string.home_hero_lead), stringResource(R.string.home_hero_accent), heroSize, Modifier.padding(bottom = 14.dp))
+                    Text(
+                        stringResource(R.string.home_lede),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 18.dp),
+                        color = c.muted,
+                        fontSize = 17.92.sp,
+                        lineHeight = 28.67.sp,
+                        textAlign = TextAlign.Center,
+                    )
                 }
-            }
-            if (recent.isNotEmpty()) {
-                Text(stringResource(R.string.home_recent_files), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    recent.forEach { entry ->
-                        val label = entry.displayName?.takeIf { it.isNotBlank() } ?: entry.description
-                        TileRow(
-                            icon = Icons.Rounded.Description,
-                            title = label,
-                            subtitle = stringResource(R.string.home_recent_detail, stringResource(actionLabel(entry.action)), relativeTime(entry)),
-                            onClick = {
-                                val uri = entry.uri ?: return@TileRow
-                                runCatching { share.openManaged(uri, mimeFor(label)) }
-                                    .onFailure { events.message(UiText.res(R.string.common_open_failed)) }
-                            },
-                        )
+
+                UploadCard(onClick = { picker.launch(arrayOf("application/pdf", "image/*")) })
+
+                if (continueEditing.isNotEmpty()) {
+                    SectionHeading(stringResource(R.string.home_continue_editing))
+                    Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        continueEditing.forEach { entry ->
+                            val label = entry.label()
+                            val studio = when (kindOf(label)) {
+                                FileKind.PDF -> stringResource(R.string.home_studio_document)
+                                FileKind.IMAGE -> stringResource(R.string.home_studio_photo)
+                                else -> stringResource(actionLabel(entry.action))
+                            }
+                            EditProRow(trailing = { PillButton(stringResource(R.string.home_continue), onClick = { open(entry, label) }) }) {
+                                Text(label, color = c.ink, fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 25.6.sp)
+                                Text(stringResource(R.string.home_recent_detail, studio, relativeTime(entry)), color = c.muted, fontSize = 13.6.sp, lineHeight = 21.8.sp)
+                            }
+                        }
+                    }
+                }
+
+                SectionHeading(
+                    stringResource(R.string.home_popular_tools),
+                    action = stringResource(if (allTools) R.string.home_show_less else R.string.home_see_all),
+                    onAction = { allTools = !allTools },
+                )
+                val tools = if (allTools) popularTools + moreTools else popularTools
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    tools.chunked(2).forEach { pair ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            pair.forEach { t -> ToolTile(stringResource(t.label), t.icon, t.tint, Modifier.weight(1f)) { onOpen(t.route) } }
+                            if (pair.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
+
+                if (recent.isNotEmpty()) {
+                    SectionHeading(stringResource(R.string.home_section_recent), action = stringResource(R.string.home_clear_all), onAction = vm::clearRecent)
+                    Column(Modifier.padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        recent.forEach { entry ->
+                            val label = entry.label()
+                            val (icon, tint) = when (kindOf(label)) {
+                                FileKind.PDF -> EditProIcons.FilePdf to EditProTint.Pdf
+                                FileKind.IMAGE -> EditProIcons.FileImage to EditProTint.Image
+                                FileKind.TEXT -> EditProIcons.FileText to EditProTint.Text
+                                FileKind.OTHER -> EditProIcons.FilePdf to EditProTint.Other
+                            }
+                            EditProRow(
+                                onClick = { open(entry, label) },
+                                leading = { Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(30.dp)) },
+                            ) {
+                                Text(label, color = c.ink, fontSize = 16.sp, lineHeight = 25.6.sp)
+                                Text(stringResource(R.string.home_recent_detail, stringResource(actionLabel(entry.action)), relativeTime(entry)), color = c.muted, fontSize = 13.6.sp, lineHeight = 21.8.sp)
+                            }
+                        }
                     }
                 }
             }
@@ -94,19 +191,54 @@ fun HomeScreen(onOpen: (NavKey) -> Unit, share: ShareService, vm: HomeViewModel 
     }
 }
 
+/** White bar with the app name in bold, a hairline under it (EditPro's phone header). */
 @Composable
-private fun ToolCard(tool: HomeTool, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(44.dp)) {
-                Box(contentAlignment = Alignment.Center) { Icon(tool.icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer) }
-            }
-            Text(stringResource(tool.title), modifier = Modifier.padding(top = 8.dp), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            // Two lines reserved so every card has the same height.
-            Text(stringResource(tool.description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, minLines = 2, maxLines = 2)
+private fun BrandHeader() {
+    val c = editProColors()
+    Column(Modifier.fillMaxWidth().background(c.card).statusBarsPadding()) {
+        Box(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 20.dp), contentAlignment = Alignment.CenterStart) {
+            Text(stringResource(R.string.app_name), color = c.ink, fontSize = 18.4.sp, letterSpacing = (-0.18f).sp, fontWeight = FontWeight.ExtraBold)
         }
+        Spacer(Modifier.fillMaxWidth().height(1.dp).background(c.line))
     }
 }
+
+/** The big teal "Upload Document" card. */
+@Composable
+private fun UploadCard(onClick: () -> Unit) {
+    val c = editProColors()
+    val shape = RoundedCornerShape(22.dp)
+    Row(
+        Modifier.fillMaxWidth().clip(shape).background(Brush.linearGradient(listOf(UploadGradientStart, c.accent)), shape).clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 22.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Icon(EditProIcons.Upload, contentDescription = null, tint = c.accentInk, modifier = Modifier.size(44.dp))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(R.string.home_upload_title), color = c.accentInk, fontSize = 19.2.sp, lineHeight = 30.7.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.home_upload_hint), color = c.accentInk, modifier = Modifier.alpha(0.8f), fontSize = 13.33.sp, lineHeight = 21.3.sp)
+        }
+        Text("›", color = c.accentInk, fontSize = 28.8.sp)
+    }
+}
+
+private enum class FileKind { PDF, IMAGE, TEXT, OTHER }
+
+private fun kindOf(name: String): FileKind = when (mimeFor(name)) {
+    "application/pdf" -> FileKind.PDF
+    else -> when {
+        mimeFor(name).startsWith("image/") -> FileKind.IMAGE
+        mimeFor(name).startsWith("text/") -> FileKind.TEXT
+        else -> FileKind.OTHER
+    }
+}
+
+/** Where a picked file goes: a PDF to the PDF editor, an image to the photo editor. Anything else is offered to the PDF editor, which says if it cannot open it. */
+private fun routeForPicked(uri: String, mime: String?): NavKey =
+    if (mime?.startsWith("image/") == true) ImageEditorRoute(uri) else PdfToolsRoute(uri)
+
+private fun HistoryEntry.label(): String = displayName?.takeIf { it.isNotBlank() } ?: description
 
 @Composable
 private fun relativeTime(entry: HistoryEntry): String =

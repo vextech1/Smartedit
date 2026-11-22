@@ -80,6 +80,12 @@ fun main() {
     eq("script default", OcrPolicies.scriptForLanguage("de"), OcrScript.LATIN)
     eq("script null", OcrPolicies.scriptForLanguage(null), OcrScript.LATIN)
     eq("retry suggested", OcrPolicies.suggestedRetry(OcrScript.LATIN, "ja"), OcrScript.JAPANESE)
+    // the writing system saved in Settings
+    OcrScript.entries.forEach { eq("setting ${it.name} round trips", OcrPolicies.scriptFromSetting(it.name), it) }
+    eq("setting null", OcrPolicies.scriptFromSetting(null), OcrScript.LATIN)
+    eq("setting empty", OcrPolicies.scriptFromSetting(""), OcrScript.LATIN)
+    eq("setting unknown (old backup)", OcrPolicies.scriptFromSetting("CYRILLIC"), OcrScript.LATIN)
+    eq("setting is case sensitive", OcrPolicies.scriptFromSetting("korean"), OcrScript.LATIN)
     eq("no retry when matching", OcrPolicies.suggestedRetry(OcrScript.JAPANESE, "ja"), null)
     eq("no retry without language", OcrPolicies.suggestedRetry(OcrScript.LATIN, null), null)
 

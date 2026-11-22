@@ -5,6 +5,9 @@ enum class OcrScript { LATIN, CHINESE, DEVANAGARI, JAPANESE, KOREAN }
 data class OcrStats(val words: Int, val characters: Int, val lines: Int)
 
 object OcrPolicies {
+    /** The writing system saved in Settings; anything unknown (an old backup, a removed script) falls back to Latin. */
+    fun scriptFromSetting(value: String?): OcrScript = OcrScript.entries.firstOrNull { it.name == value } ?: OcrScript.LATIN
+
     /** Unifies line endings, trims line ends, limits blank runs to one blank line and trims the whole text. */
     fun clean(text: String): String = text
         .replace("\r\n", "\n").replace('\r', '\n')
