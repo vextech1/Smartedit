@@ -31,6 +31,7 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +58,9 @@ import com.vextech.smartedit.core.ui.formatBytes
 import com.vextech.smartedit.feature.files.domain.FileItem
 import com.vextech.smartedit.feature.files.domain.FileSort
 import com.vextech.smartedit.feature.files.domain.FileTreePolicy
+import com.vextech.smartedit.feature.home.EditProChip
+import com.vextech.smartedit.feature.home.EditProTint
+import com.vextech.smartedit.feature.home.editProColors
 import com.vextech.smartedit.feature.files.domain.FileViewMode
 import java.text.DateFormat
 import java.util.Date
@@ -87,6 +91,13 @@ fun FilesScreen(
     var detailsItem by remember { mutableStateOf<FileItem?>(null) }
     var sortMenu by remember { mutableStateOf(false) }
     var selectedIds by remember { mutableStateOf(emptySet<String>()) }
+    var typeFilter by rememberSaveable { mutableStateOf(TypeFilter.ALL) }
+    val c = editProColors()
+
+    // The site's type filter (All, PDFs, Images, Text, Other). A filter shows matching files across the current folder only.
+    val shown = remember(state.items, typeFilter) {
+        if (typeFilter == TypeFilter.ALL) state.items else state.items.filter { !it.isDirectory && typeFilter.matches(kindOf(it), it.mimeType) }
+    }
 
     val selected = state.items.filter { it.id in selectedIds }
     val selecting = selected.isNotEmpty()
@@ -138,6 +149,7 @@ fun FilesScreen(
     }
 
     Scaffold(
+        containerColor = c.paper,
         topBar = {
             if (selecting) {
                 TopAppBar(
@@ -151,7 +163,8 @@ fun FilesScreen(
                 )
             } else {
                 TopAppBar(
-                    title = { Text(if (state.currentFolderId == null) stringResource(R.string.files) else state.folderName) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = c.card, titleContentColor = c.ink, actionIconContentColor = c.ink, navigationIconContentColor = c.ink),
+                    title = { Text(if (state.currentFolderId == null) stringResource(R.string.nav_my_files) else state.folderName, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) },
                     navigationIcon = {
                         if (state.canGoUp || onBack != null) {
                             IconButton(onClick = ::navigateBack) {
@@ -180,7 +193,7 @@ fun FilesScreen(
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             if (!selecting) {
-                FloatingActionButton(onClick = { addSheet = true }) { Icon(Icons.Rounded.Add, stringResource(R.string.files_add_title)) }
+                FloatingActionButton(onClick = { addSheet = true }, containerColor = c.accent, contentColor = c.accentInk) { Icon(Icons.Rounded.Add, stringResource(R.string.files_add_title)) }
             }
         },
         bottomBar = {
@@ -204,16 +217,19 @@ fun FilesScreen(
             header?.invoke()
             if (state.isBusy) LinearProgressIndicator(Modifier.fillMaxWidth())
             Breadcrumbs(state = state, onNavigate = vm::navigateToBreadcrumb)
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TypeFilter.entries.forEach { f -> EditProChip(stringResource(f.label), typeFilter == f) { typeFilter = f } }
+            }
             SortRow(
-                count = state.items.size, sort = state.sort, ascending = state.ascending,
+                count = shown.size, sort = state.sort, ascending = state.ascending,
                 menuOpen = sortMenu, onMenu = { sortMenu = it }, onSort = vm::setSort,
             )
             PullToRefreshBox(isRefreshing = state.isBusy, onRefresh = vm::refresh, modifier = Modifier.weight(1f).fillMaxWidth()) {
-                if (state.items.isEmpty() && !state.isBusy) {
+                if (shown.isEmpty() && !state.isBusy) {
                     Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                         EmptyState(
-                            title = stringResource(R.string.files_empty_title),
-                            description = stringResource(R.string.files_empty_description),
+                            title = stringResource(if (typeFilter == TypeFilter.ALL) R.string.files_empty_title else R.string.files_filter_none),
+                            description = stringResource(if (typeFilter == TypeFilter.ALL) R.string.files_empty_description else R.string.files_filter_none_hint),
                         )
                     }
                 } else if (state.viewMode == FileViewMode.LIST) {
@@ -222,7 +238,7 @@ fun FilesScreen(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        items(state.items, key = FileItem::id) { item ->
+                        items(shown, key = FileItem::id) { item ->
                             FileRow(
                                 item = item,
                                 folderChildren = childCounts[item.id] ?: 0,
@@ -243,7 +259,7 @@ fun FilesScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        gridItems(state.items, key = FileItem::id) { item ->
+                        gridItems(shown, key = FileItem::id) { item ->
                             FileCard(
                                 item = item,
                                 folderChildren = childCounts[item.id] ?: 0,
@@ -430,6 +446,35 @@ private fun SortRow(count: Int, sort: FileSort, ascending: Boolean, menuOpen: Bo
     }
 }
 
+/** The site's type filter. */
+private enum class TypeFilter(val label: Int) {
+    ALL(R.string.files_filter_all), PDF(R.string.files_filter_pdf), IMAGE(R.string.files_filter_image), TEXT(R.string.files_filter_text), OTHER(R.string.files_filter_other);
+
+    fun matches(kind: FileKind, mime: String): Boolean {
+        val m = mime.lowercase()
+        return when (this) {
+            ALL -> true
+            PDF -> kind == FileKind.PDF
+            IMAGE -> kind == FileKind.IMAGE
+            TEXT -> m.startsWith("text/")
+            OTHER -> kind != FileKind.PDF && kind != FileKind.IMAGE && !m.startsWith("text/")
+        }
+    }
+}
+
+/** EditPro's file-kind colours (red PDF, violet image, green text, grey other). */
+@Composable
+private fun tintFor(item: FileItem): Color {
+    val mime = item.mimeType.lowercase()
+    return when {
+        item.isDirectory -> editProColors().accent
+        kindOf(item) == FileKind.PDF -> EditProTint.Pdf
+        kindOf(item) == FileKind.IMAGE -> EditProTint.Image
+        mime.startsWith("text/") -> EditProTint.Text
+        else -> EditProTint.Other
+    }
+}
+
 private fun kindOf(item: FileItem): FileKind = FileActionPolicies.kindOf(item.name, item.mimeType)
 
 private fun iconFor(item: FileItem): ImageVector {
@@ -473,8 +518,9 @@ private fun FileLead(item: FileItem, size: androidx.compose.ui.unit.Dp = 44.dp) 
     if (!item.isDirectory && kindOf(item) == FileKind.IMAGE) {
         UriThumbnail(item.uri, Modifier.size(size).clip(RoundedCornerShape(12.dp)), maxDim = 160)
     } else {
-        Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceContainerHighest, modifier = Modifier.size(size)) {
-            Box(contentAlignment = Alignment.Center) { Icon(iconFor(item), null, tint = MaterialTheme.colorScheme.primary) }
+        val tint = tintFor(item)
+        Surface(shape = RoundedCornerShape(10.dp), color = tint.copy(alpha = 0.16f), modifier = Modifier.size(size)) {
+            Box(contentAlignment = Alignment.Center) { Icon(iconFor(item), null, tint = tint) }
         }
     }
 }
@@ -500,9 +546,11 @@ private fun FileRow(
 ) {
     val detail = if (item.isDirectory) pluralStringResource(R.plurals.files_folder_items, folderChildren, folderChildren)
     else stringResource(R.string.files_row_detail, kindLabel(item), formatBytes(item.sizeBytes), shortDate(item.modifiedAt))
+    val c = editProColors()
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+        shape = RoundedCornerShape(12.dp),
+        color = if (selected) c.accent.copy(alpha = 0.14f) else c.card,
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) c.accent else c.line),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -524,7 +572,7 @@ private fun FileRow(
                         Icon(
                             if (item.isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline,
                             stringResource(R.string.files_favorite),
-                            tint = if (item.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (item.isFavorite) editProColors().mark else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -540,18 +588,20 @@ private fun FileCard(
     item: FileItem, folderChildren: Int, selecting: Boolean, selected: Boolean,
     onClick: () -> Unit, onLongClick: () -> Unit, onFavorite: () -> Unit, onMore: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val c = editProColors()
+    val shape = RoundedCornerShape(12.dp)
     Surface(
         shape = shape,
-        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+        color = if (selected) c.accent.copy(alpha = 0.14f) else c.card,
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) c.accent else c.line),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)) {
-            Box(Modifier.fillMaxWidth().height(104.dp).background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxWidth().height(104.dp).background(tintFor(item).copy(alpha = 0.10f)), contentAlignment = Alignment.Center) {
                 if (!item.isDirectory && kindOf(item) == FileKind.IMAGE) {
                     UriThumbnail(item.uri, Modifier.fillMaxSize(), maxDim = 320)
                 } else {
-                    Icon(iconFor(item), null, Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                    Icon(iconFor(item), null, Modifier.size(36.dp), tint = tintFor(item))
                 }
                 if (selecting) {
                     Box(Modifier.align(Alignment.TopStart).padding(8.dp)) { SelectCircle(selected) }
@@ -570,7 +620,7 @@ private fun FileCard(
                         IconButton(onClick = onFavorite) {
                             Icon(
                                 if (item.isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline, stringResource(R.string.files_favorite),
-                                tint = if (item.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = if (item.isFavorite) editProColors().mark else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }

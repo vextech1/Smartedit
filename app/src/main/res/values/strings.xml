@@ -779,4 +779,11 @@
         <item quantity="other">%1$d pictures shrunk</item>
     </plurals>
     <string name="settings_language_system">System default</string>
+    <string name="files_filter_all">All types</string>
+    <string name="files_filter_pdf">PDFs</string>
+    <string name="files_filter_image">Images</string>
+    <string name="files_filter_text">Text</string>
+    <string name="files_filter_other">Other</string>
+    <string name="files_filter_none">No files match</string>
+    <string name="files_filter_none_hint">Try another type, or choose All types.</string>
 </resources>
