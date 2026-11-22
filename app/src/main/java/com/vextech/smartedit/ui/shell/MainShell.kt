@@ -29,6 +29,7 @@ import com.vextech.smartedit.core.sharing.ShareService
 import com.vextech.smartedit.feature.admin.AdminScreen
 import com.vextech.smartedit.feature.ai.AiAssistScreen
 import com.vextech.smartedit.feature.backup.BackupScreen
+import com.vextech.smartedit.feature.classlibrary.ClassLibraryScreen
 import com.vextech.smartedit.feature.compressor.CompressorScreen
 import com.vextech.smartedit.feature.converter.ConverterScreen
 import com.vextech.smartedit.feature.history.HistoryScreen
@@ -56,6 +57,7 @@ import com.vextech.smartedit.ui.navigation.ConverterRoute
 import com.vextech.smartedit.ui.navigation.FilesTabRoute
 import com.vextech.smartedit.ui.navigation.HomeRoute
 import com.vextech.smartedit.ui.navigation.ImageEditorRoute
+import com.vextech.smartedit.ui.navigation.LibraryRoute
 import com.vextech.smartedit.ui.navigation.LiveCameraRoute
 import com.vextech.smartedit.ui.navigation.NoteEditorRoute
 import com.vextech.smartedit.ui.navigation.OcrRoute
@@ -70,7 +72,7 @@ import com.vextech.smartedit.ui.navigation.message
 import com.vextech.smartedit.ui.navigation.routeFor
 import com.vextech.smartedit.ui.navigation.toRoute
 
-/** The five tabs EditPro has, in its order. Library shows Activity (everything you scanned, converted and edited); My files shows Files, Notes and Favorites. */
+/** The five tabs EditPro has, in its order. Library is the class library (notes, assignments and past papers); My files shows Files, Notes and Favorites. Activity lives under Profile. */
 enum class MainTab(val label: Int, val icon: ImageVector) {
     HOME(R.string.nav_home, EditProIcons.Home),
     TOOLS(R.string.nav_tools, EditProIcons.Tools),
@@ -93,7 +95,7 @@ fun MainShell(
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
     val homeStack = rememberNavBackStack(HomeRoute)
     val toolsStack = rememberNavBackStack(ToolsTabRoute)
-    val libraryStack = rememberNavBackStack(ActivityRoute)
+    val libraryStack = rememberNavBackStack(LibraryRoute)
     val filesStack = rememberNavBackStack(FilesTabRoute)
     val settingsStack = rememberNavBackStack(SettingsRoute)
     val stack = when (tab) {
@@ -162,7 +164,8 @@ fun MainShell(
                         onTool = { action, uri -> push(action.routeFor(uri)) },
                     )
                 }
-                entry<ActivityRoute> { HistoryScreen(onBack = null, share = shareService) }
+                entry<LibraryRoute> { ClassLibraryScreen() }
+                entry<ActivityRoute> { HistoryScreen(onBack = ::back, share = shareService) }
                 entry<ProfileRoute> { ProfileScreen(onOpen = ::push, onBack = ::back) }
 
                 entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService) }

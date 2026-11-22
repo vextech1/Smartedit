@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -48,6 +49,7 @@ import com.vextech.smartedit.feature.account.AccountCard
 import com.vextech.smartedit.core.ui.SectionHeader
 import com.vextech.smartedit.core.ui.formatBytes
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
+import com.vextech.smartedit.ui.navigation.ActivityRoute
 import com.vextech.smartedit.ui.navigation.BackupRoute
 
 @Composable
@@ -61,6 +63,10 @@ fun ProfileScreen(onOpen: (NavKey) -> Unit, onBack: (() -> Unit)? = null, vm: Pr
             item(key = "library_header") { SectionHeader(stringResource(R.string.profile_storage_title)) }
             item(key = "library") { LibraryStats(summary, Modifier.padding(horizontal = 16.dp)) }
             item(key = "more_header") { SectionHeader(stringResource(R.string.profile_more_title)) }
+            // Activity used to be a bottom tab; the Library tab is now the class library, so the history lives here.
+            item(key = "activity") {
+                NavRow(Icons.Rounded.History, stringResource(R.string.nav_activity), stringResource(R.string.profile_activity_desc)) { onOpen(ActivityRoute) }
+            }
             item(key = "backup") {
                 NavRow(Icons.Rounded.Backup, stringResource(R.string.backup), stringResource(R.string.profile_backup_desc)) { onOpen(BackupRoute) }
             }
