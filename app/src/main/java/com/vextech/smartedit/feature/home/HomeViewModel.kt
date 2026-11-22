@@ -3,7 +3,12 @@ package com.vextech.smartedit.feature.home
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.net.Uri
+import com.vextech.smartedit.core.files.IncomingFileReader
 import com.vextech.smartedit.core.library.HistoryEntry
+import com.vextech.smartedit.core.library.IntakePlan
+import com.vextech.smartedit.core.library.IntakePolicies
+import kotlinx.coroutines.launch
 import com.vextech.smartedit.core.library.HistoryPolicies
 import com.vextech.smartedit.core.model.HistoryAction
 import com.vextech.smartedit.core.repository.HistoryRepository
@@ -25,6 +30,7 @@ import kotlinx.coroutines.flow.stateIn
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     repository: HistoryRepository,
+    private val incoming: IncomingFileReader,
     @ApplicationContext context: Context,
 ) : ViewModel() {
     private val prefs = context.getSharedPreferences("home", Context.MODE_PRIVATE)
@@ -43,6 +49,12 @@ class HomeViewModel @Inject constructor(
     val recent: StateFlow<List<HistoryEntry>> = combine(openable, clearedAt) { all, since ->
         all.filter { it.action in made && it.timestamp > since }.distinctBy { it.uri }.take(3)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Files chosen with Upload Document: made lasting, sorted by the site's rules, then handed to [onPlan] on the main thread. */
+    fun intake(uris: List<Uri>, onPlan: (IntakePlan) -> Unit) {
+        if (uris.isEmpty()) return
+        viewModelScope.launch { onPlan(IntakePolicies.plan(incoming.describePicked(uris))) }
+    }
 
     fun clearRecent() {
         val now = System.currentTimeMillis()

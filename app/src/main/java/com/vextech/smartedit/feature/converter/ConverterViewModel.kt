@@ -76,6 +76,13 @@ class ConverterViewModel @Inject constructor(
         if (uri.lastPathSegment.orEmpty().endsWith(".pdf", ignoreCase = true)) selectPdf(uri) else selectImages(listOf(uri))
     }
 
+    /** Loads several pictures chosen on Home (they become one PDF). Runs once per screen instance. */
+    fun preselectMany(uris: List<Uri>) {
+        if (initialHandled) return
+        initialHandled = true
+        selectImages(uris)
+    }
+
     private suspend fun readImages(uris: List<Uri>): List<ConverterSource> = withContext(io) {
         uris.mapNotNull { uri ->
             metadataReader.persistReadPermission(uri)

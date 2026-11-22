@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.vextech.smartedit.core.ads.UnityAdsService
+import com.vextech.smartedit.core.library.IncomingFile
 import com.vextech.smartedit.core.sharing.ShareService
 import com.vextech.smartedit.feature.onboarding.OnboardingScreen
 import com.vextech.smartedit.feature.start.StartViewModel
@@ -21,7 +22,12 @@ import com.vextech.smartedit.ui.shell.MainShell
  * Everything the user touches after that lives inside [MainShell].
  */
 @Composable
-fun SmartEditNavigation(shareService: ShareService, adsService: UnityAdsService) {
+fun SmartEditNavigation(
+    shareService: ShareService,
+    adsService: UnityAdsService,
+    incoming: List<IncomingFile> = emptyList(),
+    onIncomingHandled: () -> Unit = {},
+) {
     val rootStack = rememberNavBackStack(StartRoute)
     NavDisplay(
         backStack = rootStack,
@@ -42,7 +48,7 @@ fun SmartEditNavigation(shareService: ShareService, adsService: UnityAdsService)
                 }
             }
             entry<OnboardingRoute> { OnboardingScreen(onComplete = { rootStack.clear(); rootStack.add(ShellRoute) }) }
-            entry<ShellRoute> { MainShell(shareService, adsService) }
+            entry<ShellRoute> { MainShell(shareService, adsService, incoming, onIncomingHandled) }
         },
     )
 }

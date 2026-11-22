@@ -70,11 +70,15 @@ fun ConverterScreen(
     share: ShareService,
     ads: UnityAdsService,
     initialUri: String? = null,
+    initialUris: List<String> = emptyList(),
+    onOpenTool: ((androidx.navigation3.runtime.NavKey) -> Unit)? = null,
     vm: ConverterViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
     val jobs by vm.jobs.collectAsState()
-    LaunchedEffect(initialUri) { initialUri?.let { vm.preselect(Uri.parse(it)) } }
+    LaunchedEffect(initialUri, initialUris) {
+        if (initialUris.size > 1) vm.preselectMany(initialUris.map(Uri::parse)) else (initialUris.firstOrNull() ?: initialUri)?.let { vm.preselect(Uri.parse(it)) }
+    }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { vm.selectImages(it) }
     val addPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { vm.addImages(it) }
@@ -170,6 +174,17 @@ fun ConverterScreen(
                                 },
                                 onSaveToDevice = { saveToDevice.save(output.uri, output.name, output.mimeType) },
                             )
+                            // Carry the result on, like the site's "Continue in Document Studio" / "Edit in Photo Studio".
+                            if (onOpenTool != null) {
+                                val next = when {
+                                    output.mimeType == "application/pdf" -> com.vextech.smartedit.ui.navigation.PdfToolsRoute(output.uri) to R.string.next_edit_pdf
+                                    output.mimeType.startsWith("image/") -> com.vextech.smartedit.ui.navigation.ImageEditorRoute(output.uri) to R.string.next_edit_image
+                                    else -> null
+                                }
+                                if (next != null) {
+                                    OutlinedButton(onClick = { onOpenTool(next.first) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(next.second)) }
+                                }
+                            }
                         }
                     }
                     BottomAction {

@@ -786,4 +786,13 @@
     <string name="files_filter_other">Other</string>
     <string name="files_filter_none">No files match</string>
     <string name="files_filter_none_hint">Try another type, or choose All types.</string>
+    <string name="intake_mixed">Choose pictures and PDFs separately. Several pictures can be made into a PDF.</string>
+    <string name="intake_nothing">Choose a PDF or a picture (JPG, PNG or WebP).</string>
+    <string name="intake_nothing_named">Smart Edit opens PDFs and pictures (JPG, PNG or WebP). Skipped: %1$s.</string>
+    <string name="intake_skipped">Unsupported files skipped: %1$s.</string>
+    <string name="intake_extra_pdfs">Opened %1$s. Open the other PDFs one at a time.</string>
+    <string name="next_edit_pdf">Edit this PDF</string>
+    <string name="next_edit_image">Edit this picture</string>
+    <string name="next_make_pdf">Make PDF</string>
+    <string name="next_read_text">Read text</string>
 </resources>

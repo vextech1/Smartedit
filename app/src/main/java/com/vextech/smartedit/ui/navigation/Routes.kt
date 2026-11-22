@@ -20,7 +20,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class LiveCameraRoute(val sessionId: String) : NavKey
 @Serializable data class OcrRoute(val uri: String? = null) : NavKey
 @Serializable data class PdfToolsRoute(val uri: String? = null) : NavKey
-@Serializable data class ConverterRoute(val uri: String? = null) : NavKey
+@Serializable data class ConverterRoute(val uri: String? = null, val uris: List<String> = emptyList()) : NavKey
 @Serializable data class CompressorRoute(val uri: String? = null) : NavKey
 @Serializable data class ImageEditorRoute(val uri: String? = null) : NavKey
 @Serializable data class NoteEditorRoute(val noteId: String? = null) : NavKey

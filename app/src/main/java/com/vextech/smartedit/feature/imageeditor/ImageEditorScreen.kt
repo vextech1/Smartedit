@@ -69,6 +69,7 @@ fun ImageEditorScreen(
     share: ShareService,
     ads: UnityAdsService,
     initialUri: String? = null,
+    onOpenTool: ((androidx.navigation3.runtime.NavKey) -> Unit)? = null,
     vm: ImageEditorViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -188,6 +189,19 @@ fun ImageEditorScreen(
                     ) { Icon(Icons.Rounded.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.share)) }
                     FilledTonalButton(onClick = { saveToDevice.save(saved.uri, saved.name, saved.mimeType) }, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Rounded.Download, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ie_save))
+                    }
+                }
+                if (onOpenTool != null) {
+                    // The site's image-result crossings: Make PDF and Read text.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = { vm.dismissSaved(); onOpenTool(com.vextech.smartedit.ui.navigation.ConverterRoute(uri = saved.uri)) },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(stringResource(R.string.next_make_pdf)) }
+                        OutlinedButton(
+                            onClick = { vm.dismissSaved(); onOpenTool(com.vextech.smartedit.ui.navigation.OcrRoute(saved.uri)) },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(stringResource(R.string.next_read_text)) }
                     }
                 }
                 TextButton(onClick = vm::dismissSaved, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ie_keep_editing)) }

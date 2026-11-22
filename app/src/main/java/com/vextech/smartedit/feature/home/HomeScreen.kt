@@ -52,6 +52,8 @@ import com.vextech.smartedit.core.sharing.ShareService
 import com.vextech.smartedit.core.ui.CollectUiEvents
 import com.vextech.smartedit.core.ui.UiEventChannel
 import com.vextech.smartedit.core.ui.UiText
+import com.vextech.smartedit.ui.navigation.message
+import com.vextech.smartedit.ui.navigation.toRoute
 import com.vextech.smartedit.ui.navigation.ConverterRoute
 import com.vextech.smartedit.ui.navigation.ImageEditorRoute
 import com.vextech.smartedit.ui.navigation.PdfToolsRoute
@@ -78,10 +80,13 @@ fun HomeScreen(onOpen: (NavKey) -> Unit, onSeeAll: () -> Unit, share: ShareServi
     val events = remember { UiEventChannel() }
     CollectUiEvents(events.events, snackbarHostState)
 
-    // "Upload Document": one PDF opens in the PDF editor, one image in the photo editor.
-    val context = LocalContext.current
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) onOpen(routeForPicked(uri.toString(), context.contentResolver.getType(uri)))
+    // "Upload Document": several PDFs or pictures can be chosen, and the same rules as the EditPro site decide where they go
+    // (a PDF to the PDF editor, one picture to the photo editor, several pictures to Create PDF; a mix is refused with a note).
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        vm.intake(uris) { plan ->
+            plan.message()?.let { events.message(it) }
+            plan.toRoute()?.let(onOpen)
+        }
     }
 
     fun open(entry: HistoryEntry, label: String) {
@@ -202,10 +207,6 @@ private fun kindOf(name: String): FileKind = when (mimeFor(name)) {
         else -> FileKind.OTHER
     }
 }
-
-/** Where a picked file goes: a PDF to the PDF editor, an image to the photo editor. Anything else is offered to the PDF editor, which says if it cannot open it. */
-private fun routeForPicked(uri: String, mime: String?): NavKey =
-    if (mime?.startsWith("image/") == true) ImageEditorRoute(uri) else PdfToolsRoute(uri)
 
 private fun HistoryEntry.label(): String = displayName?.takeIf { it.isNotBlank() } ?: description
 

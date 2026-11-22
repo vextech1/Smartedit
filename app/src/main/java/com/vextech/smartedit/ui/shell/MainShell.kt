@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -64,7 +66,9 @@ import com.vextech.smartedit.ui.navigation.SearchRoute
 import com.vextech.smartedit.ui.navigation.SettingsRoute
 import com.vextech.smartedit.ui.navigation.ToolsTabRoute
 import com.vextech.smartedit.ui.navigation.TrashRoute
+import com.vextech.smartedit.ui.navigation.message
 import com.vextech.smartedit.ui.navigation.routeFor
+import com.vextech.smartedit.ui.navigation.toRoute
 
 /** The five tabs EditPro has, in its order. Library shows Activity (everything you scanned, converted and edited); My files shows Files, Notes and Favorites. */
 enum class MainTab(val label: Int, val icon: ImageVector) {
@@ -80,7 +84,12 @@ enum class MainTab(val label: Int, val icon: ImageVector) {
  * the bar. Back pops the current stack; from a tab root it returns to Home; from Home it leaves the app.
  */
 @Composable
-fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
+fun MainShell(
+    shareService: ShareService,
+    adsService: UnityAdsService,
+    incoming: List<com.vextech.smartedit.core.library.IncomingFile> = emptyList(),
+    onIncomingHandled: () -> Unit = {},
+) {
     var tab by rememberSaveable { mutableStateOf(MainTab.HOME) }
     val homeStack = rememberNavBackStack(HomeRoute)
     val toolsStack = rememberNavBackStack(ToolsTabRoute)
@@ -101,8 +110,22 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
 
     BackHandler(enabled = atRoot && tab != MainTab.HOME) { tab = MainTab.HOME }
 
+    // Files shared to Smart Edit or opened with it: the same rules as the Upload card on Home, starting from the Home tab.
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(incoming) {
+        if (incoming.isEmpty()) return@LaunchedEffect
+        val plan = com.vextech.smartedit.core.library.IntakePolicies.plan(incoming)
+        onIncomingHandled()
+        tab = MainTab.HOME
+        while (homeStack.size > 1) homeStack.removeLastOrNull()
+        plan.toRoute()?.let { homeStack.add(it) }
+        plan.message()?.let { snackbar.showSnackbar(it.asString(context)) }
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { androidx.compose.material3.SnackbarHost(snackbar) },
         bottomBar = {
             if (atRoot) {
                 AppBottomBar(
@@ -146,9 +169,9 @@ fun MainShell(shareService: ShareService, adsService: UnityAdsService) {
                 entry<LiveCameraRoute> { route -> LiveCameraScreen(route.sessionId, ::back, shareService) }
                 entry<OcrRoute> { route -> OcrScreen(::back, shareService, initialUri = route.uri) }
                 entry<PdfToolsRoute> { route -> PdfToolsScreen(::back, shareService, adsService, initialUri = route.uri) }
-                entry<ConverterRoute> { route -> ConverterScreen(::back, shareService, adsService, initialUri = route.uri) }
+                entry<ConverterRoute> { route -> ConverterScreen(::back, shareService, adsService, initialUri = route.uri, initialUris = route.uris, onOpenTool = ::push) }
                 entry<CompressorRoute> { route -> CompressorScreen(::back, shareService, adsService, initialUri = route.uri) }
-                entry<ImageEditorRoute> { route -> ImageEditorScreen(::back, shareService, adsService, initialUri = route.uri) }
+                entry<ImageEditorRoute> { route -> ImageEditorScreen(::back, shareService, adsService, initialUri = route.uri, onOpenTool = ::push) }
                 entry<NoteEditorRoute> { route -> NoteEditorScreen(route.noteId, ::back, shareService) }
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }
