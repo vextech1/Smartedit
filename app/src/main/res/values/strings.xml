@@ -562,11 +562,6 @@
     <string name="nav_home">Home</string>
     <string name="nav_activity">Activity</string>
     <string name="nav_profile">Profile</string>
-    <string name="home_scanner_desc">Scan documents to PDF</string>
-    <string name="home_converter_desc">Convert files between formats</string>
-    <string name="home_compressor_desc">Reduce file sizes</string>
-    <string name="home_ocr_desc">Read text from a photo</string>
-    <string name="home_recent_files">Recent files</string>
     <string name="home_recent_detail">%1$s · %2$s</string>
     <string name="home_hero_lead">Edit. Create.</string>
     <string name="home_hero_accent">Organize.</string>
@@ -617,7 +612,7 @@
     <string name="admin_retry">Try again</string>
     <string name="admin_not_admin">This account is not an admin</string>
     <string name="admin_not_admin_hint">Ask the owner to add %1$s as an admin, then sign out and in again.</string>
-    <string name="admin_email_unverified">This Google account's email is not verified, so it cannot be an admin.</string>
+    <string name="admin_email_unverified">This Google account\'s email is not verified, so it cannot be an admin.</string>
     <string name="admin_role_owner">You are the owner</string>
     <string name="admin_role_owner_body">You can manage everything, and add or remove helper admins below.</string>
     <string name="admin_role_admin">You are an admin</string>
@@ -641,9 +636,6 @@
     <string name="home_section_recent">Recent Files</string>
     <string name="home_clear_all">Clear all</string>
     <string name="profile_account_title">Sign in or create an account</string>
-    <string name="profile_account_message">Accounts are coming soon. Smart Edit already works fully without one.</string>
-    <string name="profile_account_button">Sign in</string>
-    <string name="profile_coming_soon">Coming soon</string>
     <string name="profile_storage_title">Your library</string>
     <string name="profile_more_title">More</string>
     <string name="profile_stat_storage">Storage used</string>
