@@ -115,7 +115,7 @@ class BackupService @Inject constructor(
         put("scans", JSONArray(db.scanDao().snapshot().map { JSONObject().put("id",it.id).put("imageUri",it.imageUri).put("pdfUri",it.pdfUri).put("ocrText",it.ocrText).put("pageCount",it.pageCount).put("createdAt",it.createdAt) }))
         put("jobs", JSONArray(db.jobDao().snapshot().map { JSONObject().put("id",it.id).put("kind",it.kind).put("sourceUri",it.sourceUri).put("outputUri",it.outputUri).put("sourceFormat",it.sourceFormat).put("targetFormat",it.targetFormat).put("sourceSizeBytes",it.sourceSizeBytes).put("outputSizeBytes",it.outputSizeBytes).put("progress",it.progress.toDouble()).put("status",it.status).put("createdAt",it.createdAt).put("completedAt",it.completedAt).put("errorMessage",it.errorMessage) }))
         val appSettings = settingsRepository.settings.first()
-        put("settings", JSONObject().put("theme", appSettings.theme.name).put("language", appSettings.language).put("notificationsEnabled", appSettings.notificationsEnabled).put("autoBackupEnabled", appSettings.autoBackupEnabled).put("confirmDeleteEnabled", appSettings.confirmDeleteEnabled).put("defaultExportFormat", appSettings.defaultExportFormat).put("onboardingCompleted", appSettings.onboardingCompleted))
+        put("settings", JSONObject().put("theme", appSettings.theme.name).put("language", appSettings.language).put("notificationsEnabled", appSettings.notificationsEnabled).put("autoBackupEnabled", appSettings.autoBackupEnabled).put("confirmDeleteEnabled", appSettings.confirmDeleteEnabled).put("defaultExportFormat", appSettings.defaultExportFormat).put("onboardingCompleted", appSettings.onboardingCompleted).put("ocrScript", appSettings.ocrScript))
     }
 
     private suspend fun restoreJson(state: JSONObject) {
@@ -140,6 +140,7 @@ class BackupService @Inject constructor(
                 confirmDeleteEnabled = o.optBoolean("confirmDeleteEnabled", true),
                 defaultExportFormat = o.optString("defaultExportFormat", "pdf"),
                 onboardingCompleted = o.optBoolean("onboardingCompleted", true),
+                ocrScript = o.optString("ocrScript", "LATIN"),
             )
             settingsRepository.replace(restored)
             workScheduler.setAutoBackup(restored.autoBackupEnabled)

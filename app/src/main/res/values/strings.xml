@@ -32,6 +32,18 @@
     <string name="settings_confirm_delete">Confirm before deleting</string>
     <string name="settings_confirm_delete_desc">Ask first when moving items to trash</string>
     <string name="settings_export_format">Default export format</string>
+    <string name="settings_group_app">App</string>
+    <string name="settings_group_ocr">Text recognition</string>
+    <string name="settings_ocr_default">Default writing system</string>
+    <string name="settings_group_files">Files and backup</string>
+    <string name="settings_group_help">Help and legal</string>
+    <string name="settings_faq">FAQ</string>
+    <string name="settings_faq_desc">Common questions</string>
+    <string name="settings_contact">Contact</string>
+    <string name="settings_contact_desc">Get in touch</string>
+    <string name="settings_privacy">Privacy policy</string>
+    <string name="settings_terms">Terms of use</string>
+    <string name="settings_open_page_failed">Couldn’t open this page.</string>
     <string name="ai_notice">Smart Edit does not impersonate these services or add anything to their websites. Choose one to open its official site in a secure browser tab.</string>
     <string name="ai_opens_host">Opens %1$s in a browser tab</string>
 
@@ -787,4 +799,5 @@
     <string name="next_edit_image">Edit this picture</string>
     <string name="next_make_pdf">Make PDF</string>
     <string name="next_read_text">Read text</string>
+    <string name="settings_group_account">Account</string>
 </resources>

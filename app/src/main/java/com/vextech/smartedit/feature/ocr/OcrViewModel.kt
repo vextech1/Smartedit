@@ -17,6 +17,7 @@ import com.vextech.smartedit.core.library.OcrStats
 import com.vextech.smartedit.core.model.HistoryAction
 import com.vextech.smartedit.core.model.ResourceType
 import com.vextech.smartedit.core.ocr.OcrService
+import com.vextech.smartedit.core.preferences.SettingsRepository
 import com.vextech.smartedit.core.processing.ImageProcessor
 import com.vextech.smartedit.core.repository.NotesRepository
 import com.vextech.smartedit.core.repository.SmartEditRepository
@@ -29,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,6 +57,7 @@ class OcrViewModel @Inject constructor(
     private val store: DocumentStore,
     private val metadataReader: UriMetadataReader,
     private val processor: ImageProcessor,
+    private val settings: SettingsRepository,
     @IoDispatcher private val io: CoroutineDispatcher,
 ) : ViewModel() {
     private val _state = MutableStateFlow(OcrUiState())
@@ -68,6 +71,15 @@ class OcrViewModel @Inject constructor(
 
     private var job: Job? = null
     private var initialHandled = false
+    private var scriptChosen = false
+
+    init {
+        // Start on the writing system saved in Settings, unless the person has already picked one on this screen.
+        viewModelScope.launch {
+            val saved = OcrPolicies.scriptFromSetting(settings.settings.first().ocrScript)
+            _state.update { if (scriptChosen || it.running) it else it.copy(script = saved) }
+        }
+    }
 
     fun preselect(uri: Uri) {
         if (initialHandled) return
@@ -104,7 +116,7 @@ class OcrViewModel @Inject constructor(
         _state.update { it.copy(stats = OcrPolicies.stats(value)) }
     }
 
-    fun setScript(script: OcrScript) { if (!_state.value.running) _state.update { it.copy(script = script) } }
+    fun setScript(script: OcrScript) { if (!_state.value.running) { scriptChosen = true; _state.update { it.copy(script = script) } } }
 
     fun extract() {
         val current = _state.value

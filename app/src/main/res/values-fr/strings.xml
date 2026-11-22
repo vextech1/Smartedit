@@ -471,6 +471,18 @@
     <string name="settings_confirm_delete">Confirmer avant de supprimer</string>
     <string name="settings_confirm_delete_desc">Demander d\'abord lors du déplacement vers la corbeille</string>
     <string name="settings_export_format">Format d\'export par défaut</string>
+    <string name="settings_group_app">Application</string>
+    <string name="settings_group_ocr">Reconnaissance de texte</string>
+    <string name="settings_ocr_default">Système d’écriture par défaut</string>
+    <string name="settings_group_files">Fichiers et sauvegarde</string>
+    <string name="settings_group_help">Aide et mentions légales</string>
+    <string name="settings_faq">FAQ</string>
+    <string name="settings_faq_desc">Questions fréquentes</string>
+    <string name="settings_contact">Contact</string>
+    <string name="settings_contact_desc">Écrivez-nous</string>
+    <string name="settings_privacy">Politique de confidentialité</string>
+    <string name="settings_terms">Conditions d’utilisation</string>
+    <string name="settings_open_page_failed">Impossible d’ouvrir cette page.</string>
     <string name="ai_notice">Smart Edit n\'usurpe pas l\'identité de ces services et n\'ajoute rien à leurs sites web. Choisissez-en un pour ouvrir son site officiel dans un onglet de navigateur sécurisé.</string>
     <string name="ai_opens_host">Ouvre %1$s dans un onglet du navigateur</string>
     <string name="files_notice_moved_many">%1$d éléments déplacés</string>
@@ -750,4 +762,5 @@
     <string name="next_edit_image">Modifier cette image</string>
     <string name="next_make_pdf">Créer un PDF</string>
     <string name="next_read_text">Lire le texte</string>
+    <string name="settings_group_account">Compte</string>
 </resources>

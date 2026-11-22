@@ -176,7 +176,7 @@ fun MainShell(
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }
                 entry<BackupRoute> { BackupScreen(::back, shareService) }
-                entry<SettingsRoute> { SettingsScreen(onBack = null, onOpenProfile = { push(ProfileRoute) }, onOpenAdmin = { push(AdminRoute) }) }
+                entry<SettingsRoute> { SettingsScreen(onBack = null, onTrash = { push(TrashRoute) }, onOpenProfile = { push(ProfileRoute) }, onOpenAdmin = { push(AdminRoute) }) }
                 entry<AdminRoute> { AdminScreen(::back) }
                 entry<AiAssistRoute> { AiAssistScreen(::back) }
             },
