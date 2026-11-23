@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EditPro</string><string name="converter">Convertisseur</string><string name="compressor">Compresseur</string><string name="notes">Notes</string><string name="files">Fichiers</string><string name="search">Recherche</string><string name="favorites">Favoris</string><string name="trash">Corbeille</string><string name="backup">Sauvegarde</string><string name="settings">Paramètres</string><string name="ai_assist">Assistant IA</string>
-    <string name="back">Retour</string><string name="cancel">Annuler</string><string name="close">Fermer</string><string name="create">Créer</string><string name="details">Détails</string><string name="more_options">Plus d’options</string><string name="name">Nom</string><string name="open">Ouvrir</string><string name="rename">Renommer</string><string name="share">Partager</string>
+    <string name="app_name">EditPro</string><string name="converter">Convertisseur</string><string name="compressor">Compresseur</string><string name="notes">Notes</string><string name="files">Fichiers</string><string name="search">Recherche</string><string name="favorites">Favoris</string><string name="trash">Corbeille</string><string name="backup">Sauvegarde</string><string name="settings">Paramètres</string>    <string name="back">Retour</string><string name="cancel">Annuler</string><string name="close">Fermer</string><string name="create">Créer</string><string name="details">Détails</string><string name="more_options">Plus d’options</string><string name="name">Nom</string><string name="open">Ouvrir</string><string name="rename">Renommer</string><string name="share">Partager</string>
     <string name="files_import">Importer des fichiers</string><string name="files_new_folder">Nouveau dossier</string><string name="files_import_clipboard">Importer le presse-papiers</string><string name="files_toggle_view">Basculer liste ou grille</string><string name="files_sort_name">Nom</string><string name="files_sort_modified">Modifié</string><string name="files_sort_size">Taille</string><string name="files_sort_type">Type</string><string name="files_empty_title">Dossier vide</string><string name="files_empty_description">Importez un fichier, créez un dossier ou ajoutez du contenu depuis une autre fonction EditPro.</string><string name="files_folder">Dossier</string><string name="files_favorite">Favori</string><string name="files_move">Déplacer</string><string name="files_move_title">Déplacer %1$s</string><string name="files_root">Fichiers (racine)</string><string name="files_move_to_trash">Mettre à la corbeille</string><string name="files_move_to_trash_title">Mettre à la corbeille ?</string><string name="files_move_to_trash_message">%1$s sera placé dans la corbeille et pourra être restauré plus tard.</string><string name="files_type">Type</string><string name="files_size">Taille</string><string name="files_location">Emplacement</string><string name="files_created">Créé</string><string name="files_modified">Modifié</string><string name="files_open_failed">Aucune application ne peut ouvrir ce fichier.</string><string name="files_share_failed">Ce fichier n’a pas pu être partagé.</string>
 
     <string name="files_error_import">Impossible d’importer le fichier sélectionné.</string>
@@ -337,7 +336,6 @@
     <string name="profile_more_title">Plus</string>
     <string name="profile_stat_storage">Stockage utilisé</string>
     <string name="profile_backup_desc">Sauvegardez et restaurez vos données</string>
-    <string name="profile_ai_desc">Ouvrez un assistant IA dans votre navigateur</string>
     <string name="profile_about">À propos</string>
     <string name="profile_about_version">Version %1$s</string>
     <string name="profile_about_message">Numérisez, modifiez et convertissez des documents où que vous soyez.</string>
@@ -483,8 +481,6 @@
     <string name="settings_privacy">Politique de confidentialité</string>
     <string name="settings_terms">Conditions d’utilisation</string>
     <string name="settings_open_page_failed">Impossible d’ouvrir cette page.</string>
-    <string name="ai_notice">EditPro n\'usurpe pas l\'identité de ces services et n\'ajoute rien à leurs sites web. Choisissez-en un pour ouvrir son site officiel dans un onglet de navigateur sécurisé.</string>
-    <string name="ai_opens_host">Ouvre %1$s dans un onglet du navigateur</string>
     <string name="files_notice_moved_many">%1$d éléments déplacés</string>
     <string name="files_notice_trashed_many">%1$d éléments placés dans la corbeille</string>
     <string name="files_move_many_title">Déplacer %1$d éléments vers</string>

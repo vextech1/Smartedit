@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EditPro</string><string name="converter">Convertidor</string><string name="compressor">Compresor</string><string name="notes">Notas</string><string name="files">Archivos</string><string name="search">Buscar</string><string name="favorites">Favoritos</string><string name="trash">Papelera</string><string name="backup">Copia de seguridad</string><string name="settings">Ajustes</string><string name="ai_assist">Asistente IA</string>
-    <string name="back">Atrás</string><string name="cancel">Cancelar</string><string name="close">Cerrar</string><string name="create">Crear</string><string name="details">Detalles</string><string name="more_options">Más opciones</string><string name="name">Nombre</string><string name="open">Abrir</string><string name="rename">Renombrar</string><string name="share">Compartir</string>
+    <string name="app_name">EditPro</string><string name="converter">Convertidor</string><string name="compressor">Compresor</string><string name="notes">Notas</string><string name="files">Archivos</string><string name="search">Buscar</string><string name="favorites">Favoritos</string><string name="trash">Papelera</string><string name="backup">Copia de seguridad</string><string name="settings">Ajustes</string>    <string name="back">Atrás</string><string name="cancel">Cancelar</string><string name="close">Cerrar</string><string name="create">Crear</string><string name="details">Detalles</string><string name="more_options">Más opciones</string><string name="name">Nombre</string><string name="open">Abrir</string><string name="rename">Renombrar</string><string name="share">Compartir</string>
     <string name="files_import">Importar archivos</string><string name="files_new_folder">Nueva carpeta</string><string name="files_import_clipboard">Importar portapapeles</string><string name="files_toggle_view">Cambiar entre lista y cuadrícula</string><string name="files_sort_name">Nombre</string><string name="files_sort_modified">Modificado</string><string name="files_sort_size">Tamaño</string><string name="files_sort_type">Tipo</string><string name="files_empty_title">Carpeta vacía</string><string name="files_empty_description">Importa un archivo, crea una carpeta o añade contenido desde otra función de EditPro.</string><string name="files_folder">Carpeta</string><string name="files_favorite">Favorito</string><string name="files_move">Mover</string><string name="files_move_title">Mover %1$s</string><string name="files_root">Archivos (raíz)</string><string name="files_move_to_trash">Mover a la papelera</string><string name="files_move_to_trash_title">¿Mover a la papelera?</string><string name="files_move_to_trash_message">%1$s se moverá a la Papelera y podrá restaurarse después.</string><string name="files_type">Tipo</string><string name="files_size">Tamaño</string><string name="files_location">Ubicación</string><string name="files_created">Creado</string><string name="files_modified">Modificado</string><string name="files_open_failed">Ninguna aplicación pudo abrir este archivo.</string><string name="files_share_failed">No se pudo compartir este archivo.</string>
 
     <string name="files_error_import">No se pudo importar el archivo seleccionado.</string>
@@ -337,7 +336,6 @@
     <string name="profile_more_title">Más</string>
     <string name="profile_stat_storage">Almacenamiento usado</string>
     <string name="profile_backup_desc">Copia de seguridad y restauración de tus datos</string>
-    <string name="profile_ai_desc">Abre un asistente de IA en tu navegador</string>
     <string name="profile_about">Acerca de</string>
     <string name="profile_about_version">Versión %1$s</string>
     <string name="profile_about_message">Escanea, edita y convierte documentos estés donde estés.</string>
@@ -483,8 +481,6 @@
     <string name="settings_privacy">Política de privacidad</string>
     <string name="settings_terms">Términos de uso</string>
     <string name="settings_open_page_failed">No se pudo abrir esta página.</string>
-    <string name="ai_notice">EditPro no suplanta estos servicios ni añade nada a sus sitios web. Elige uno para abrir su sitio oficial en una pestaña segura del navegador.</string>
-    <string name="ai_opens_host">Abre %1$s en una pestaña del navegador</string>
     <string name="files_notice_moved_many">Se movieron %1$d elementos</string>
     <string name="files_notice_trashed_many">%1$d elementos movidos a la papelera</string>
     <string name="files_move_many_title">Mover %1$d elementos a</string>

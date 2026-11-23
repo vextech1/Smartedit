@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EditPro</string><string name="converter">कन्वर्टर</string><string name="compressor">कंप्रेसर</string><string name="notes">नोट्स</string><string name="files">फ़ाइलें</string><string name="search">खोज</string><string name="favorites">पसंदीदा</string><string name="trash">ट्रैश</string><string name="backup">बैकअप</string><string name="settings">सेटिंग्स</string><string name="ai_assist">AI सहायक</string>
-    <string name="back">वापस</string><string name="cancel">रद्द करें</string><string name="close">बंद करें</string><string name="create">बनाएँ</string><string name="details">विवरण</string><string name="more_options">और विकल्प</string><string name="name">नाम</string><string name="open">खोलें</string><string name="rename">नाम बदलें</string><string name="share">साझा करें</string>
+    <string name="app_name">EditPro</string><string name="converter">कन्वर्टर</string><string name="compressor">कंप्रेसर</string><string name="notes">नोट्स</string><string name="files">फ़ाइलें</string><string name="search">खोज</string><string name="favorites">पसंदीदा</string><string name="trash">ट्रैश</string><string name="backup">बैकअप</string><string name="settings">सेटिंग्स</string>    <string name="back">वापस</string><string name="cancel">रद्द करें</string><string name="close">बंद करें</string><string name="create">बनाएँ</string><string name="details">विवरण</string><string name="more_options">और विकल्प</string><string name="name">नाम</string><string name="open">खोलें</string><string name="rename">नाम बदलें</string><string name="share">साझा करें</string>
     <string name="files_import">फ़ाइलें आयात करें</string><string name="files_new_folder">नया फ़ोल्डर</string><string name="files_import_clipboard">क्लिपबोर्ड आयात करें</string><string name="files_toggle_view">सूची या ग्रिड दृश्य बदलें</string><string name="files_sort_name">नाम</string><string name="files_sort_modified">संशोधित</string><string name="files_sort_size">आकार</string><string name="files_sort_type">प्रकार</string><string name="files_empty_title">खाली फ़ोल्डर</string><string name="files_empty_description">फ़ाइल आयात करें, फ़ोल्डर बनाएँ या EditPro की किसी अन्य सुविधा से सामग्री जोड़ें।</string><string name="files_folder">फ़ोल्डर</string><string name="files_favorite">पसंदीदा</string><string name="files_move">स्थानांतरित करें</string><string name="files_move_title">%1$s को स्थानांतरित करें</string><string name="files_root">फ़ाइलें (रूट)</string><string name="files_move_to_trash">ट्रैश में भेजें</string><string name="files_move_to_trash_title">ट्रैश में भेजें?</string><string name="files_move_to_trash_message">%1$s को ट्रैश में भेजा जाएगा और बाद में पुनर्स्थापित किया जा सकेगा।</string><string name="files_type">प्रकार</string><string name="files_size">आकार</string><string name="files_location">स्थान</string><string name="files_created">बनाया गया</string><string name="files_modified">संशोधित</string><string name="files_open_failed">कोई ऐप इस फ़ाइल को नहीं खोल सका।</string><string name="files_share_failed">यह फ़ाइल साझा नहीं की जा सकी।</string>
 
     <string name="files_error_import">चुनी गई फ़ाइल आयात नहीं की जा सकी।</string>
@@ -336,7 +335,6 @@
     <string name="profile_more_title">और</string>
     <string name="profile_stat_storage">उपयोग किया गया स्टोरेज</string>
     <string name="profile_backup_desc">अपने डेटा का बैकअप लें और पुनर्स्थापित करें</string>
-    <string name="profile_ai_desc">अपने ब्राउज़र में AI असिस्टेंट खोलें</string>
     <string name="profile_about">ऐप के बारे में</string>
     <string name="profile_about_version">संस्करण %1$s</string>
     <string name="profile_about_message">चलते-फिरते दस्तावेज़ स्कैन, संपादित और रूपांतरित करें।</string>
@@ -480,8 +478,6 @@
     <string name="settings_privacy">गोपनीयता नीति</string>
     <string name="settings_terms">उपयोग की शर्तें</string>
     <string name="settings_open_page_failed">यह पेज नहीं खुल सका।</string>
-    <string name="ai_notice">EditPro इन सेवाओं का रूप नहीं धरता और उनकी वेबसाइटों में कुछ नहीं जोड़ता। किसी एक को चुनें, उसकी आधिकारिक साइट सुरक्षित ब्राउज़र टैब में खुलेगी।</string>
-    <string name="ai_opens_host">ब्राउज़र टैब में %1$s खोलता है</string>
     <string name="files_notice_moved_many">%1$d आइटम स्थानांतरित किए गए</string>
     <string name="files_notice_trashed_many">%1$d आइटम ट्रैश में भेजे गए</string>
     <string name="files_move_many_title">%1$d आइटम यहाँ ले जाएँ</string>

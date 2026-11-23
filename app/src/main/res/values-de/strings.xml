@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EditPro</string><string name="converter">Konverter</string><string name="compressor">Kompressor</string><string name="notes">Notizen</string><string name="files">Dateien</string><string name="search">Suche</string><string name="favorites">Favoriten</string><string name="trash">Papierkorb</string><string name="backup">Sicherung</string><string name="settings">Einstellungen</string><string name="ai_assist">KI-Assistent</string>
-    <string name="back">Zurück</string><string name="cancel">Abbrechen</string><string name="close">Schließen</string><string name="create">Erstellen</string><string name="details">Details</string><string name="more_options">Weitere Optionen</string><string name="name">Name</string><string name="open">Öffnen</string><string name="rename">Umbenennen</string><string name="share">Teilen</string>
+    <string name="app_name">EditPro</string><string name="converter">Konverter</string><string name="compressor">Kompressor</string><string name="notes">Notizen</string><string name="files">Dateien</string><string name="search">Suche</string><string name="favorites">Favoriten</string><string name="trash">Papierkorb</string><string name="backup">Sicherung</string><string name="settings">Einstellungen</string>    <string name="back">Zurück</string><string name="cancel">Abbrechen</string><string name="close">Schließen</string><string name="create">Erstellen</string><string name="details">Details</string><string name="more_options">Weitere Optionen</string><string name="name">Name</string><string name="open">Öffnen</string><string name="rename">Umbenennen</string><string name="share">Teilen</string>
     <string name="files_import">Dateien importieren</string><string name="files_new_folder">Neuer Ordner</string><string name="files_import_clipboard">Zwischenablage importieren</string><string name="files_toggle_view">Listen- oder Rasteransicht wechseln</string><string name="files_sort_name">Name</string><string name="files_sort_modified">Geändert</string><string name="files_sort_size">Größe</string><string name="files_sort_type">Typ</string><string name="files_empty_title">Leerer Ordner</string><string name="files_empty_description">Importiere eine Datei, erstelle einen Ordner oder füge Inhalte aus einer anderen EditPro-Funktion hinzu.</string><string name="files_folder">Ordner</string><string name="files_favorite">Favorit</string><string name="files_move">Verschieben</string><string name="files_move_title">%1$s verschieben</string><string name="files_root">Dateien (Stamm)</string><string name="files_move_to_trash">In Papierkorb verschieben</string><string name="files_move_to_trash_title">In den Papierkorb verschieben?</string><string name="files_move_to_trash_message">%1$s wird in den Papierkorb verschoben und kann später wiederhergestellt werden.</string><string name="files_type">Typ</string><string name="files_size">Größe</string><string name="files_location">Speicherort</string><string name="files_created">Erstellt</string><string name="files_modified">Geändert</string><string name="files_open_failed">Keine App konnte diese Datei öffnen.</string><string name="files_share_failed">Diese Datei konnte nicht geteilt werden.</string>
 
     <string name="files_error_import">Die ausgewählte Datei konnte nicht importiert werden.</string>
@@ -336,7 +335,6 @@
     <string name="profile_more_title">Mehr</string>
     <string name="profile_stat_storage">Belegter Speicher</string>
     <string name="profile_backup_desc">Daten sichern und wiederherstellen</string>
-    <string name="profile_ai_desc">Einen KI-Assistenten im Browser öffnen</string>
     <string name="profile_about">Über die App</string>
     <string name="profile_about_version">Version %1$s</string>
     <string name="profile_about_message">Dokumente unterwegs scannen, bearbeiten und konvertieren.</string>
@@ -480,8 +478,6 @@
     <string name="settings_privacy">Datenschutzerklärung</string>
     <string name="settings_terms">Nutzungsbedingungen</string>
     <string name="settings_open_page_failed">Diese Seite konnte nicht geöffnet werden.</string>
-    <string name="ai_notice">EditPro gibt sich nicht als diese Dienste aus und fügt deren Websites nichts hinzu. Wähle einen Dienst, um die offizielle Website in einem sicheren Browser-Tab zu öffnen.</string>
-    <string name="ai_opens_host">Öffnet %1$s in einem Browser-Tab</string>
     <string name="files_notice_moved_many">%1$d Elemente verschoben</string>
     <string name="files_notice_trashed_many">%1$d Elemente in den Papierkorb verschoben</string>
     <string name="files_move_many_title">%1$d Elemente verschieben nach</string>

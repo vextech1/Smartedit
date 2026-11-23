@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">EditPro</string><string name="converter">المحوّل</string><string name="compressor">الضغط</string><string name="notes">الملاحظات</string><string name="files">الملفات</string><string name="search">بحث</string><string name="favorites">المفضلة</string><string name="trash">سلة المهملات</string><string name="backup">النسخ الاحتياطي</string><string name="settings">الإعدادات</string><string name="ai_assist">مساعد الذكاء الاصطناعي</string>
-    <string name="back">رجوع</string><string name="cancel">إلغاء</string><string name="close">إغلاق</string><string name="create">إنشاء</string><string name="details">التفاصيل</string><string name="more_options">خيارات إضافية</string><string name="name">الاسم</string><string name="open">فتح</string><string name="rename">إعادة تسمية</string><string name="share">مشاركة</string>
+    <string name="app_name">EditPro</string><string name="converter">المحوّل</string><string name="compressor">الضغط</string><string name="notes">الملاحظات</string><string name="files">الملفات</string><string name="search">بحث</string><string name="favorites">المفضلة</string><string name="trash">سلة المهملات</string><string name="backup">النسخ الاحتياطي</string><string name="settings">الإعدادات</string>    <string name="back">رجوع</string><string name="cancel">إلغاء</string><string name="close">إغلاق</string><string name="create">إنشاء</string><string name="details">التفاصيل</string><string name="more_options">خيارات إضافية</string><string name="name">الاسم</string><string name="open">فتح</string><string name="rename">إعادة تسمية</string><string name="share">مشاركة</string>
     <string name="files_import">استيراد ملفات</string><string name="files_new_folder">مجلد جديد</string><string name="files_import_clipboard">استيراد الحافظة</string><string name="files_toggle_view">التبديل بين القائمة والشبكة</string><string name="files_sort_name">الاسم</string><string name="files_sort_modified">آخر تعديل</string><string name="files_sort_size">الحجم</string><string name="files_sort_type">النوع</string><string name="files_empty_title">المجلد فارغ</string><string name="files_empty_description">استورد ملفًا أو أنشئ مجلدًا أو أضف محتوى من ميزة أخرى في EditPro.</string><string name="files_folder">مجلد</string><string name="files_favorite">مفضلة</string><string name="files_move">نقل</string><string name="files_move_title">نقل %1$s</string><string name="files_root">الملفات (الجذر)</string><string name="files_move_to_trash">نقل إلى سلة المهملات</string><string name="files_move_to_trash_title">النقل إلى سلة المهملات؟</string><string name="files_move_to_trash_message">سيتم نقل %1$s إلى سلة المهملات ويمكن استعادته لاحقًا.</string><string name="files_type">النوع</string><string name="files_size">الحجم</string><string name="files_location">الموقع</string><string name="files_created">تاريخ الإنشاء</string><string name="files_modified">آخر تعديل</string><string name="files_open_failed">لا يوجد تطبيق يمكنه فتح هذا الملف.</string><string name="files_share_failed">تعذرت مشاركة هذا الملف.</string>
 
     <string name="files_error_import">تعذر استيراد الملف المحدد.</string>
@@ -340,7 +339,6 @@
     <string name="profile_more_title">المزيد</string>
     <string name="profile_stat_storage">المساحة المستخدمة</string>
     <string name="profile_backup_desc">انسخ بياناتك احتياطيًا واستعدها</string>
-    <string name="profile_ai_desc">افتح مساعد ذكاء اصطناعي في متصفحك</string>
     <string name="profile_about">حول التطبيق</string>
     <string name="profile_about_version">الإصدار %1$s</string>
     <string name="profile_about_message">امسح المستندات وعدّلها وحوّلها أينما كنت.</string>
@@ -492,8 +490,6 @@
     <string name="settings_privacy">سياسة الخصوصية</string>
     <string name="settings_terms">شروط الاستخدام</string>
     <string name="settings_open_page_failed">تعذّر فتح هذه الصفحة.</string>
-    <string name="ai_notice">لا ينتحل EditPro صفة هذه الخدمات ولا يضيف أي شيء إلى مواقعها. اختر واحدة لفتح موقعها الرسمي في علامة تبويب متصفح آمنة.</string>
-    <string name="ai_opens_host">يفتح %1$s في علامة تبويب بالمتصفح</string>
     <string name="files_notice_moved_many">تم نقل %1$d عنصرًا</string>
     <string name="files_notice_trashed_many">تم نقل %1$d عنصرًا إلى سلة المهملات</string>
     <string name="files_move_many_title">نقل %1$d عنصرًا إلى</string>
