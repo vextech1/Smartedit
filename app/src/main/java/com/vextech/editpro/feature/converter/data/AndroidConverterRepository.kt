@@ -134,7 +134,7 @@ class AndroidConverterRepository @Inject constructor(
                 is ConversionRequest.ImagesToPdf -> convertImagesToPdf(request, staged, generated) { update(it) }
                 is ConversionRequest.ImagesToFormat -> convertImagesToFormat(request, staged, generated) { update(it) }
                 is ConversionRequest.PdfToImages -> convertPdfToImages(request, staged, transient, generated) { update(it) }
-                is ConversionRequest.PdfToDocx -> convertPdfToDocx(request, staged, generated) { update(it) }
+                is ConversionRequest.PdfToDocx -> convertPdfToDocx(request, staged, transient, generated) { update(it) }
                 is ConversionRequest.PdfToText -> convertPdfToText(request, staged, generated) { update(it) }
             }
             currentCoroutineContext().ensureActive()
@@ -299,6 +299,7 @@ class AndroidConverterRepository @Inject constructor(
     private suspend fun convertPdfToDocx(
         request: ConversionRequest.PdfToDocx,
         staged: MutableList<File>,
+        transient: MutableList<File>,
         generated: MutableList<File>,
         progress: suspend (Float) -> Unit,
     ): List<File> {
