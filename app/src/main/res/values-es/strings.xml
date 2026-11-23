@@ -862,4 +862,7 @@
     <string name="converter_keep_scans">Conservar como imágenes las páginas sin texto (escaneos)</string>
     <string name="compressor_grayscale">Convertir a escala de grises (blanco y negro)</string>
     <string name="compressor_grayscale_hint">La escala de grises convierte cada página en una imagen. El texto ya no se podrá seleccionar ni buscar.</string>
-    <string name="pdf_creator">Creado con</string>\n    <string name="pdf_producer">Productor del PDF</string>\n    <string name="pdf_remove_all_metadata">Quitar todos los metadatos (título, autor, fechas, nombres de software)</string>\n</resources>
+    <string name="pdf_creator">Creado con</string>
+    <string name="pdf_producer">Productor del PDF</string>
+    <string name="pdf_remove_all_metadata">Quitar todos los metadatos (título, autor, fechas, nombres de software)</string>
+</resources>

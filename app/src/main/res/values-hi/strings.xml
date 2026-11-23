@@ -854,4 +854,7 @@
     <string name="converter_keep_scans">बिना टेक्स्ट वाले पृष्ठ (स्कैन) तस्वीर के रूप में रखें</string>
     <string name="compressor_grayscale">ग्रेस्केल में बदलें (श्वेत-श्याम)</string>
     <string name="compressor_grayscale_hint">ग्रेस्केल हर पेज को एक चित्र बना देता है। टेक्स्ट को चुना या खोजा नहीं जा सकेगा।</string>
-    <string name="pdf_creator">इसके साथ बनाया गया</string>\n    <string name="pdf_producer">PDF निर्माता</string>\n    <string name="pdf_remove_all_metadata">सारा मेटाडेटा हटाएँ (शीर्षक, लेखक, तिथियाँ, सॉफ़्टवेयर के नाम)</string>\n</resources>
+    <string name="pdf_creator">इसके साथ बनाया गया</string>
+    <string name="pdf_producer">PDF निर्माता</string>
+    <string name="pdf_remove_all_metadata">सारा मेटाडेटा हटाएँ (शीर्षक, लेखक, तिथियाँ, सॉफ़्टवेयर के नाम)</string>
+</resources>
