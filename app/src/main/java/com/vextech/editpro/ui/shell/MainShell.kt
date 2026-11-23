@@ -27,7 +27,6 @@ import com.vextech.editpro.R
 import com.vextech.editpro.core.ads.UnityAdsService
 import com.vextech.editpro.core.sharing.ShareService
 import com.vextech.editpro.feature.admin.AdminScreen
-import com.vextech.editpro.feature.ai.AiAssistScreen
 import com.vextech.editpro.feature.backup.BackupScreen
 import com.vextech.editpro.feature.classlibrary.ClassLibraryScreen
 import com.vextech.editpro.feature.compressor.CompressorScreen
@@ -54,7 +53,6 @@ import com.vextech.editpro.ui.navigation.LibraryUploadRoute
 import com.vextech.editpro.ui.navigation.StudentFilesRoute
 import com.vextech.editpro.feature.classlibrary.LibraryUploadScreen
 import com.vextech.editpro.feature.classlibrary.StudentFilesScreen
-import com.vextech.editpro.ui.navigation.AiAssistRoute
 import com.vextech.editpro.ui.navigation.BackupRoute
 import com.vextech.editpro.ui.navigation.CompressorRoute
 import com.vextech.editpro.ui.navigation.ConverterRoute
@@ -187,7 +185,6 @@ fun MainShell(
                 entry<AdminRoute> { AdminScreen(::back, onOpen = ::push) }
                 entry<LibraryUploadRoute> { route -> LibraryUploadScreen(route.admin, ::back) }
                 entry<StudentFilesRoute> { StudentFilesScreen(::back) }
-                entry<AiAssistRoute> { AiAssistScreen(::back) }
             },
         )
     }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.History
@@ -48,7 +47,6 @@ import com.vextech.editpro.core.ui.FeatureScaffold
 import com.vextech.editpro.feature.account.AccountCard
 import com.vextech.editpro.core.ui.SectionHeader
 import com.vextech.editpro.core.ui.formatBytes
-import com.vextech.editpro.ui.navigation.AiAssistRoute
 import com.vextech.editpro.ui.navigation.ActivityRoute
 import com.vextech.editpro.ui.navigation.BackupRoute
 
@@ -69,9 +67,6 @@ fun ProfileScreen(onOpen: (NavKey) -> Unit, onBack: (() -> Unit)? = null, vm: Pr
             }
             item(key = "backup") {
                 NavRow(Icons.Rounded.Backup, stringResource(R.string.backup), stringResource(R.string.profile_backup_desc)) { onOpen(BackupRoute) }
-            }
-            item(key = "ai") {
-                NavRow(Icons.Rounded.AutoAwesome, stringResource(R.string.ai_assist), stringResource(R.string.profile_ai_desc)) { onOpen(AiAssistRoute) }
             }
             item(key = "about") {
                 NavRow(Icons.Rounded.Info, stringResource(R.string.profile_about), null) { showAbout = true }
