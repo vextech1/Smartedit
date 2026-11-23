@@ -127,6 +127,7 @@ interface PdfEngine {
         shouldContinue: () -> Boolean = { true },
         onImageProcessed: (processed: Int, total: Int) -> Unit = { _, _ -> },
         pageSize: PdfPageSize = PdfPageSize.FIT_IMAGE,
+        marginPoints: Float = ImagePlacements.MARGIN_SMALL,
     )
     /**
      * Rebuilds the PDF with every page rendered to a JPEG. [onProgress] receives 0..1 before each page and may throw
@@ -871,6 +872,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         shouldContinue: () -> Boolean,
         onImageProcessed: (processed: Int, total: Int) -> Unit,
         pageSize: PdfPageSize,
+        marginPoints: Float,
     ) {
         require(images.isNotEmpty())
         PDDocument().use { doc ->
@@ -892,11 +894,9 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                         if (pageSize == PdfPageSize.FIT_IMAGE) {
                             stream.drawImage(image, 0f, 0f, page.mediaBox.width, page.mediaBox.height)
                         } else {
-                            // Standard paper: keep the image's proportions, centered inside a 24 pt margin.
-                            val margin = 24f
-                            val scale = minOf((page.mediaBox.width - 2 * margin) / bitmap.width, (page.mediaBox.height - 2 * margin) / bitmap.height)
-                            val w = bitmap.width * scale; val h = bitmap.height * scale
-                            stream.drawImage(image, (page.mediaBox.width - w) / 2f, (page.mediaBox.height - h) / 2f, w, h)
+                            // Standard paper: keep the image's proportions, centred inside the chosen margin.
+                            val at = ImagePlacements.onPaper(page.mediaBox.width, page.mediaBox.height, marginPoints, bitmap.width, bitmap.height)
+                            stream.drawImage(image, at.x, at.y, at.width, at.height)
                         }
                     }
                 } finally {

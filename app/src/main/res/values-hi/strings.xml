@@ -857,4 +857,9 @@
     <string name="pdf_creator">इसके साथ बनाया गया</string>
     <string name="pdf_producer">PDF निर्माता</string>
     <string name="pdf_remove_all_metadata">सारा मेटाडेटा हटाएँ (शीर्षक, लेखक, तिथियाँ, सॉफ़्टवेयर के नाम)</string>
+    <string name="pdf_merge_unreadable">एक फ़ाइल को मर्ज नहीं किया जा सकता। वह पासवर्ड से सुरक्षित है या खराब है। पहले अपने PDF ऐप में पासवर्ड हटाएँ।</string>
+    <string name="converter_margin">हाशिया</string>
+    <string name="converter_margin_none">कोई नहीं</string>
+    <string name="converter_margin_small">छोटा</string>
+    <string name="converter_margin_large">बड़ा</string>
 </resources>

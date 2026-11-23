@@ -865,4 +865,9 @@
     <string name="pdf_creator">Creado con</string>
     <string name="pdf_producer">Productor del PDF</string>
     <string name="pdf_remove_all_metadata">Quitar todos los metadatos (título, autor, fechas, nombres de software)</string>
+    <string name="pdf_merge_unreadable">Uno de los archivos no se puede combinar. Está protegido con contraseña o dañado. Quita primero la contraseña en tu aplicación de PDF.</string>
+    <string name="converter_margin">Margen</string>
+    <string name="converter_margin_none">Ninguno</string>
+    <string name="converter_margin_small">Pequeño</string>
+    <string name="converter_margin_large">Grande</string>
 </resources>

@@ -992,4 +992,5 @@ private fun pdfMessage(key: PdfEditorMessageKey): String = when (key) {
     PdfEditorMessageKey.RANGE_NOT_A_RANGE -> stringResource(R.string.pdf_range_not_a_range)
     PdfEditorMessageKey.RANGE_INVALID -> stringResource(R.string.pdf_range_invalid)
     PdfEditorMessageKey.RANGE_PAST_END -> stringResource(R.string.pdf_range_past_end)
+    PdfEditorMessageKey.MERGE_FILE_UNREADABLE -> stringResource(R.string.pdf_merge_unreadable)
 }

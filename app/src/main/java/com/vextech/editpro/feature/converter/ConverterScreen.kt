@@ -53,6 +53,7 @@ import com.vextech.editpro.core.ui.formatBytes
 import com.vextech.editpro.core.ui.rememberSaveToDevice
 import com.vextech.editpro.feature.converter.domain.ConversionJob
 import com.vextech.editpro.feature.converter.domain.ConverterMessageKey
+import com.vextech.editpro.feature.converter.domain.ConverterMargin
 import com.vextech.editpro.feature.converter.domain.ConverterPageSize
 import com.vextech.editpro.feature.converter.domain.ConverterSource
 import com.vextech.editpro.feature.converter.domain.ConverterSourceKind
@@ -347,6 +348,13 @@ private fun ColumnScope.SetupStage(state: ConverterUiState, vm: ConverterViewMod
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(ConverterPageSize.FIT_IMAGE to R.string.converter_page_size_fit, ConverterPageSize.A4 to R.string.converter_page_size_a4, ConverterPageSize.LETTER to R.string.converter_page_size_letter)
                         .forEach { (size, label) -> FilterChip(selected = state.pageSize == size, onClick = { vm.setPageSize(size) }, label = { Text(stringResource(label)) }) }
+                }
+                if (state.pageSize != ConverterPageSize.FIT_IMAGE) {
+                    SectionLabel(stringResource(R.string.converter_margin))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(ConverterMargin.NONE to R.string.converter_margin_none, ConverterMargin.SMALL to R.string.converter_margin_small, ConverterMargin.LARGE to R.string.converter_margin_large)
+                            .forEach { (m, label) -> FilterChip(selected = state.margin == m, onClick = { vm.setMargin(m) }, label = { Text(stringResource(label)) }) }
+                    }
                 }
             }
         }

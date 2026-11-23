@@ -902,4 +902,9 @@
     <string name="pdf_creator">Created with</string>
     <string name="pdf_producer">PDF producer</string>
     <string name="pdf_remove_all_metadata">Remove all metadata (title, author, dates, software names)</string>
+    <string name="pdf_merge_unreadable">One of the files can\'t be merged. It is password-protected or damaged. Remove the password in your PDF app first.</string>
+    <string name="converter_margin">Margin</string>
+    <string name="converter_margin_none">None</string>
+    <string name="converter_margin_small">Small</string>
+    <string name="converter_margin_large">Large</string>
 </resources>

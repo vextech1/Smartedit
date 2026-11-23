@@ -56,3 +56,6 @@ interface PdfEditorRepository {
     suspend fun splitToManaged(sessionId: String, groups: List<List<Int>>): List<File>
     suspend fun mergeToManaged(uris: List<Uri>): File
 }
+
+/** One of the PDFs to merge is password-protected or damaged. */
+class MergeInputUnreadableException : IllegalArgumentException("A PDF to merge cannot be read")

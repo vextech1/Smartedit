@@ -889,4 +889,9 @@
     <string name="pdf_creator">أُنشئ باستخدام</string>
     <string name="pdf_producer">منتج PDF</string>
     <string name="pdf_remove_all_metadata">إزالة كل البيانات الوصفية (العنوان والمؤلف والتواريخ وأسماء البرامج)</string>
+    <string name="pdf_merge_unreadable">لا يمكن دمج أحد الملفات. إنه محمي بكلمة مرور أو تالف. أزل كلمة المرور في تطبيق PDF أولًا.</string>
+    <string name="converter_margin">الهامش</string>
+    <string name="converter_margin_none">بدون</string>
+    <string name="converter_margin_small">صغير</string>
+    <string name="converter_margin_large">كبير</string>
 </resources>

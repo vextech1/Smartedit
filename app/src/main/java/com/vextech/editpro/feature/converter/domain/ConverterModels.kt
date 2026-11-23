@@ -33,12 +33,16 @@ data class ConverterSource(
 
 enum class ConverterPageSize { FIT_IMAGE, A4, LETTER }
 
+/** Space around the picture on A4 or Letter (ignored for "fit to image"). */
+enum class ConverterMargin(val points: Float) { NONE(0f), SMALL(24f), LARGE(48f) }
+
 data class ConverterOptions(
     val quality: Int = 92,
     val dpi: Int = 150,
     val pageRange: String = "all",
     val pdfPassword: String = "",
     val pageSize: ConverterPageSize = ConverterPageSize.FIT_IMAGE,
+    val margin: ConverterMargin = ConverterMargin.SMALL,
     /** PDF to text: Markdown keeps headings, lists, bold and italic; plain text keeps only the words. */
     val textFormat: TextFormat = TextFormat.MD,
     /** PDF to text: write a line where each page starts. */

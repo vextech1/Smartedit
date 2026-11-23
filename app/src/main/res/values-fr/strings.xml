@@ -865,4 +865,9 @@
     <string name="pdf_creator">Créé avec</string>
     <string name="pdf_producer">Producteur du PDF</string>
     <string name="pdf_remove_all_metadata">Supprimer toutes les métadonnées (titre, auteur, dates, noms de logiciels)</string>
+    <string name="pdf_merge_unreadable">L’un des fichiers ne peut pas être fusionné. Il est protégé par mot de passe ou endommagé. Supprimez d’abord le mot de passe dans votre application PDF.</string>
+    <string name="converter_margin">Marge</string>
+    <string name="converter_margin_none">Aucune</string>
+    <string name="converter_margin_small">Petite</string>
+    <string name="converter_margin_large">Grande</string>
 </resources>

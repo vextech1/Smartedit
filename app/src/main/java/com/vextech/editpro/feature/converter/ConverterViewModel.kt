@@ -12,6 +12,7 @@ import com.vextech.editpro.feature.converter.domain.ConversionRequest
 import com.vextech.editpro.feature.converter.domain.ConverterFailure
 import com.vextech.editpro.feature.converter.domain.ConverterMessageKey
 import com.vextech.editpro.feature.converter.domain.ConverterOptions
+import com.vextech.editpro.feature.converter.domain.ConverterMargin
 import com.vextech.editpro.feature.converter.domain.ConverterPageSize
 import com.vextech.editpro.feature.converter.domain.ConverterPolicies
 import com.vextech.editpro.feature.converter.domain.ConverterOutput
@@ -49,6 +50,7 @@ data class ConverterUiState(
     val outputs: List<ConverterOutput> = emptyList(),
     val message: ConverterMessageKey? = null,
     val pageSize: ConverterPageSize = ConverterPageSize.FIT_IMAGE,
+    val margin: ConverterMargin = ConverterMargin.SMALL,
     /** Page count of the selected PDF, once it could be read. Null while unknown or still locked. */
     val pageCount: Int? = null,
     val pdfProtected: Boolean = false,
@@ -167,6 +169,10 @@ class ConverterViewModel @Inject constructor(
     fun setTarget(target: ConverterTarget) {
         if (_state.value.busy) return
         _state.value = _state.value.copy(target = target, outputs = emptyList(), message = null)
+    }
+
+    fun setMargin(value: ConverterMargin) {
+        _state.value = _state.value.copy(margin = value)
     }
 
     fun setPageSize(value: ConverterPageSize) {
@@ -295,6 +301,7 @@ class ConverterViewModel @Inject constructor(
             pageRange = current.pageRange,
             pdfPassword = current.pdfPassword,
             pageSize = current.pageSize,
+            margin = current.margin,
         )
         return when (current.sourceKind) {
             ConverterSourceKind.IMAGES -> when (target) {

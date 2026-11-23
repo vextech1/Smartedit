@@ -6,6 +6,7 @@ import com.vextech.editpro.core.pdf.PageRanges
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vextech.editpro.feature.pdf.data.MergeInputUnreadableException
 import com.vextech.editpro.feature.pdf.data.PdfEditorRepository
 import com.vextech.editpro.feature.pdf.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -217,8 +218,16 @@ class PdfEditorViewModel @Inject constructor(
     }
 
     fun merge(uris: List<Uri>) = viewModelScope.launch {
-        busyRun(PdfEditorMessageKey.OPERATION_FAILED) {
+        _state.update { it.copy(busy = true, message = null, detail = null) }
+        try {
             _state.update { it.copy(exportedFiles = listOf(repository.mergeToManaged(uris))) }
+        } catch (_: MergeInputUnreadableException) {
+            _state.update { it.copy(message = PdfEditorMessageKey.MERGE_FILE_UNREADABLE, detail = null) }
+        } catch (error: Exception) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            _state.update { it.copy(message = PdfEditorMessageKey.OPERATION_FAILED, detail = error.message) }
+        } finally {
+            _state.update { it.copy(busy = false) }
         }
     }
 

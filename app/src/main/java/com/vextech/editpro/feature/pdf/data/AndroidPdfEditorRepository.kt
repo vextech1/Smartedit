@@ -245,6 +245,8 @@ class AndroidPdfEditorRepository @Inject constructor(
         require(uris.size >= 2)
         val staged = uris.map(::stageUri)
         try {
+            // A protected or damaged file would make the merge fail halfway with an unhelpful error; check each first, as the site does.
+            staged.forEach { file -> runCatching { engine.pageCount(file) }.onFailure { throw MergeInputUnreadableException() } }
             val out = store.uniqueFile(store.documentsDir, "merged_${System.currentTimeMillis()}.pdf")
             engine.merge(staged, out)
             registerOutput(out, "Merged ${uris.size} PDFs")

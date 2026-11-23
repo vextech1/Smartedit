@@ -857,4 +857,9 @@
     <string name="pdf_creator">Erstellt mit</string>
     <string name="pdf_producer">PDF-Ersteller</string>
     <string name="pdf_remove_all_metadata">Alle Metadaten entfernen (Titel, Autor, Datum, Softwarenamen)</string>
+    <string name="pdf_merge_unreadable">Eine der Dateien kann nicht zusammengeführt werden. Sie ist passwortgeschützt oder beschädigt. Entferne zuerst das Passwort in deiner PDF-App.</string>
+    <string name="converter_margin">Rand</string>
+    <string name="converter_margin_none">Keiner</string>
+    <string name="converter_margin_small">Klein</string>
+    <string name="converter_margin_large">Groß</string>
 </resources>

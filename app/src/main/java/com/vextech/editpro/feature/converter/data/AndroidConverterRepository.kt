@@ -205,6 +205,7 @@ class AndroidConverterRepository @Inject constructor(
                 ConverterPageSize.A4 -> PdfPageSize.A4
                 ConverterPageSize.LETTER -> PdfPageSize.LETTER
             },
+            marginPoints = request.options.margin.points,
         )
         progress(0.9f)
         return listOf(out)
