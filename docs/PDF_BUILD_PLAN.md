@@ -5,25 +5,50 @@ Reference implementation (read-only): the site, repo `vextech1/editpro` (SvelteK
 `src/lib/tools.ts` (tool list and wording), `src/lib/components/*Pdf*.svelte`, `src/lib/components/editor/*` (sheets, dock, undo) and `src/lib/core/pdf-*.ts` (logic).
 The app's advantages (annotations, ink, redact, forms, bookmarks, search, password protection, print, undo/redo, saved-files list) stay. Never remove them.
 
+## Reminders
+- **After the PDF work, the next job is the image edit tools.** Do the same comparison for them (site `PhotoEditor.svelte`, `editor/sheets/*`, `core/image-*.ts`, `photo-*.ts` against the app's `feature/imageeditor`) and write `docs/IMAGE_BUILD_PLAN.md` before building. Do not start it until the PDF phases are done.
+- **The app is ahead of the site in many features** (for example PDF annotations, ink, redaction, forms, bookmarks, search, password protection, print, undo/redo, saved-files list, plus extra converter formats such as WebP). Never remove or weaken an app feature to match the site. Bring the site's missing options in next to them. If the app already does something better, keep the app's version and note it in your PR.
+
+## Who does what, and status
+Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this plan. Everyone else starts on the "next steps" below. **Update this table in the same commit as your work** (change the status, add your branch or PR), so it always shows what is being built.
+
+| Item | Owner | Status | Branch / PR |
+|---|---|---|---|
+| Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | In progress (first) | |
+| Phase 1 lane A: Organize extras | stage-one session | Queued after Phase 0 | |
+| Phase 1 lane B: Split by ranges + ZIP | stage-one session | Queued | |
+| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Queued | |
+| Phase 1 lane D: Compressor grayscale | stage-one session | Queued | |
+| Phase 1 lane E: Metadata remove-all | stage-one session | Queued | |
+| Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Queued | |
+| Phase 2 lane G: Watermark (logic + tests first) | open, for another agent | Not started | |
+| Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | open, for another agent | Not started | |
+| Phase 2 lane I: Crop (logic + tests first) | open, for another agent | Not started | |
+| Phase 3: Extract images | open, for another agent | Not started | |
+| Phase 4: Compress summary | open, for another agent | Not started | |
+| Phase 5: Reading mode | open, for another agent | Not started | |
+| Phase 6: Polish and release check | whoever finishes last | Not started | |
+
+**Next steps for other agents, in order of independence:**
+1. Phase 3 (Extract images) and Phase 5 (Reading mode): they do not need the new sheet, so start now. Build the logic and tests, and put the screen in a plain screen or dialog; switch it into `ToolSheet` after Phase 0 merges.
+2. Phase 2 (G, H, I): write the pure logic and its unit tests now (text layout, template tokens, margins, paper sizes). Build the sheet UI once Phase 0 is on `main`.
+3. Phase 4 (Compress summary): after Phase 1 lane D merges, to avoid conflicts in the compressor.
+Stage-one files you must not touch until Phase 0/1 merge: `feature/pdf/PdfToolsScreen.kt`, `PdfEditorViewModel.kt`, `feature/converter/*`, `feature/compressor/*`, `feature/pdf/data/*` (ask in the PR if you must).
+
 ## Rules
 1. Package and application id: `com.vextech.editpro`. Code lives in `app/src/main/java/com/vextech/editpro/`. No "Smart Edit" / "smartedit" anywhere.
 2. Strings: every new user-visible string goes in `values/strings.xml` AND `values-ar`, `-de`, `-es`, `-fr`, `-hi`. `python3 tools/static_checks.py` enforces key parity and unused keys. Run it before every push.
 3. CI: `.github/workflows/android-build.yml` (static checks, `assembleDebug`, `testDebugUnitTest`). Push to a branch, trigger the workflow, wait for green. No local Android SDK in the cloud workspace, so CI is the compiler.
-4. Branches: work on `pdf/<phase>-<topic>` branches, open a PR into `main`. Only merge to `main` when CI is green. Use `[skip ci]` only for docs-only commits.
+4. Branches: work on `pdf/<phase>-<topic>` branches from the latest `main`, open a PR into `main`. Only merge to `main` when CI is green. Use `[skip ci]` only for docs-only commits.
 5. Secrets: never commit tokens, passwords or keystores except the existing shared debug key. `app/google-services.json` (project `editpro1`) is already committed on `main` on purpose.
 6. Commit trailers (required): `Co-Authored-By: <agent name> <noreply@anthropic.com>` and the session link if the harness gives one.
 7. Every new pure-logic piece (range parsing, stamp layout, split plans, ordering) gets a unit test in `app/src/test/java/com/vextech/editpro/...`. Screens are verified by CI compile only; say so in the PR.
 8. Match the site's behaviour and wording first. Where the app's engine (PdfBox for editing) cannot match a site feature, stop and note it in the PR instead of faking it.
 9. Keep Material 3 + Compose. Reuse `FeatureScaffold`, `EditProDesign.kt` (colours, rows, chips) from `feature/home`.
 
-## Repo and branch state (as of this document)
-- `main` has everything: EditPro rename and package, Google sign-in, My files, upload flow, Settings, class Library with student and admin uploads and moderation (shared Firestore with the site), fixed debug signing key, AI Assist removed from Profile.
-- `editpro-rebrand`: fully merged into `main`; safe to delete.
-- `ci/editpro-build`: one commit adding `google-services.json`; superseded by `main`; delete. Do not merge.
-- `ci/assemble-debug-no-firebase`: old test branch with a relaxed workflow; delete. Do not merge.
-- Nothing valuable lives on a non-main branch.
-- Not done by design: replacing a Library file of the same name, Library links, structure editing and relabelling (admin side).
-- Open item outside this plan: nothing has been run on a real device yet (sign-in and uploads untested by a person).
+## Repo state
+Only `main` matters. It has everything so far: EditPro rename and package, Google sign-in, My files, upload flow, Settings, the class Library with student and admin uploads and moderation (shared Firestore with the site), the fixed debug signing key, and AI Assist removed from Profile. Start every branch from the latest `main`.
+Not done by design: replacing a Library file of the same name, Library links, structure editing and relabelling (admin side). Nothing has been run on a real device by a person yet (sign-in and uploads untested).
 
 ## Today: app vs site (PDF)
 App already has: open/merge/insert/blank page, reorder/delete/duplicate/rotate/extract pages, split to single pages, crop (drawn box), fixed watermark text, fixed page numbers,
