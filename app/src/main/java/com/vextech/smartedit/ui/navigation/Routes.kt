@@ -31,3 +31,5 @@ import kotlinx.serialization.Serializable
 @Serializable data object SettingsRoute : NavKey
 @Serializable data object AiAssistRoute : NavKey
 @Serializable data object AdminRoute : NavKey
+@Serializable data class LibraryUploadRoute(val admin: Boolean = false) : NavKey
+@Serializable data object StudentFilesRoute : NavKey

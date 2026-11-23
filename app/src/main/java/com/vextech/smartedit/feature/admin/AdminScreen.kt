@@ -43,7 +43,7 @@ import com.vextech.smartedit.core.ui.FeatureScaffold
  * and, for the owner, manage the helper admins. What an account may do is decided by the server's rules, not by this screen.
  */
 @Composable
-fun AdminScreen(onBack: (() -> Unit)?, vm: AdminViewModel = hiltViewModel()) {
+fun AdminScreen(onBack: (() -> Unit)?, onOpen: (androidx.navigation3.runtime.NavKey) -> Unit = {}, vm: AdminViewModel = hiltViewModel()) {
     val auth by vm.authState.collectAsState()
     val ui by vm.ui.collectAsState()
     val context = LocalContext.current
@@ -101,6 +101,12 @@ fun AdminScreen(onBack: (() -> Unit)?, vm: AdminViewModel = hiltViewModel()) {
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
+                            }
+                            OutlinedButton(onClick = { onOpen(com.vextech.smartedit.ui.navigation.LibraryUploadRoute(admin = true)) }, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.admin_library_add))
+                            }
+                            OutlinedButton(onClick = { onOpen(com.vextech.smartedit.ui.navigation.StudentFilesRoute) }, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.admin_students_review))
                             }
                             ui.helpers?.let { helpers -> HelpersSection(helpers, ui.busy, vm) }
                         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Smart Edit</string>
+    <string name="app_name">EditPro</string>
     <string name="converter">Converter</string>
     <string name="compressor">Compressor</string>
     <string name="notes">Notes</string>
@@ -19,7 +19,7 @@
     <string name="backup_empty">No backups yet</string>
     <string name="backup_detail">%1$s · %2$s</string>
     <string name="backup_restore_title">Restore backup?</string>
-    <string name="backup_restore_message">Current Smart Edit files and app data will be replaced by the selected backup. The restore is staged and rolled back if validation fails.</string>
+    <string name="backup_restore_message">Current EditPro files and app data will be replaced by the selected backup. The restore is staged and rolled back if validation fails.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
@@ -44,7 +44,7 @@
     <string name="settings_privacy">Privacy policy</string>
     <string name="settings_terms">Terms of use</string>
     <string name="settings_open_page_failed">Couldn’t open this page.</string>
-    <string name="ai_notice">Smart Edit does not impersonate these services or add anything to their websites. Choose one to open its official site in a secure browser tab.</string>
+    <string name="ai_notice">EditPro does not impersonate these services or add anything to their websites. Choose one to open its official site in a secure browser tab.</string>
     <string name="ai_opens_host">Opens %1$s in a browser tab</string>
 
     <string name="back">Back</string>
@@ -67,7 +67,7 @@
     <string name="files_sort_size">Size</string>
     <string name="files_sort_type">Type</string>
     <string name="files_empty_title">Empty folder</string>
-    <string name="files_empty_description">Import a file, create a folder, or add content from another Smart Edit feature.</string>
+    <string name="files_empty_description">Import a file, create a folder, or add content from another EditPro feature.</string>
     <string name="files_notice_moved_many">Moved %1$d items</string>
     <string name="files_notice_trashed_many">%1$d items moved to trash</string>
     <string name="files_move_many_title">Move %1$d items to</string>
@@ -141,7 +141,7 @@
     <string name="files_error_move_into_self">A folder cannot be moved into itself.</string>
     <string name="files_error_move_into_descendant">A folder cannot be moved into one of its own subfolders.</string>
     <string name="files_error_folder_favorite">Only files can be added to Favorites.</string>
-    <string name="files_error_not_managed">This item is not managed by Smart Edit.</string>
+    <string name="files_error_not_managed">This item is not managed by EditPro.</string>
     <string name="files_error_file_missing">The managed file is missing: %1$s</string>
 
     <string name="scanner_title">Scanner</string>
@@ -401,7 +401,7 @@
     <string name="converter_title_pdf">Convert PDF</string>
     <string name="converter_title_progress">Converting</string>
     <string name="converter_title_done">Done</string>
-    <string name="converter_home_intro">Choose what to convert. Every result is saved in Smart Edit.</string>
+    <string name="converter_home_intro">Choose what to convert. Every result is saved in EditPro.</string>
     <string name="converter_home_images">Images</string>
     <string name="converter_home_images_desc">Make a PDF or change the image format</string>
     <string name="converter_home_pdf">PDF</string>
@@ -432,7 +432,7 @@
     <string name="converter_target_text_desc">Plain text only</string>
     <string name="converter_error_output_missing">That file is no longer available.</string>
     <string name="converter_complete_title">Conversion complete</string>
-    <string name="converter_saved_note">Saved in Smart Edit</string>
+    <string name="converter_saved_note">Saved in EditPro</string>
     <string name="converter_progress_caption">%1$s → %2$s</string>
     <string name="converter_job_completed">Completed</string>
     <string name="converter_job_failed">Failed</string>
@@ -544,7 +544,7 @@
     <string name="history_filter_empty_title">Nothing here</string>
     <string name="history_filter_favorites">Favorites</string>
     <string name="history_filter_processed">Converted &amp; compressed</string>
-    <string name="history_pdf_title">Smart Edit activity</string>
+    <string name="history_pdf_title">EditPro activity</string>
     <string name="history_file_missing">That file is no longer available.</string>
     <string name="history_today">Today</string>
     <string name="history_yesterday">Yesterday</string>
@@ -604,7 +604,7 @@
     <string name="account_loading">Loading…</string>
     <string name="account_unavailable">Accounts are not available in this build yet.</string>
     <string name="account_sign_in_title">Sign in with Google</string>
-    <string name="account_sign_in_body">Sign in to keep your account. All Smart Edit tools stay free, with or without an account.</string>
+    <string name="account_sign_in_body">Sign in to keep your account. All EditPro tools stay free, with or without an account.</string>
     <string name="account_sign_in">Sign in with Google</string>
     <string name="account_signing_in">Signing in…</string>
     <string name="account_sign_out">Sign out</string>
@@ -657,7 +657,7 @@
     <string name="profile_about_version">Version %1$s</string>
     <string name="profile_about_message">Scan, edit and convert documents on the go.</string>
     <!-- Onboarding -->
-    <string name="onboarding_p1_title">Smart Edit.</string>
+    <string name="onboarding_p1_title">EditPro.</string>
     <string name="onboarding_p1_body">Scan, edit and convert documents on the go.</string>
     <string name="onboarding_p2_title">Work with PDFs</string>
     <string name="onboarding_p2_body">Scan pages, then merge, split, reorder, watermark, convert and compress PDFs.</string>
@@ -792,7 +792,7 @@
     <string name="files_filter_none_hint">Try another type, or choose All types.</string>
     <string name="intake_mixed">Choose pictures and PDFs separately. Several pictures can be made into a PDF.</string>
     <string name="intake_nothing">Choose a PDF or a picture (JPG, PNG or WebP).</string>
-    <string name="intake_nothing_named">Smart Edit opens PDFs and pictures (JPG, PNG or WebP). Skipped: %1$s.</string>
+    <string name="intake_nothing_named">EditPro opens PDFs and pictures (JPG, PNG or WebP). Skipped: %1$s.</string>
     <string name="intake_skipped">Unsupported files skipped: %1$s.</string>
     <string name="intake_extra_pdfs">Opened %1$s. Open the other PDFs one at a time.</string>
     <string name="next_edit_pdf">Edit this PDF</string>
@@ -821,8 +821,57 @@
     <string name="library_gate_signin_title">Sign in to keep downloading</string>
     <string name="library_gate_signin_body">Your first download was free. To download more, sign in with Google and share one study document: every document you upload unlocks 3 more downloads. All other tools stay free.</string>
     <string name="library_gate_upload_title">Upload a study document to download more</string>
-    <string name="library_gate_upload_body">This Library grows because students share. Upload one study document (notes, an assignment or a past paper) and you unlock 3 more downloads. Uploading from the app is coming soon; for now you can upload on the website.</string>
-    <string name="library_gate_upload_action">Open the website</string>
+    <string name="library_gate_upload_body">This Library grows because students share. Upload one study document (notes, an assignment or a past paper) and you unlock 3 more downloads.</string>
+    <string name="library_gate_upload_action">Upload a document</string>
     <string name="library_gate_cancel">Not now</string>
     <string name="profile_activity_desc">Everything you scanned, converted and edited</string>
+    <string name="upload_title">Share a document</string>
+    <string name="upload_admin_title">Add to the Library</string>
+    <string name="upload_intro_student">Share notes, an assignment or a past paper with other students. Each live upload unlocks 3 more downloads.</string>
+    <string name="upload_intro_admin">Add a file straight to the Library, in the section, class and subject you choose.</string>
+    <string name="upload_sign_in_body">Sign in with Google to upload. Use the same account as on the EditPro website.</string>
+    <string name="upload_not_admin">This account is not an EditPro admin.</string>
+    <string name="upload_choose_file">Choose a file</string>
+    <string name="upload_no_file">No file chosen yet</string>
+    <string name="upload_field_title">Title (optional)</string>
+    <string name="upload_field_section">Section</string>
+    <string name="upload_field_class">Class</string>
+    <string name="upload_field_subject">Subject</string>
+    <string name="upload_no_subject">No subject</string>
+    <string name="upload_field_category">Category</string>
+    <string name="upload_field_label">Label</string>
+    <string name="upload_allowed">Allowed: %1$s</string>
+    <string name="upload_button">Upload</string>
+    <string name="upload_progress">Uploading part %1$d of %2$d</string>
+    <string name="upload_done">Uploaded. It is live in the Library.</string>
+    <string name="upload_added_admin">Added to the Library.</string>
+    <string name="upload_refused">Not uploaded: %1$s</string>
+    <string name="upload_failed">Upload failed. Check your connection and try again.</string>
+    <string name="upload_denied">You are not allowed to upload this. Sign in again and retry.</string>
+    <string name="upload_my_files">Your uploads</string>
+    <string name="upload_none_yet">You have not shared anything yet.</string>
+    <string name="upload_status_live">Live</string>
+    <string name="upload_status_uploading">Uploading</string>
+    <string name="upload_status_pulled">Removed</string>
+    <string name="upload_delete">Delete</string>
+    <string name="upload_delete_confirm">Delete \"%1$s\"? It will leave the Library.</string>
+    <string name="upload_notice_pulled">\"%1$s\" was removed: %2$s</string>
+    <string name="upload_dismiss">Dismiss</string>
+    <string name="upload_no_structure">The Library has no sections yet.</string>
+    <string name="admin_library_add">Add files to the Library</string>
+    <string name="admin_students_review">Review student files</string>
+    <string name="students_title">Student files</string>
+    <string name="students_uploads_open">Accept student uploads</string>
+    <string name="students_tab_live">Live</string>
+    <string name="students_tab_pulled">Removed</string>
+    <string name="students_none">Nothing here.</string>
+    <string name="students_pull">Remove</string>
+    <string name="students_pull_title">Remove \"%1$s\"</string>
+    <string name="students_pull_reason">Reason shown to the student</string>
+    <string name="students_pull_done">Removed. The student has been told why.</string>
+    <string name="students_pull_cleanup_pending">Removed, but cleanup is not finished. Use Retry cleanup.</string>
+    <string name="students_retry">Retry cleanup</string>
+    <string name="students_delete_record">Delete record</string>
+    <string name="students_cleaned">Cleaned up.</string>
+    <string name="library_upload_action">Upload</string>
 </resources>

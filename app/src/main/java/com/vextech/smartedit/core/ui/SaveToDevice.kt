@@ -29,7 +29,7 @@ private class CreateTypedDocument : ActivityResultContract<Pair<String, String>,
 }
 
 class SaveToDeviceAction internal constructor(private val start: (String, String, String) -> Unit) {
-    /** [managedUri] must point inside Smart Edit managed storage. */
+    /** [managedUri] must point inside EditPro managed storage. */
     fun save(managedUri: String, displayName: String, mimeType: String) = start(managedUri, displayName, mimeType)
 }
 

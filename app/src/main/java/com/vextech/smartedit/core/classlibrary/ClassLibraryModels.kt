@@ -34,6 +34,10 @@ data class CloudFile(
     val added: String,
     val parts: Int,
     val shard: Int,
+    /** True for a file shared by a student (`userFiles`); its pieces are in `userChunks`. */
+    val student: Boolean = false,
+    /** The uploader's account id for a student file, so their own files are never counted against them. */
+    val uploader: String? = null,
 )
 
 /** [partial] is true when some index documents could not be read, so some files may be missing from [files]. */

@@ -22,7 +22,7 @@ class AutoBackupWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = runCatching {
         val backup = backups.createBackup()
         if (settings.settings.first().notificationsEnabled) {
-            notifications.show(2001, "Smart Edit backup complete", backup.name)
+            notifications.show(2001, "EditPro backup complete", backup.name)
         }
         Result.success()
     }.getOrElse { Result.retry() }

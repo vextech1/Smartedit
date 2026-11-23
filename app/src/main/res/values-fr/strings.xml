@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Smart Edit</string><string name="converter">Convertisseur</string><string name="compressor">Compresseur</string><string name="notes">Notes</string><string name="files">Fichiers</string><string name="search">Recherche</string><string name="favorites">Favoris</string><string name="trash">Corbeille</string><string name="backup">Sauvegarde</string><string name="settings">Paramètres</string><string name="ai_assist">Assistant IA</string>
+    <string name="app_name">EditPro</string><string name="converter">Convertisseur</string><string name="compressor">Compresseur</string><string name="notes">Notes</string><string name="files">Fichiers</string><string name="search">Recherche</string><string name="favorites">Favoris</string><string name="trash">Corbeille</string><string name="backup">Sauvegarde</string><string name="settings">Paramètres</string><string name="ai_assist">Assistant IA</string>
     <string name="back">Retour</string><string name="cancel">Annuler</string><string name="close">Fermer</string><string name="create">Créer</string><string name="details">Détails</string><string name="more_options">Plus d’options</string><string name="name">Nom</string><string name="open">Ouvrir</string><string name="rename">Renommer</string><string name="share">Partager</string>
-    <string name="files_import">Importer des fichiers</string><string name="files_new_folder">Nouveau dossier</string><string name="files_import_clipboard">Importer le presse-papiers</string><string name="files_toggle_view">Basculer liste ou grille</string><string name="files_sort_name">Nom</string><string name="files_sort_modified">Modifié</string><string name="files_sort_size">Taille</string><string name="files_sort_type">Type</string><string name="files_empty_title">Dossier vide</string><string name="files_empty_description">Importez un fichier, créez un dossier ou ajoutez du contenu depuis une autre fonction Smart Edit.</string><string name="files_folder">Dossier</string><string name="files_favorite">Favori</string><string name="files_move">Déplacer</string><string name="files_move_title">Déplacer %1$s</string><string name="files_root">Fichiers (racine)</string><string name="files_move_to_trash">Mettre à la corbeille</string><string name="files_move_to_trash_title">Mettre à la corbeille ?</string><string name="files_move_to_trash_message">%1$s sera placé dans la corbeille et pourra être restauré plus tard.</string><string name="files_type">Type</string><string name="files_size">Taille</string><string name="files_location">Emplacement</string><string name="files_created">Créé</string><string name="files_modified">Modifié</string><string name="files_open_failed">Aucune application ne peut ouvrir ce fichier.</string><string name="files_share_failed">Ce fichier n’a pas pu être partagé.</string>
+    <string name="files_import">Importer des fichiers</string><string name="files_new_folder">Nouveau dossier</string><string name="files_import_clipboard">Importer le presse-papiers</string><string name="files_toggle_view">Basculer liste ou grille</string><string name="files_sort_name">Nom</string><string name="files_sort_modified">Modifié</string><string name="files_sort_size">Taille</string><string name="files_sort_type">Type</string><string name="files_empty_title">Dossier vide</string><string name="files_empty_description">Importez un fichier, créez un dossier ou ajoutez du contenu depuis une autre fonction EditPro.</string><string name="files_folder">Dossier</string><string name="files_favorite">Favori</string><string name="files_move">Déplacer</string><string name="files_move_title">Déplacer %1$s</string><string name="files_root">Fichiers (racine)</string><string name="files_move_to_trash">Mettre à la corbeille</string><string name="files_move_to_trash_title">Mettre à la corbeille ?</string><string name="files_move_to_trash_message">%1$s sera placé dans la corbeille et pourra être restauré plus tard.</string><string name="files_type">Type</string><string name="files_size">Taille</string><string name="files_location">Emplacement</string><string name="files_created">Créé</string><string name="files_modified">Modifié</string><string name="files_open_failed">Aucune application ne peut ouvrir ce fichier.</string><string name="files_share_failed">Ce fichier n’a pas pu être partagé.</string>
 
     <string name="files_error_import">Impossible d’importer le fichier sélectionné.</string>
     <string name="files_error_clipboard_import">Impossible d’importer le contenu du presse-papiers.</string>
@@ -33,7 +33,7 @@
     <string name="files_error_move_into_self">Un dossier ne peut pas être déplacé dans lui-même.</string>
     <string name="files_error_move_into_descendant">Un dossier ne peut pas être déplacé dans l’un de ses sous-dossiers.</string>
     <string name="files_error_folder_favorite">Seuls les fichiers peuvent être ajoutés aux favoris.</string>
-    <string name="files_error_not_managed">Cet élément n’est pas géré par Smart Edit.</string>
+    <string name="files_error_not_managed">Cet élément n’est pas géré par EditPro.</string>
     <string name="files_error_file_missing">Le fichier géré est introuvable : %1$s</string>
 
     <string name="scanner_title">Scanner</string>
@@ -185,7 +185,7 @@
     <string name="converter_error_output_missing">Ce fichier n’est plus disponible.</string>
     <string name="converter_home_images">Images</string>
     <string name="converter_home_images_desc">Créer un PDF ou changer le format des images</string>
-    <string name="converter_home_intro">Choisissez ce que vous voulez convertir. Chaque résultat est enregistré dans Smart Edit.</string>
+    <string name="converter_home_intro">Choisissez ce que vous voulez convertir. Chaque résultat est enregistré dans EditPro.</string>
     <string name="converter_home_pdf">PDF</string>
     <string name="converter_home_pdf_desc">Pages en images, Word ou texte brut</string>
     <string name="converter_images_hint">%1$d images · %2$s · touchez une image pour la déplacer</string>
@@ -202,7 +202,7 @@
     <string name="converter_protected_hint">Le mot de passe n’est utilisé que pour cette conversion.</string>
     <string name="converter_protected_title">Ce PDF est protégé par mot de passe</string>
     <string name="converter_remove_image">Supprimer l’image</string>
-    <string name="converter_saved_note">Enregistré dans Smart Edit</string>
+    <string name="converter_saved_note">Enregistré dans EditPro</string>
     <string name="converter_target_docx_desc">Texte modifiable issu du PDF</string>
     <string name="converter_target_jpeg_zip_desc">Archive ZIP avec une image par page</string>
     <string name="converter_target_png_zip_desc">Archive ZIP, images sans perte</string>
@@ -302,7 +302,7 @@
     <string name="history_filter_empty_title">Rien ici</string>
     <string name="history_filter_favorites">Favoris</string>
     <string name="history_filter_processed">Converti et compressé</string>
-    <string name="history_pdf_title">Activité Smart Edit</string>
+    <string name="history_pdf_title">Activité EditPro</string>
     <string name="history_today">Aujourd’hui</string>
     <string name="history_yesterday">Hier</string>
     <!-- Library: trash -->
@@ -342,7 +342,7 @@
     <string name="profile_about_version">Version %1$s</string>
     <string name="profile_about_message">Numérisez, modifiez et convertissez des documents où que vous soyez.</string>
     <!-- Onboarding -->
-    <string name="onboarding_p1_title">Smart Edit.</string>
+    <string name="onboarding_p1_title">EditPro.</string>
     <string name="onboarding_p1_body">Numérisez, modifiez et convertissez vos documents où que vous soyez.</string>
     <string name="onboarding_p2_title">Travaillez avec les PDF</string>
     <string name="onboarding_p2_body">Numérisez des pages, puis fusionnez, divisez, réorganisez, filigranez, convertissez et compressez des PDF.</string>
@@ -458,7 +458,7 @@
     <string name="backup_empty">Aucune sauvegarde pour le moment</string>
     <string name="backup_detail">%1$s · %2$s</string>
     <string name="backup_restore_title">Restaurer la sauvegarde ?</string>
-    <string name="backup_restore_message">Les fichiers et données actuels de Smart Edit seront remplacés par la sauvegarde sélectionnée. La restauration est préparée d\'abord et annulée si la validation échoue.</string>
+    <string name="backup_restore_message">Les fichiers et données actuels de EditPro seront remplacés par la sauvegarde sélectionnée. La restauration est préparée d\'abord et annulée si la validation échoue.</string>
     <string name="settings_appearance">Apparence</string>
     <string name="settings_theme_system">Système</string>
     <string name="settings_theme_light">Clair</string>
@@ -483,7 +483,7 @@
     <string name="settings_privacy">Politique de confidentialité</string>
     <string name="settings_terms">Conditions d’utilisation</string>
     <string name="settings_open_page_failed">Impossible d’ouvrir cette page.</string>
-    <string name="ai_notice">Smart Edit n\'usurpe pas l\'identité de ces services et n\'ajoute rien à leurs sites web. Choisissez-en un pour ouvrir son site officiel dans un onglet de navigateur sécurisé.</string>
+    <string name="ai_notice">EditPro n\'usurpe pas l\'identité de ces services et n\'ajoute rien à leurs sites web. Choisissez-en un pour ouvrir son site officiel dans un onglet de navigateur sécurisé.</string>
     <string name="ai_opens_host">Ouvre %1$s dans un onglet du navigateur</string>
     <string name="files_notice_moved_many">%1$d éléments déplacés</string>
     <string name="files_notice_trashed_many">%1$d éléments placés dans la corbeille</string>
@@ -681,7 +681,7 @@
     <string name="account_deleted">Votre compte et les données associées ont été supprimés.</string>
     <string name="account_loading">Chargement…</string>
     <string name="account_sign_in">Se connecter avec Google</string>
-    <string name="account_sign_in_body">Connectez-vous pour conserver votre compte. Tous les outils Smart Edit restent gratuits, avec ou sans compte.</string>
+    <string name="account_sign_in_body">Connectez-vous pour conserver votre compte. Tous les outils EditPro restent gratuits, avec ou sans compte.</string>
     <string name="account_sign_in_title">Se connecter avec Google</string>
     <string name="account_sign_out">Se déconnecter</string>
     <string name="account_signed_in_as">Connecté en tant que %1$s</string>
@@ -755,7 +755,7 @@
     <string name="tools_title">Outils</string>
     <string name="intake_mixed">Choisissez les images et les PDF séparément. Plusieurs images peuvent être réunies en un seul PDF.</string>
     <string name="intake_nothing">Choisissez un PDF ou une image (JPG, PNG ou WebP).</string>
-    <string name="intake_nothing_named">Smart Edit ouvre les PDF et les images (JPG, PNG ou WebP). Ignorés : %1$s.</string>
+    <string name="intake_nothing_named">EditPro ouvre les PDF et les images (JPG, PNG ou WebP). Ignorés : %1$s.</string>
     <string name="intake_skipped">Fichiers non pris en charge ignorés : %1$s.</string>
     <string name="intake_extra_pdfs">%1$s ouvert. Ouvrez les autres PDF un par un.</string>
     <string name="next_edit_pdf">Modifier ce PDF</string>
@@ -784,8 +784,57 @@
     <string name="library_gate_signin_title">Connectez-vous pour continuer à télécharger</string>
     <string name="library_gate_signin_body">Votre premier téléchargement était gratuit. Pour en faire d\'autres, connectez-vous avec Google et partagez un document d\'étude : chaque document envoyé débloque 3 téléchargements de plus. Tous les autres outils restent gratuits.</string>
     <string name="library_gate_upload_title">Envoyez un document d\'étude pour télécharger davantage</string>
-    <string name="library_gate_upload_body">Cette bibliothèque grandit grâce au partage des élèves. Envoyez un document d\'étude (cours, devoir ou ancien sujet) pour débloquer 3 téléchargements de plus. L\'envoi depuis l\'app arrive bientôt ; pour l\'instant, vous pouvez l\'envoyer sur le site web.</string>
-    <string name="library_gate_upload_action">Ouvrir le site</string>
+    <string name="library_gate_upload_body">Cette bibliothèque grandit grâce au partage des élèves. Envoyez un document d\'étude (cours, devoir ou ancien sujet) pour débloquer 3 téléchargements de plus.</string>
+    <string name="library_gate_upload_action">Envoyer un document</string>
     <string name="library_gate_cancel">Plus tard</string>
     <string name="profile_activity_desc">Tout ce que vous avez numérisé, converti et modifié</string>
+    <string name="upload_title">Partager un document</string>
+    <string name="upload_admin_title">Ajouter à la bibliothèque</string>
+    <string name="upload_intro_student">Partagez des notes, un devoir ou un ancien sujet avec d’autres étudiants. Chaque envoi actif débloque 3 téléchargements de plus.</string>
+    <string name="upload_intro_admin">Ajoutez un fichier directement à la bibliothèque, dans la section, la classe et la matière de votre choix.</string>
+    <string name="upload_sign_in_body">Connectez-vous avec Google pour envoyer. Utilisez le même compte que sur le site EditPro.</string>
+    <string name="upload_not_admin">Ce compte n’est pas administrateur EditPro.</string>
+    <string name="upload_choose_file">Choisir un fichier</string>
+    <string name="upload_no_file">Aucun fichier choisi</string>
+    <string name="upload_field_title">Titre (facultatif)</string>
+    <string name="upload_field_section">Section</string>
+    <string name="upload_field_class">Classe</string>
+    <string name="upload_field_subject">Matière</string>
+    <string name="upload_no_subject">Aucune matière</string>
+    <string name="upload_field_category">Catégorie</string>
+    <string name="upload_field_label">Libellé</string>
+    <string name="upload_allowed">Autorisés : %1$s</string>
+    <string name="upload_button">Envoyer</string>
+    <string name="upload_progress">Envoi de la partie %1$d sur %2$d</string>
+    <string name="upload_done">Envoyé. Le fichier est dans la bibliothèque.</string>
+    <string name="upload_added_admin">Ajouté à la bibliothèque.</string>
+    <string name="upload_refused">Non envoyé : %1$s</string>
+    <string name="upload_failed">Échec de l’envoi. Vérifiez votre connexion et réessayez.</string>
+    <string name="upload_denied">Vous n’avez pas le droit d’envoyer ceci. Reconnectez-vous et réessayez.</string>
+    <string name="upload_my_files">Vos envois</string>
+    <string name="upload_none_yet">Vous n’avez encore rien partagé.</string>
+    <string name="upload_status_live">En ligne</string>
+    <string name="upload_status_uploading">Envoi en cours</string>
+    <string name="upload_status_pulled">Retiré</string>
+    <string name="upload_delete">Supprimer</string>
+    <string name="upload_delete_confirm">Supprimer « %1$s » ? Il quittera la bibliothèque.</string>
+    <string name="upload_notice_pulled">« %1$s » a été retiré : %2$s</string>
+    <string name="upload_dismiss">Fermer</string>
+    <string name="upload_no_structure">La bibliothèque n’a pas encore de sections.</string>
+    <string name="admin_library_add">Ajouter des fichiers à la bibliothèque</string>
+    <string name="admin_students_review">Examiner les fichiers des étudiants</string>
+    <string name="students_title">Fichiers des étudiants</string>
+    <string name="students_uploads_open">Accepter les envois des étudiants</string>
+    <string name="students_tab_live">En ligne</string>
+    <string name="students_tab_pulled">Retirés</string>
+    <string name="students_none">Rien ici.</string>
+    <string name="students_pull">Retirer</string>
+    <string name="students_pull_title">Retirer « %1$s »</string>
+    <string name="students_pull_reason">Motif montré à l’étudiant</string>
+    <string name="students_pull_done">Retiré. L’étudiant a été informé du motif.</string>
+    <string name="students_pull_cleanup_pending">Retiré, mais le nettoyage n’est pas terminé. Utilisez Réessayer le nettoyage.</string>
+    <string name="students_retry">Réessayer le nettoyage</string>
+    <string name="students_delete_record">Supprimer l’entrée</string>
+    <string name="students_cleaned">Nettoyé.</string>
+    <string name="library_upload_action">Envoyer</string>
 </resources>

@@ -27,7 +27,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Share to Smart Edit and Open with, for PDFs and pictures (the site's share target and file handlers). -->
+            <!-- Share to EditPro and Open with, for PDFs and pictures (the site's share target and file handlers). -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

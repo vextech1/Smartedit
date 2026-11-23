@@ -1,6 +1,6 @@
-# Smart Edit
+# EditPro
 
-Kotlin + Jetpack Compose Android application. Package/application ID: `com.vextech.smartedit`.
+Kotlin + Jetpack Compose Android application. Application ID: `com.vextech.editpro` (code namespace stays `com.vextech.smartedit`).
 
 ## Build
 

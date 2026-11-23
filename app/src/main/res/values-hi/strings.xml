@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Smart Edit</string><string name="converter">कन्वर्टर</string><string name="compressor">कंप्रेसर</string><string name="notes">नोट्स</string><string name="files">फ़ाइलें</string><string name="search">खोज</string><string name="favorites">पसंदीदा</string><string name="trash">ट्रैश</string><string name="backup">बैकअप</string><string name="settings">सेटिंग्स</string><string name="ai_assist">AI सहायक</string>
+    <string name="app_name">EditPro</string><string name="converter">कन्वर्टर</string><string name="compressor">कंप्रेसर</string><string name="notes">नोट्स</string><string name="files">फ़ाइलें</string><string name="search">खोज</string><string name="favorites">पसंदीदा</string><string name="trash">ट्रैश</string><string name="backup">बैकअप</string><string name="settings">सेटिंग्स</string><string name="ai_assist">AI सहायक</string>
     <string name="back">वापस</string><string name="cancel">रद्द करें</string><string name="close">बंद करें</string><string name="create">बनाएँ</string><string name="details">विवरण</string><string name="more_options">और विकल्प</string><string name="name">नाम</string><string name="open">खोलें</string><string name="rename">नाम बदलें</string><string name="share">साझा करें</string>
-    <string name="files_import">फ़ाइलें आयात करें</string><string name="files_new_folder">नया फ़ोल्डर</string><string name="files_import_clipboard">क्लिपबोर्ड आयात करें</string><string name="files_toggle_view">सूची या ग्रिड दृश्य बदलें</string><string name="files_sort_name">नाम</string><string name="files_sort_modified">संशोधित</string><string name="files_sort_size">आकार</string><string name="files_sort_type">प्रकार</string><string name="files_empty_title">खाली फ़ोल्डर</string><string name="files_empty_description">फ़ाइल आयात करें, फ़ोल्डर बनाएँ या Smart Edit की किसी अन्य सुविधा से सामग्री जोड़ें।</string><string name="files_folder">फ़ोल्डर</string><string name="files_favorite">पसंदीदा</string><string name="files_move">स्थानांतरित करें</string><string name="files_move_title">%1$s को स्थानांतरित करें</string><string name="files_root">फ़ाइलें (रूट)</string><string name="files_move_to_trash">ट्रैश में भेजें</string><string name="files_move_to_trash_title">ट्रैश में भेजें?</string><string name="files_move_to_trash_message">%1$s को ट्रैश में भेजा जाएगा और बाद में पुनर्स्थापित किया जा सकेगा।</string><string name="files_type">प्रकार</string><string name="files_size">आकार</string><string name="files_location">स्थान</string><string name="files_created">बनाया गया</string><string name="files_modified">संशोधित</string><string name="files_open_failed">कोई ऐप इस फ़ाइल को नहीं खोल सका।</string><string name="files_share_failed">यह फ़ाइल साझा नहीं की जा सकी।</string>
+    <string name="files_import">फ़ाइलें आयात करें</string><string name="files_new_folder">नया फ़ोल्डर</string><string name="files_import_clipboard">क्लिपबोर्ड आयात करें</string><string name="files_toggle_view">सूची या ग्रिड दृश्य बदलें</string><string name="files_sort_name">नाम</string><string name="files_sort_modified">संशोधित</string><string name="files_sort_size">आकार</string><string name="files_sort_type">प्रकार</string><string name="files_empty_title">खाली फ़ोल्डर</string><string name="files_empty_description">फ़ाइल आयात करें, फ़ोल्डर बनाएँ या EditPro की किसी अन्य सुविधा से सामग्री जोड़ें।</string><string name="files_folder">फ़ोल्डर</string><string name="files_favorite">पसंदीदा</string><string name="files_move">स्थानांतरित करें</string><string name="files_move_title">%1$s को स्थानांतरित करें</string><string name="files_root">फ़ाइलें (रूट)</string><string name="files_move_to_trash">ट्रैश में भेजें</string><string name="files_move_to_trash_title">ट्रैश में भेजें?</string><string name="files_move_to_trash_message">%1$s को ट्रैश में भेजा जाएगा और बाद में पुनर्स्थापित किया जा सकेगा।</string><string name="files_type">प्रकार</string><string name="files_size">आकार</string><string name="files_location">स्थान</string><string name="files_created">बनाया गया</string><string name="files_modified">संशोधित</string><string name="files_open_failed">कोई ऐप इस फ़ाइल को नहीं खोल सका।</string><string name="files_share_failed">यह फ़ाइल साझा नहीं की जा सकी।</string>
 
     <string name="files_error_import">चुनी गई फ़ाइल आयात नहीं की जा सकी।</string>
     <string name="files_error_clipboard_import">क्लिपबोर्ड सामग्री आयात नहीं की जा सकी।</string>
@@ -33,7 +33,7 @@
     <string name="files_error_move_into_self">फ़ोल्डर को उसी के अंदर नहीं ले जाया जा सकता।</string>
     <string name="files_error_move_into_descendant">फ़ोल्डर को उसके अपने सबफ़ोल्डर में नहीं ले जाया जा सकता।</string>
     <string name="files_error_folder_favorite">केवल फ़ाइलों को पसंदीदा में जोड़ा जा सकता है।</string>
-    <string name="files_error_not_managed">यह आइटम Smart Edit द्वारा प्रबंधित नहीं है।</string>
+    <string name="files_error_not_managed">यह आइटम EditPro द्वारा प्रबंधित नहीं है।</string>
     <string name="files_error_file_missing">प्रबंधित फ़ाइल नहीं मिली: %1$s</string>
 
     <string name="scanner_title">स्कैनर</string>
@@ -185,7 +185,7 @@
     <string name="converter_error_output_missing">वह फ़ाइल अब उपलब्ध नहीं है।</string>
     <string name="converter_home_images">छवियाँ</string>
     <string name="converter_home_images_desc">PDF बनाएँ या छवि का फ़ॉर्मैट बदलें</string>
-    <string name="converter_home_intro">चुनें कि क्या रूपांतरित करना है। हर परिणाम Smart Edit में सहेजा जाता है।</string>
+    <string name="converter_home_intro">चुनें कि क्या रूपांतरित करना है। हर परिणाम EditPro में सहेजा जाता है।</string>
     <string name="converter_home_pdf">PDF</string>
     <string name="converter_home_pdf_desc">पेज से छवियाँ, Word या सादा टेक्स्ट</string>
     <string name="converter_images_hint">%1$d छवियाँ · %2$s · किसी छवि को हिलाने के लिए उस पर टैप करें</string>
@@ -202,7 +202,7 @@
     <string name="converter_protected_hint">पासवर्ड का उपयोग केवल इसी रूपांतरण के लिए किया जाता है।</string>
     <string name="converter_protected_title">यह PDF पासवर्ड से सुरक्षित है</string>
     <string name="converter_remove_image">छवि हटाएँ</string>
-    <string name="converter_saved_note">Smart Edit में सहेजा गया</string>
+    <string name="converter_saved_note">EditPro में सहेजा गया</string>
     <string name="converter_target_docx_desc">PDF से संपादन योग्य टेक्स्ट</string>
     <string name="converter_target_jpeg_zip_desc">हर पेज के लिए एक छवि वाली ZIP</string>
     <string name="converter_target_png_zip_desc">ZIP, बिना गुणवत्ता हानि वाली छवियाँ</string>
@@ -302,7 +302,7 @@
     <string name="history_filter_empty_title">यहाँ कुछ नहीं है</string>
     <string name="history_filter_favorites">पसंदीदा</string>
     <string name="history_filter_processed">रूपांतरित और संपीड़ित</string>
-    <string name="history_pdf_title">Smart Edit गतिविधि</string>
+    <string name="history_pdf_title">EditPro गतिविधि</string>
     <string name="history_today">आज</string>
     <string name="history_yesterday">कल</string>
     <!-- Library: trash -->
@@ -341,7 +341,7 @@
     <string name="profile_about_version">संस्करण %1$s</string>
     <string name="profile_about_message">चलते-फिरते दस्तावेज़ स्कैन, संपादित और रूपांतरित करें।</string>
     <!-- Onboarding -->
-    <string name="onboarding_p1_title">Smart Edit.</string>
+    <string name="onboarding_p1_title">EditPro.</string>
     <string name="onboarding_p1_body">चलते-फिरते दस्तावेज़ स्कैन, संपादित और रूपांतरित करें।</string>
     <string name="onboarding_p2_title">PDF के साथ काम करें</string>
     <string name="onboarding_p2_body">पेज स्कैन करें, फिर PDF को मर्ज, स्प्लिट, पुनः क्रमबद्ध, वॉटरमार्क, रूपांतरित और संपीड़ित करें।</string>
@@ -455,7 +455,7 @@
     <string name="backup_empty">अभी कोई बैकअप नहीं है</string>
     <string name="backup_detail">%1$s · %2$s</string>
     <string name="backup_restore_title">बैकअप पुनर्स्थापित करें?</string>
-    <string name="backup_restore_message">Smart Edit की मौजूदा फ़ाइलें और ऐप डेटा चुने गए बैकअप से बदल दिए जाएँगे। पुनर्स्थापना पहले अस्थायी रूप से तैयार की जाती है और जाँच विफल होने पर वापस ले ली जाती है।</string>
+    <string name="backup_restore_message">EditPro की मौजूदा फ़ाइलें और ऐप डेटा चुने गए बैकअप से बदल दिए जाएँगे। पुनर्स्थापना पहले अस्थायी रूप से तैयार की जाती है और जाँच विफल होने पर वापस ले ली जाती है।</string>
     <string name="settings_appearance">दिखावट</string>
     <string name="settings_theme_system">सिस्टम</string>
     <string name="settings_theme_light">हल्का</string>
@@ -480,7 +480,7 @@
     <string name="settings_privacy">गोपनीयता नीति</string>
     <string name="settings_terms">उपयोग की शर्तें</string>
     <string name="settings_open_page_failed">यह पेज नहीं खुल सका।</string>
-    <string name="ai_notice">Smart Edit इन सेवाओं का रूप नहीं धरता और उनकी वेबसाइटों में कुछ नहीं जोड़ता। किसी एक को चुनें, उसकी आधिकारिक साइट सुरक्षित ब्राउज़र टैब में खुलेगी।</string>
+    <string name="ai_notice">EditPro इन सेवाओं का रूप नहीं धरता और उनकी वेबसाइटों में कुछ नहीं जोड़ता। किसी एक को चुनें, उसकी आधिकारिक साइट सुरक्षित ब्राउज़र टैब में खुलेगी।</string>
     <string name="ai_opens_host">ब्राउज़र टैब में %1$s खोलता है</string>
     <string name="files_notice_moved_many">%1$d आइटम स्थानांतरित किए गए</string>
     <string name="files_notice_trashed_many">%1$d आइटम ट्रैश में भेजे गए</string>
@@ -673,7 +673,7 @@
     <string name="account_deleted">आपका खाता और संग्रहीत खाता डेटा हटा दिया गया।</string>
     <string name="account_loading">लोड हो रहा है…</string>
     <string name="account_sign_in">Google से साइन इन करें</string>
-    <string name="account_sign_in_body">अपना खाता रखने के लिए साइन इन करें। सभी Smart Edit टूल खाते के साथ या उसके बिना मुफ़्त रहते हैं।</string>
+    <string name="account_sign_in_body">अपना खाता रखने के लिए साइन इन करें। सभी EditPro टूल खाते के साथ या उसके बिना मुफ़्त रहते हैं।</string>
     <string name="account_sign_in_title">Google से साइन इन करें</string>
     <string name="account_sign_out">साइन आउट</string>
     <string name="account_signed_in_as">%1$s के रूप में साइन इन हैं</string>
@@ -747,7 +747,7 @@
     <string name="tools_title">टूल्स</string>
     <string name="intake_mixed">तस्वीरें और PDF अलग-अलग चुनें। कई तस्वीरों को एक PDF में बदला जा सकता है।</string>
     <string name="intake_nothing">कोई PDF या तस्वीर (JPG, PNG या WebP) चुनें।</string>
-    <string name="intake_nothing_named">Smart Edit PDF और तस्वीरें (JPG, PNG या WebP) खोलता है। छोड़ी गईं: %1$s।</string>
+    <string name="intake_nothing_named">EditPro PDF और तस्वीरें (JPG, PNG या WebP) खोलता है। छोड़ी गईं: %1$s।</string>
     <string name="intake_skipped">असमर्थित फ़ाइलें छोड़ दी गईं: %1$s।</string>
     <string name="intake_extra_pdfs">%1$s खोली गई। बाकी PDF एक-एक करके खोलें।</string>
     <string name="next_edit_pdf">यह PDF संपादित करें</string>
@@ -777,7 +777,56 @@
     <string name="library_gate_signin_body">आपका पहला डाउनलोड मुफ़्त था। और डाउनलोड करने के लिए Google से साइन इन करें और एक अध्ययन दस्तावेज़ साझा करें: आपके अपलोड किए हर दस्तावेज़ से 3 और डाउनलोड खुल जाते हैं। बाकी सभी टूल मुफ़्त रहते हैं।</string>
     <string name="library_gate_upload_title">और डाउनलोड के लिए एक अध्ययन दस्तावेज़ अपलोड करें</string>
     <string name="library_gate_upload_body">यह लाइब्रेरी इसलिए बढ़ती है क्योंकि छात्र साझा करते हैं। एक अध्ययन दस्तावेज़ (नोट्स, असाइनमेंट या पिछला प्रश्नपत्र) अपलोड करें और 3 और डाउनलोड पाएँ। ऐप से अपलोड जल्द आ रहा है; अभी आप वेबसाइट पर अपलोड कर सकते हैं।</string>
-    <string name="library_gate_upload_action">वेबसाइट खोलें</string>
+    <string name="library_gate_upload_action">दस्तावेज़ अपलोड करें</string>
     <string name="library_gate_cancel">अभी नहीं</string>
     <string name="profile_activity_desc">जो कुछ आपने स्कैन, कन्वर्ट और संपादित किया</string>
+    <string name="upload_title">दस्तावेज़ साझा करें</string>
+    <string name="upload_admin_title">लाइब्रेरी में जोड़ें</string>
+    <string name="upload_intro_student">अन्य छात्रों के साथ नोट्स, असाइनमेंट या पिछले पेपर साझा करें। हर लाइव अपलोड 3 और डाउनलोड खोलता है।</string>
+    <string name="upload_intro_admin">अपनी चुनी हुई श्रेणी, कक्षा और विषय में सीधे लाइब्रेरी में फ़ाइल जोड़ें।</string>
+    <string name="upload_sign_in_body">अपलोड करने के लिए Google से साइन इन करें। EditPro वेबसाइट वाला ही खाता इस्तेमाल करें।</string>
+    <string name="upload_not_admin">यह खाता EditPro एडमिन नहीं है।</string>
+    <string name="upload_choose_file">फ़ाइल चुनें</string>
+    <string name="upload_no_file">अभी कोई फ़ाइल नहीं चुनी</string>
+    <string name="upload_field_title">शीर्षक (वैकल्पिक)</string>
+    <string name="upload_field_section">श्रेणी</string>
+    <string name="upload_field_class">कक्षा</string>
+    <string name="upload_field_subject">विषय</string>
+    <string name="upload_no_subject">कोई विषय नहीं</string>
+    <string name="upload_field_category">प्रकार</string>
+    <string name="upload_field_label">लेबल</string>
+    <string name="upload_allowed">अनुमत: %1$s</string>
+    <string name="upload_button">अपलोड करें</string>
+    <string name="upload_progress">भाग %1$d / %2$d अपलोड हो रहा है</string>
+    <string name="upload_done">अपलोड हो गया। यह अब लाइब्रेरी में है।</string>
+    <string name="upload_added_admin">लाइब्रेरी में जोड़ा गया।</string>
+    <string name="upload_refused">अपलोड नहीं हुआ: %1$s</string>
+    <string name="upload_failed">अपलोड विफल रहा। कनेक्शन जाँचें और फिर कोशिश करें।</string>
+    <string name="upload_denied">आपको यह अपलोड करने की अनुमति नहीं है। फिर से साइन इन करके कोशिश करें।</string>
+    <string name="upload_my_files">आपके अपलोड</string>
+    <string name="upload_none_yet">आपने अभी कुछ साझा नहीं किया है।</string>
+    <string name="upload_status_live">लाइव</string>
+    <string name="upload_status_uploading">अपलोड हो रहा है</string>
+    <string name="upload_status_pulled">हटाया गया</string>
+    <string name="upload_delete">हटाएँ</string>
+    <string name="upload_delete_confirm">\"%1$s\" हटाएँ? यह लाइब्रेरी से हट जाएगा।</string>
+    <string name="upload_notice_pulled">\"%1$s\" हटाया गया: %2$s</string>
+    <string name="upload_dismiss">बंद करें</string>
+    <string name="upload_no_structure">लाइब्रेरी में अभी कोई श्रेणी नहीं है।</string>
+    <string name="admin_library_add">लाइब्रेरी में फ़ाइलें जोड़ें</string>
+    <string name="admin_students_review">छात्रों की फ़ाइलें देखें</string>
+    <string name="students_title">छात्रों की फ़ाइलें</string>
+    <string name="students_uploads_open">छात्रों के अपलोड स्वीकार करें</string>
+    <string name="students_tab_live">लाइव</string>
+    <string name="students_tab_pulled">हटाई गईं</string>
+    <string name="students_none">यहाँ कुछ नहीं है।</string>
+    <string name="students_pull">हटाएँ</string>
+    <string name="students_pull_title">\"%1$s\" हटाएँ</string>
+    <string name="students_pull_reason">छात्र को दिखने वाला कारण</string>
+    <string name="students_pull_done">हटा दिया गया। छात्र को कारण बता दिया गया है।</string>
+    <string name="students_pull_cleanup_pending">हटाया गया, पर सफ़ाई पूरी नहीं हुई। सफ़ाई फिर कोशिश करें।</string>
+    <string name="students_retry">सफ़ाई फिर कोशिश करें</string>
+    <string name="students_delete_record">रिकॉर्ड हटाएँ</string>
+    <string name="students_cleaned">सफ़ाई हो गई।</string>
+    <string name="library_upload_action">अपलोड करें</string>
 </resources>

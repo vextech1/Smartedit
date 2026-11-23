@@ -2,7 +2,7 @@
 
 Status: **implemented at source level**
 
-Smart Edit's PDF feature is a native working-copy editor rather than a collection of one-shot conversion buttons. Opening a document stages an isolated editable copy. Mutations are undoable/redoable until Save or Save As commits a permanent managed output.
+EditPro's PDF feature is a native working-copy editor rather than a collection of one-shot conversion buttons. Opening a document stages an isolated editable copy. Mutations are undoable/redoable until Save or Save As commits a permanent managed output.
 
 ## Document and page editing
 
@@ -41,7 +41,7 @@ Smart Edit's PDF feature is a native working-copy editor rather than a collectio
 
 Freehand ink and rectangle drawing are currently written into the page content stream. They participate in working-copy undo/redo but are not independently removable after a Save boundary.
 
-Added text is a new searchable overlay; Smart Edit does not claim to semantically reflow or replace arbitrary existing PDF text objects. The current overlay writer uses PDFBox's built-in Helvetica and substitutes unsupported characters outside that font's simple encoding. Existing PDF text extraction/search is not subject to that overlay-font limitation.
+Added text is a new searchable overlay; EditPro does not claim to semantically reflow or replace arbitrary existing PDF text objects. The current overlay writer uses PDFBox's built-in Helvetica and substitutes unsupported characters outside that font's simple encoding. Existing PDF text extraction/search is not subject to that overlay-font limitation.
 
 The Signature tool is **visual Fill & Sign**: it places a user-selected signature image/stamp on the page. It is not a certificate-backed cryptographic/PKI digital signature and the UI/docs must not describe it as one.
 
@@ -79,7 +79,7 @@ Dynamic XFA form authoring/editing is not implemented; PDFBox itself does not fl
 
 Redaction is intentionally destructive, not a black rectangle placed over live text.
 
-For the selected page Smart Edit:
+For the selected page EditPro:
 
 1. Requires protection to be removed first, so redaction never silently changes or weakens encryption.
 2. Flattens form fields so visible form state does not leave dangling form references.

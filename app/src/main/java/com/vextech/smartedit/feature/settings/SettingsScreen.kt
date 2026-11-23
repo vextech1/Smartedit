@@ -109,7 +109,7 @@ fun SettingsScreen(
     Scaffold(containerColor = c.paper, topBar = { SettingsTopBar(stringResource(R.string.settings), onBack) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(Modifier.widthIn(max = 920.dp).fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
-                // Smart Edit's own account screens: Profile (sign in, storage, backup, AI assistant, about) and Admin.
+                // EditPro's own account screens: Profile (sign in, storage, backup, AI assistant, about) and Admin.
                 if (onOpenProfile != null || onOpenAdmin != null) {
                     Group(stringResource(R.string.settings_group_account)) {
                         if (onOpenProfile != null) LinkRow(stringResource(R.string.nav_profile), stringResource(R.string.settings_profile_desc), onOpenProfile)

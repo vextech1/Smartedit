@@ -14,7 +14,7 @@ Status: **written at source level; logic verifiers pass; Android layer not compi
 ## Tabs
 | Tab | Content |
 |---|---|
-| Home | Title "Smart Edit" and a 2x2 grid of cards: Scanner, Converter, Compressor, Settings. Cards come from `homeTools`; adding an entry adds a card. Equal-height cards (two description lines reserved). |
+| Home | Title "EditPro" and a 2x2 grid of cards: Scanner, Converter, Compressor, Settings. Cards come from `homeTools`; adding an entry adds a card. Equal-height cards (two description lines reserved). |
 | Files | Segmented control **Files / Notes / Favorites**. Each segment is a full screen rendering the control as its header. Search icon on every segment; Trash in the Files menu and the Notes toolbar. New/open note goes to the editor. |
 | Activity | The History screen (day groups, filters, export, clear). No back arrow at tab root. |
 | Profile | Account card (stub: disabled "Sign in - Coming soon"), library stats and storage, Backup, AI Assist, About dialog. |

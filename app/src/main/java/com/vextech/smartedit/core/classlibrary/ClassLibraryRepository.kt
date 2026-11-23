@@ -54,15 +54,39 @@ class ClassLibraryRepository @Inject constructor(@ApplicationContext private val
         (listOf(first) + more.map { it.getOrNull() }).forEachIndexed { shard, data ->
             for (file in ClassLibraryParser.parseIndex(data, shard)) if (seen.add(file.id)) files += file
         }
-        LibraryData(ClassLibraryParser.parseStructure(structureDoc.await()), files, partial = more.any { it.isFailure })
+        // Live files shared by students are listed next to the admin's, as on the site. If they cannot be read the admin's files still show.
+        val students = runCatching { liveStudentFiles() }
+        students.getOrNull()?.forEach { f -> if (seen.add(f.id)) files += f }
+        LibraryData(
+            ClassLibraryParser.parseStructure(structureDoc.await()), files,
+            partial = more.any { it.isFailure } || students.isFailure,
+        )
     }
+
+    private suspend fun liveStudentFiles(): List<CloudFile> {
+        val out = ArrayList<CloudFile>()
+        var cursor: com.google.firebase.firestore.DocumentSnapshot? = null
+        while (true) {
+            var query = db.collection("userFiles").whereEqualTo("status", "live").limit(PAGE.toLong())
+            if (cursor != null) query = query.startAfter(cursor)
+            val snap = query.get().await()
+            snap.documents.mapNotNullTo(out) { d -> UserLibraryPolicies.parseUserFile(d.id, d.data)?.let(UserLibraryPolicies::toCloudFile) }
+            if (snap.size() < PAGE) return out
+            cursor = snap.documents.last()
+        }
+    }
+
+    /** Forgets the kept list, so the next [load] reads the real one (after an upload, delete or review). */
+    suspend fun forget() = lock.withLock { cached = null }
 
     /** Downloads every piece of [file] (a few at a time) and joins them. [onProgress] gets (pieces done, total). */
     suspend fun download(file: CloudFile, onProgress: (Int, Int) -> Unit): ByteArray = coroutineScope {
         val pieces = arrayOfNulls<ByteArray>(file.parts)
         val next = AtomicInteger(0)
         val done = AtomicInteger(0)
-        val parts = db.collection("libraryChunks").document(file.id).collection("parts")
+        // A student's file keeps its pieces in `userChunks`, numbered 0, 1, 2 ... without padding; the admin's are `libraryChunks/0000 ...`.
+        val parts = db.collection(if (file.student) "userChunks" else "libraryChunks").document(file.id).collection("parts")
+        fun pieceId(i: Int) = if (file.student) i.toString() else ClassLibraryParser.partId(i)
         // Each worker takes the next piece until none are left. They are awaited before the pieces are joined, and a failed piece
         // cancels the others and is thrown from here.
         List(minOf(PARALLEL, file.parts)) {
@@ -70,7 +94,7 @@ class ClassLibraryRepository @Inject constructor(@ApplicationContext private val
                 while (true) {
                     val i = next.getAndIncrement()
                     if (i >= file.parts) break
-                    val snapshot = parts.document(ClassLibraryParser.partId(i)).get().await()
+                    val snapshot = parts.document(pieceId(i)).get().await()
                     val blob = snapshot.getBlob("data") ?: throw IOException("Piece $i of ${file.id} is missing.")
                     pieces[i] = blob.toBytes()
                     onProgress(done.incrementAndGet(), file.parts)
@@ -83,5 +107,6 @@ class ClassLibraryRepository @Inject constructor(@ApplicationContext private val
     private companion object {
         const val CACHE_MS = 5 * 60 * 1000L
         const val PARALLEL = 4
+        const val PAGE = 300
     }
 }

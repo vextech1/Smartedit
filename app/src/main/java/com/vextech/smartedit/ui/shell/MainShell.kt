@@ -50,6 +50,10 @@ import com.vextech.smartedit.feature.tools.ToolsTabScreen
 import com.vextech.smartedit.feature.trash.TrashScreen
 import com.vextech.smartedit.ui.navigation.ActivityRoute
 import com.vextech.smartedit.ui.navigation.AdminRoute
+import com.vextech.smartedit.ui.navigation.LibraryUploadRoute
+import com.vextech.smartedit.ui.navigation.StudentFilesRoute
+import com.vextech.smartedit.feature.classlibrary.LibraryUploadScreen
+import com.vextech.smartedit.feature.classlibrary.StudentFilesScreen
 import com.vextech.smartedit.ui.navigation.AiAssistRoute
 import com.vextech.smartedit.ui.navigation.BackupRoute
 import com.vextech.smartedit.ui.navigation.CompressorRoute
@@ -112,7 +116,7 @@ fun MainShell(
 
     BackHandler(enabled = atRoot && tab != MainTab.HOME) { tab = MainTab.HOME }
 
-    // Files shared to Smart Edit or opened with it: the same rules as the Upload card on Home, starting from the Home tab.
+    // Files shared to EditPro or opened with it: the same rules as the Upload card on Home, starting from the Home tab.
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
     val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(incoming) {
@@ -164,7 +168,7 @@ fun MainShell(
                         onTool = { action, uri -> push(action.routeFor(uri)) },
                     )
                 }
-                entry<LibraryRoute> { ClassLibraryScreen() }
+                entry<LibraryRoute> { ClassLibraryScreen(onUpload = { push(LibraryUploadRoute()) }) }
                 entry<ActivityRoute> { HistoryScreen(onBack = ::back, share = shareService) }
                 entry<ProfileRoute> { ProfileScreen(onOpen = ::push, onBack = ::back) }
 
@@ -180,7 +184,9 @@ fun MainShell(
                 entry<TrashRoute> { TrashScreen(::back) }
                 entry<BackupRoute> { BackupScreen(::back, shareService) }
                 entry<SettingsRoute> { SettingsScreen(onBack = null, onTrash = { push(TrashRoute) }, onOpenProfile = { push(ProfileRoute) }, onOpenAdmin = { push(AdminRoute) }) }
-                entry<AdminRoute> { AdminScreen(::back) }
+                entry<AdminRoute> { AdminScreen(::back, onOpen = ::push) }
+                entry<LibraryUploadRoute> { route -> LibraryUploadScreen(route.admin, ::back) }
+                entry<StudentFilesRoute> { StudentFilesScreen(::back) }
                 entry<AiAssistRoute> { AiAssistScreen(::back) }
             },
         )

@@ -12,7 +12,7 @@ Native persistent multi-page scan sessions with three input paths: Google ML Kit
 - Deleting a page renumbers remaining positions.
 - OCR runs against the current rendered page and stores text + detected language on that page.
 - PDF export is rejected for an empty session and respects current page order.
-- Export registers the PDF in Smart Edit Files and History and updates the legacy aggregate scan row used by existing dashboard surfaces.
+- Export registers the PDF in EditPro Files and History and updates the legacy aggregate scan row used by existing dashboard surfaces.
 - Discard removes the session and its managed page files.
 - Blocking bitmap, OCR, filesystem and PDF work runs on Dispatchers.IO.
 

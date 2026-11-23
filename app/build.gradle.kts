@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.vextech.smartedit"
+        applicationId = "com.vextech.editpro"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

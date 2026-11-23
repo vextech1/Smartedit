@@ -35,6 +35,12 @@ jobs:
             exit 1
           fi
           printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+          # The app id is now com.vextech.editpro. Until the secret holds a file registered for that id,
+          # patch the package name so the build still passes (Google sign-in will not work from such a build).
+          if ! grep -q '"package_name": *"com.vextech.editpro"' app/google-services.json; then
+            echo "::warning::google-services.json is not registered for com.vextech.editpro; patching the package name for this build only"
+            sed -i 's/"package_name": *"[^"]*"/"package_name": "com.vextech.editpro"/' app/google-services.json
+          fi
 
       # gradle/gradle-daemon-jvm.properties asks for a JDK 25 daemon.
       - uses: actions/setup-java@v4

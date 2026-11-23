@@ -1,6 +1,6 @@
 # Accounts: Firebase setup
 
-Smart Edit signs people in the same way the EditPro site does: **Google sign-in through Firebase Auth**, one login for everyone.
+EditPro signs people in the same way the EditPro site does: **Google sign-in through Firebase Auth**, one login for everyone.
 Ordinary users and admins use the same button; what an account may do is decided by the **Firestore rules**, not by the app.
 
 Until the steps below are done, the app works exactly as before and the account screens say "Accounts are not available in this build yet."
@@ -11,7 +11,7 @@ No code change is needed to turn accounts on.
 1. **Use the same Firebase project as the site** (`editpro1`), so the app and the site share one set of rules, owner and admin list.
 2. **Authentication → Sign-in method:** turn on **Google**.
 3. **Project settings → Your apps → Add app → Android**
-   - Package name: `com.vextech.smartedit`
+   - Package name: `com.vextech.editpro`
    - Add the **SHA-1 and SHA-256** fingerprints of every key the app is signed with: the debug key, your release key, and the Play App Signing key (Play Console → App integrity). Sign-in fails with "no credentials" if a fingerprint is missing.
 4. **Download `google-services.json`** and put it at `app/google-services.json`. Download it *after* Google sign-in is on and the fingerprints are added, so it contains the OAuth web client. The build already applies the Google services plugin whenever that file exists.
 5. **Firestore rules:** the site's `firestore.rules` already cover everything the app does, so nothing new is needed. They name the **owner** by email (`isOwner()`) and let the owner add **helper admins** as documents in the `libraryAdmins` collection (document id = the helper's lower-case email). Deploy with `firebase deploy --only firestore:rules` if you change the owner.

@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Smart Edit</string><string name="converter">المحوّل</string><string name="compressor">الضغط</string><string name="notes">الملاحظات</string><string name="files">الملفات</string><string name="search">بحث</string><string name="favorites">المفضلة</string><string name="trash">سلة المهملات</string><string name="backup">النسخ الاحتياطي</string><string name="settings">الإعدادات</string><string name="ai_assist">مساعد الذكاء الاصطناعي</string>
+    <string name="app_name">EditPro</string><string name="converter">المحوّل</string><string name="compressor">الضغط</string><string name="notes">الملاحظات</string><string name="files">الملفات</string><string name="search">بحث</string><string name="favorites">المفضلة</string><string name="trash">سلة المهملات</string><string name="backup">النسخ الاحتياطي</string><string name="settings">الإعدادات</string><string name="ai_assist">مساعد الذكاء الاصطناعي</string>
     <string name="back">رجوع</string><string name="cancel">إلغاء</string><string name="close">إغلاق</string><string name="create">إنشاء</string><string name="details">التفاصيل</string><string name="more_options">خيارات إضافية</string><string name="name">الاسم</string><string name="open">فتح</string><string name="rename">إعادة تسمية</string><string name="share">مشاركة</string>
-    <string name="files_import">استيراد ملفات</string><string name="files_new_folder">مجلد جديد</string><string name="files_import_clipboard">استيراد الحافظة</string><string name="files_toggle_view">التبديل بين القائمة والشبكة</string><string name="files_sort_name">الاسم</string><string name="files_sort_modified">آخر تعديل</string><string name="files_sort_size">الحجم</string><string name="files_sort_type">النوع</string><string name="files_empty_title">المجلد فارغ</string><string name="files_empty_description">استورد ملفًا أو أنشئ مجلدًا أو أضف محتوى من ميزة أخرى في Smart Edit.</string><string name="files_folder">مجلد</string><string name="files_favorite">مفضلة</string><string name="files_move">نقل</string><string name="files_move_title">نقل %1$s</string><string name="files_root">الملفات (الجذر)</string><string name="files_move_to_trash">نقل إلى سلة المهملات</string><string name="files_move_to_trash_title">النقل إلى سلة المهملات؟</string><string name="files_move_to_trash_message">سيتم نقل %1$s إلى سلة المهملات ويمكن استعادته لاحقًا.</string><string name="files_type">النوع</string><string name="files_size">الحجم</string><string name="files_location">الموقع</string><string name="files_created">تاريخ الإنشاء</string><string name="files_modified">آخر تعديل</string><string name="files_open_failed">لا يوجد تطبيق يمكنه فتح هذا الملف.</string><string name="files_share_failed">تعذرت مشاركة هذا الملف.</string>
+    <string name="files_import">استيراد ملفات</string><string name="files_new_folder">مجلد جديد</string><string name="files_import_clipboard">استيراد الحافظة</string><string name="files_toggle_view">التبديل بين القائمة والشبكة</string><string name="files_sort_name">الاسم</string><string name="files_sort_modified">آخر تعديل</string><string name="files_sort_size">الحجم</string><string name="files_sort_type">النوع</string><string name="files_empty_title">المجلد فارغ</string><string name="files_empty_description">استورد ملفًا أو أنشئ مجلدًا أو أضف محتوى من ميزة أخرى في EditPro.</string><string name="files_folder">مجلد</string><string name="files_favorite">مفضلة</string><string name="files_move">نقل</string><string name="files_move_title">نقل %1$s</string><string name="files_root">الملفات (الجذر)</string><string name="files_move_to_trash">نقل إلى سلة المهملات</string><string name="files_move_to_trash_title">النقل إلى سلة المهملات؟</string><string name="files_move_to_trash_message">سيتم نقل %1$s إلى سلة المهملات ويمكن استعادته لاحقًا.</string><string name="files_type">النوع</string><string name="files_size">الحجم</string><string name="files_location">الموقع</string><string name="files_created">تاريخ الإنشاء</string><string name="files_modified">آخر تعديل</string><string name="files_open_failed">لا يوجد تطبيق يمكنه فتح هذا الملف.</string><string name="files_share_failed">تعذرت مشاركة هذا الملف.</string>
 
     <string name="files_error_import">تعذر استيراد الملف المحدد.</string>
     <string name="files_error_clipboard_import">تعذر استيراد محتوى الحافظة.</string>
@@ -33,7 +33,7 @@
     <string name="files_error_move_into_self">لا يمكن نقل المجلد إلى داخل نفسه.</string>
     <string name="files_error_move_into_descendant">لا يمكن نقل المجلد إلى أحد مجلداته الفرعية.</string>
     <string name="files_error_folder_favorite">يمكن إضافة الملفات فقط إلى المفضلة.</string>
-    <string name="files_error_not_managed">هذا العنصر غير مُدار بواسطة Smart Edit.</string>
+    <string name="files_error_not_managed">هذا العنصر غير مُدار بواسطة EditPro.</string>
     <string name="files_error_file_missing">الملف المُدار مفقود: %1$s</string>
 
     <string name="scanner_title">الماسح</string>
@@ -185,7 +185,7 @@
     <string name="converter_error_output_missing">هذا الملف لم يعد متاحًا.</string>
     <string name="converter_home_images">الصور</string>
     <string name="converter_home_images_desc">أنشئ ملف PDF أو غيّر تنسيق الصور</string>
-    <string name="converter_home_intro">اختر ما تريد تحويله. يتم حفظ كل نتيجة في Smart Edit.</string>
+    <string name="converter_home_intro">اختر ما تريد تحويله. يتم حفظ كل نتيجة في EditPro.</string>
     <string name="converter_home_pdf">PDF</string>
     <string name="converter_home_pdf_desc">صفحات إلى صور، أو Word، أو نص عادي</string>
     <string name="converter_images_hint">%1$d صور · %2$s · المس صورة لنقلها</string>
@@ -202,7 +202,7 @@
     <string name="converter_protected_hint">تُستخدم كلمة المرور لهذا التحويل فقط.</string>
     <string name="converter_protected_title">ملف PDF هذا محمي بكلمة مرور</string>
     <string name="converter_remove_image">إزالة الصورة</string>
-    <string name="converter_saved_note">تم الحفظ في Smart Edit</string>
+    <string name="converter_saved_note">تم الحفظ في EditPro</string>
     <string name="converter_target_docx_desc">نص قابل للتحرير من ملف PDF</string>
     <string name="converter_target_jpeg_zip_desc">ملف ZIP بصورة لكل صفحة</string>
     <string name="converter_target_png_zip_desc">ملف ZIP، صور بدون فقدان للجودة</string>
@@ -302,7 +302,7 @@
     <string name="history_filter_empty_title">لا شيء هنا</string>
     <string name="history_filter_favorites">المفضلة</string>
     <string name="history_filter_processed">تم تحويله وضغطه</string>
-    <string name="history_pdf_title">نشاط Smart Edit</string>
+    <string name="history_pdf_title">نشاط EditPro</string>
     <string name="history_today">اليوم</string>
     <string name="history_yesterday">أمس</string>
     <!-- Library: trash -->
@@ -345,7 +345,7 @@
     <string name="profile_about_version">الإصدار %1$s</string>
     <string name="profile_about_message">امسح المستندات وعدّلها وحوّلها أينما كنت.</string>
     <!-- Onboarding -->
-    <string name="onboarding_p1_title">Smart Edit.</string>
+    <string name="onboarding_p1_title">EditPro.</string>
     <string name="onboarding_p1_body">امسح المستندات وعدّلها وحوّلها أينما كنت.</string>
     <string name="onboarding_p2_title">اعمل مع ملفات PDF</string>
     <string name="onboarding_p2_body">امسح الصفحات، ثم ادمج ملفات PDF وقسّمها وأعد ترتيبها وأضف علامة مائية وحوّلها واضغطها.</string>
@@ -467,7 +467,7 @@
     <string name="backup_empty">لا توجد نسخ احتياطية بعد</string>
     <string name="backup_detail">%1$s · %2$s</string>
     <string name="backup_restore_title">استعادة النسخة الاحتياطية؟</string>
-    <string name="backup_restore_message">سيتم استبدال ملفات Smart Edit وبيانات التطبيق الحالية بالنسخة الاحتياطية المحددة. تُجهَّز الاستعادة أولاً وتُلغى إذا فشل التحقق.</string>
+    <string name="backup_restore_message">سيتم استبدال ملفات EditPro وبيانات التطبيق الحالية بالنسخة الاحتياطية المحددة. تُجهَّز الاستعادة أولاً وتُلغى إذا فشل التحقق.</string>
     <string name="settings_appearance">المظهر</string>
     <string name="settings_theme_system">النظام</string>
     <string name="settings_theme_light">فاتح</string>
@@ -492,7 +492,7 @@
     <string name="settings_privacy">سياسة الخصوصية</string>
     <string name="settings_terms">شروط الاستخدام</string>
     <string name="settings_open_page_failed">تعذّر فتح هذه الصفحة.</string>
-    <string name="ai_notice">لا ينتحل Smart Edit صفة هذه الخدمات ولا يضيف أي شيء إلى مواقعها. اختر واحدة لفتح موقعها الرسمي في علامة تبويب متصفح آمنة.</string>
+    <string name="ai_notice">لا ينتحل EditPro صفة هذه الخدمات ولا يضيف أي شيء إلى مواقعها. اختر واحدة لفتح موقعها الرسمي في علامة تبويب متصفح آمنة.</string>
     <string name="ai_opens_host">يفتح %1$s في علامة تبويب بالمتصفح</string>
     <string name="files_notice_moved_many">تم نقل %1$d عنصرًا</string>
     <string name="files_notice_trashed_many">تم نقل %1$d عنصرًا إلى سلة المهملات</string>
@@ -705,7 +705,7 @@
     <string name="account_deleted">تم حذف حسابك وبيانات الحساب المخزّنة.</string>
     <string name="account_loading">جارٍ التحميل…</string>
     <string name="account_sign_in">تسجيل الدخول باستخدام Google</string>
-    <string name="account_sign_in_body">سجّل الدخول للاحتفاظ بحسابك. تبقى جميع أدوات Smart Edit مجانية، مع حساب أو بدونه.</string>
+    <string name="account_sign_in_body">سجّل الدخول للاحتفاظ بحسابك. تبقى جميع أدوات EditPro مجانية، مع حساب أو بدونه.</string>
     <string name="account_sign_in_title">تسجيل الدخول باستخدام Google</string>
     <string name="account_sign_out">تسجيل الخروج</string>
     <string name="account_signed_in_as">تم تسجيل الدخول باسم %1$s</string>
@@ -779,7 +779,7 @@
     <string name="tools_title">الأدوات</string>
     <string name="intake_mixed">اختر الصور وملفات PDF كلًا على حدة. يمكن تحويل عدة صور إلى ملف PDF واحد.</string>
     <string name="intake_nothing">اختر ملف PDF أو صورة (JPG أو PNG أو WebP).</string>
-    <string name="intake_nothing_named">يفتح Smart Edit ملفات PDF والصور (JPG أو PNG أو WebP). تم التخطي: %1$s.</string>
+    <string name="intake_nothing_named">يفتح EditPro ملفات PDF والصور (JPG أو PNG أو WebP). تم التخطي: %1$s.</string>
     <string name="intake_skipped">تم تخطي الملفات غير المدعومة: %1$s.</string>
     <string name="intake_extra_pdfs">تم فتح %1$s. افتح ملفات PDF الأخرى واحدًا تلو الآخر.</string>
     <string name="next_edit_pdf">تحرير ملف PDF هذا</string>
@@ -808,8 +808,57 @@
     <string name="library_gate_signin_title">سجّل الدخول لمواصلة التنزيل</string>
     <string name="library_gate_signin_body">كان تنزيلك الأول مجانيًا. لتنزيل المزيد، سجّل الدخول بحساب Google وشارك مستند دراسة واحدًا: كل مستند ترفعه يفتح لك 3 تنزيلات إضافية. تبقى جميع الأدوات الأخرى مجانية.</string>
     <string name="library_gate_upload_title">ارفع مستند دراسة لتنزيل المزيد</string>
-    <string name="library_gate_upload_body">تنمو هذه المكتبة لأن الطلاب يتشاركون. ارفع مستند دراسة واحدًا (ملاحظات أو واجبًا أو ورقة سابقة) لتفتح 3 تنزيلات إضافية. الرفع من التطبيق قادم قريبًا، ويمكنك الرفع حاليًا من الموقع.</string>
-    <string name="library_gate_upload_action">فتح الموقع</string>
+    <string name="library_gate_upload_body">تنمو هذه المكتبة لأن الطلاب يتشاركون. ارفع مستند دراسة واحدًا (ملاحظات أو واجبًا أو ورقة سابقة) لتفتح 3 تنزيلات إضافية.</string>
+    <string name="library_gate_upload_action">رفع مستند</string>
     <string name="library_gate_cancel">ليس الآن</string>
     <string name="profile_activity_desc">كل ما مسحته وحوّلته وحرّرته</string>
+    <string name="upload_title">شارك مستندًا</string>
+    <string name="upload_admin_title">أضف إلى المكتبة</string>
+    <string name="upload_intro_student">شارك ملاحظات أو واجبًا أو ورقة سابقة مع الطلاب. كل رفع نشط يفتح 3 تنزيلات إضافية.</string>
+    <string name="upload_intro_admin">أضف ملفًا مباشرة إلى المكتبة في القسم والصف والمادة التي تختارها.</string>
+    <string name="upload_sign_in_body">سجّل الدخول بحساب Google للرفع. استخدم الحساب نفسه المستخدم في موقع EditPro.</string>
+    <string name="upload_not_admin">هذا الحساب ليس مشرفًا في EditPro.</string>
+    <string name="upload_choose_file">اختر ملفًا</string>
+    <string name="upload_no_file">لم يتم اختيار ملف بعد</string>
+    <string name="upload_field_title">العنوان (اختياري)</string>
+    <string name="upload_field_section">القسم</string>
+    <string name="upload_field_class">الصف</string>
+    <string name="upload_field_subject">المادة</string>
+    <string name="upload_no_subject">بدون مادة</string>
+    <string name="upload_field_category">الفئة</string>
+    <string name="upload_field_label">التسمية</string>
+    <string name="upload_allowed">المسموح: %1$s</string>
+    <string name="upload_button">رفع</string>
+    <string name="upload_progress">رفع الجزء %1$d من %2$d</string>
+    <string name="upload_done">تم الرفع. الملف متاح الآن في المكتبة.</string>
+    <string name="upload_added_admin">تمت الإضافة إلى المكتبة.</string>
+    <string name="upload_refused">لم يتم الرفع: %1$s</string>
+    <string name="upload_failed">فشل الرفع. تحقق من اتصالك وحاول مجددًا.</string>
+    <string name="upload_denied">غير مسموح لك برفع هذا. سجّل الدخول مجددًا وأعد المحاولة.</string>
+    <string name="upload_my_files">ملفاتك المرفوعة</string>
+    <string name="upload_none_yet">لم تشارك أي شيء بعد.</string>
+    <string name="upload_status_live">نشط</string>
+    <string name="upload_status_uploading">جارٍ الرفع</string>
+    <string name="upload_status_pulled">تمت الإزالة</string>
+    <string name="upload_delete">حذف</string>
+    <string name="upload_delete_confirm">حذف \"%1$s\"؟ سيُزال من المكتبة.</string>
+    <string name="upload_notice_pulled">تمت إزالة \"%1$s\": %2$s</string>
+    <string name="upload_dismiss">إغلاق</string>
+    <string name="upload_no_structure">لا توجد أقسام في المكتبة بعد.</string>
+    <string name="admin_library_add">إضافة ملفات إلى المكتبة</string>
+    <string name="admin_students_review">مراجعة ملفات الطلاب</string>
+    <string name="students_title">ملفات الطلاب</string>
+    <string name="students_uploads_open">قبول رفع الطلاب</string>
+    <string name="students_tab_live">نشطة</string>
+    <string name="students_tab_pulled">محذوفة</string>
+    <string name="students_none">لا شيء هنا.</string>
+    <string name="students_pull">إزالة</string>
+    <string name="students_pull_title">إزالة \"%1$s\"</string>
+    <string name="students_pull_reason">السبب الذي يراه الطالب</string>
+    <string name="students_pull_done">تمت الإزالة وأُبلغ الطالب بالسبب.</string>
+    <string name="students_pull_cleanup_pending">تمت الإزالة لكن التنظيف لم يكتمل. استخدم إعادة المحاولة.</string>
+    <string name="students_retry">إعادة التنظيف</string>
+    <string name="students_delete_record">حذف السجل</string>
+    <string name="students_cleaned">تم التنظيف.</string>
+    <string name="library_upload_action">رفع</string>
 </resources>

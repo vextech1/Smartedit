@@ -141,7 +141,7 @@ class ClassLibraryViewModel @Inject constructor(
                 val state = if (user != null) access.state(user.uid, file.id) else null
                 val decision = AccessPolicies.decide(
                     AccessPolicies.Input(
-                        fileId = file.id, free = access.freeFileId(), signedIn = user != null,
+                        fileId = file.id, free = access.freeFileId(), own = user != null && file.uploader == user.uid, signedIn = user != null,
                         unlocked = state?.unlocked ?: false, liveUploads = state?.liveUploads ?: 0, used = state?.used ?: 0,
                     ),
                 )

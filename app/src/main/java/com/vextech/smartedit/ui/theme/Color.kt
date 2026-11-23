@@ -5,7 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-/** Smart Edit brand palette: deep teal on a pale cool-grey canvas, white cards, light-teal icon tiles. */
+/** EditPro brand palette: deep teal on a pale cool-grey canvas, white cards, light-teal icon tiles. */
 internal val LightColors: ColorScheme = lightColorScheme(
     primary = Color(0xFF0E6B70),
     onPrimary = Color(0xFFFFFFFF),

@@ -73,7 +73,7 @@ private data class Choice(val key: String, val text: String, val selected: Boole
 
 /** The Library tab: the same sections, classes, subjects and categories as the site, with search, download and share. */
 @Composable
-fun ClassLibraryScreen(vm: ClassLibraryViewModel = hiltViewModel()) {
+fun ClassLibraryScreen(onUpload: () -> Unit = {}, vm: ClassLibraryViewModel = hiltViewModel()) {
     val ui by vm.ui.collectAsState()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -85,7 +85,10 @@ fun ClassLibraryScreen(vm: ClassLibraryViewModel = hiltViewModel()) {
         }
     }
 
-    FeatureScaffold(title = stringResource(R.string.nav_library), onBack = null, snackbarHost = { SnackbarHost(snackbar) }) { padding ->
+    FeatureScaffold(
+        title = stringResource(R.string.nav_library), onBack = null,
+        actions = { TextButton(onClick = onUpload) { Text(stringResource(R.string.library_upload_action)) } },
+        snackbarHost = { SnackbarHost(snackbar) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
                 ui.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -111,7 +114,7 @@ fun ClassLibraryScreen(vm: ClassLibraryViewModel = hiltViewModel()) {
                         vm.signInAndRetry(context, gate.file)
                     } else {
                         vm.dismissGate()
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ClassLibraryLinks.LIBRARY_URL)))
+                        onUpload()
                     }
                 }) { Text(stringResource(if (signIn) R.string.account_sign_in else R.string.library_gate_upload_action)) }
             },

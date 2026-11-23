@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Smart Edit</string><string name="converter">Konverter</string><string name="compressor">Kompressor</string><string name="notes">Notizen</string><string name="files">Dateien</string><string name="search">Suche</string><string name="favorites">Favoriten</string><string name="trash">Papierkorb</string><string name="backup">Sicherung</string><string name="settings">Einstellungen</string><string name="ai_assist">KI-Assistent</string>
+    <string name="app_name">EditPro</string><string name="converter">Konverter</string><string name="compressor">Kompressor</string><string name="notes">Notizen</string><string name="files">Dateien</string><string name="search">Suche</string><string name="favorites">Favoriten</string><string name="trash">Papierkorb</string><string name="backup">Sicherung</string><string name="settings">Einstellungen</string><string name="ai_assist">KI-Assistent</string>
     <string name="back">Zurück</string><string name="cancel">Abbrechen</string><string name="close">Schließen</string><string name="create">Erstellen</string><string name="details">Details</string><string name="more_options">Weitere Optionen</string><string name="name">Name</string><string name="open">Öffnen</string><string name="rename">Umbenennen</string><string name="share">Teilen</string>
     <string name="files_import">Dateien importieren</string><string name="files_new_folder">Neuer Ordner</string><string name="files_import_clipboard">Zwischenablage importieren</string><string name="files_toggle_view">Listen- oder Rasteransicht wechseln</string><string name="files_sort_name">Name</string><string name="files_sort_modified">Geändert</string><string name="files_sort_size">Größe</string><string name="files_sort_type">Typ</string><string name="files_empty_title">Leerer Ordner</string><string name="files_empty_description">Importiere eine Datei, erstelle einen Ordner oder füge Inhalte aus einer anderen Smart-Edit-Funktion hinzu.</string><string name="files_folder">Ordner</string><string name="files_favorite">Favorit</string><string name="files_move">Verschieben</string><string name="files_move_title">%1$s verschieben</string><string name="files_root">Dateien (Stamm)</string><string name="files_move_to_trash">In Papierkorb verschieben</string><string name="files_move_to_trash_title">In den Papierkorb verschieben?</string><string name="files_move_to_trash_message">%1$s wird in den Papierkorb verschoben und kann später wiederhergestellt werden.</string><string name="files_type">Typ</string><string name="files_size">Größe</string><string name="files_location">Speicherort</string><string name="files_created">Erstellt</string><string name="files_modified">Geändert</string><string name="files_open_failed">Keine App konnte diese Datei öffnen.</string><string name="files_share_failed">Diese Datei konnte nicht geteilt werden.</string>
 
@@ -33,7 +33,7 @@
     <string name="files_error_move_into_self">Ein Ordner kann nicht in sich selbst verschoben werden.</string>
     <string name="files_error_move_into_descendant">Ein Ordner kann nicht in einen eigenen Unterordner verschoben werden.</string>
     <string name="files_error_folder_favorite">Nur Dateien können zu Favoriten hinzugefügt werden.</string>
-    <string name="files_error_not_managed">Dieses Element wird nicht von Smart Edit verwaltet.</string>
+    <string name="files_error_not_managed">Dieses Element wird nicht von EditPro verwaltet.</string>
     <string name="files_error_file_missing">Die verwaltete Datei fehlt: %1$s</string>
 
     <string name="scanner_title">Scanner</string>
@@ -185,7 +185,7 @@
     <string name="converter_error_output_missing">Diese Datei ist nicht mehr verfügbar.</string>
     <string name="converter_home_images">Bilder</string>
     <string name="converter_home_images_desc">PDF erstellen oder Bildformat ändern</string>
-    <string name="converter_home_intro">Wähle, was konvertiert werden soll. Jedes Ergebnis wird in Smart Edit gespeichert.</string>
+    <string name="converter_home_intro">Wähle, was konvertiert werden soll. Jedes Ergebnis wird in EditPro gespeichert.</string>
     <string name="converter_home_pdf">PDF</string>
     <string name="converter_home_pdf_desc">Seiten als Bilder, Word oder reiner Text</string>
     <string name="converter_images_hint">%1$d Bilder · %2$s · Bild antippen, um es zu verschieben</string>
@@ -202,7 +202,7 @@
     <string name="converter_protected_hint">Das Passwort wird nur für diese Konvertierung verwendet.</string>
     <string name="converter_protected_title">Dieses PDF ist passwortgeschützt</string>
     <string name="converter_remove_image">Bild entfernen</string>
-    <string name="converter_saved_note">In Smart Edit gespeichert</string>
+    <string name="converter_saved_note">In EditPro gespeichert</string>
     <string name="converter_target_docx_desc">Bearbeitbarer Text aus dem PDF</string>
     <string name="converter_target_jpeg_zip_desc">ZIP mit einem Bild pro Seite</string>
     <string name="converter_target_png_zip_desc">ZIP, verlustfreie Bilder</string>
@@ -341,7 +341,7 @@
     <string name="profile_about_version">Version %1$s</string>
     <string name="profile_about_message">Dokumente unterwegs scannen, bearbeiten und konvertieren.</string>
     <!-- Onboarding -->
-    <string name="onboarding_p1_title">Smart Edit.</string>
+    <string name="onboarding_p1_title">EditPro.</string>
     <string name="onboarding_p1_body">Dokumente unterwegs scannen, bearbeiten und konvertieren.</string>
     <string name="onboarding_p2_title">Mit PDFs arbeiten</string>
     <string name="onboarding_p2_body">Seiten scannen, dann PDFs zusammenführen, teilen, neu ordnen, mit Wasserzeichen versehen, konvertieren und komprimieren.</string>
@@ -480,7 +480,7 @@
     <string name="settings_privacy">Datenschutzerklärung</string>
     <string name="settings_terms">Nutzungsbedingungen</string>
     <string name="settings_open_page_failed">Diese Seite konnte nicht geöffnet werden.</string>
-    <string name="ai_notice">Smart Edit gibt sich nicht als diese Dienste aus und fügt deren Websites nichts hinzu. Wähle einen Dienst, um die offizielle Website in einem sicheren Browser-Tab zu öffnen.</string>
+    <string name="ai_notice">EditPro gibt sich nicht als diese Dienste aus und fügt deren Websites nichts hinzu. Wähle einen Dienst, um die offizielle Website in einem sicheren Browser-Tab zu öffnen.</string>
     <string name="ai_opens_host">Öffnet %1$s in einem Browser-Tab</string>
     <string name="files_notice_moved_many">%1$d Elemente verschoben</string>
     <string name="files_notice_trashed_many">%1$d Elemente in den Papierkorb verschoben</string>
@@ -747,7 +747,7 @@
     <string name="tools_title">Werkzeuge</string>
     <string name="intake_mixed">Wähle Bilder und PDFs getrennt aus. Mehrere Bilder können zu einer PDF zusammengefasst werden.</string>
     <string name="intake_nothing">Wähle eine PDF oder ein Bild (JPG, PNG oder WebP).</string>
-    <string name="intake_nothing_named">Smart Edit öffnet PDFs und Bilder (JPG, PNG oder WebP). Übersprungen: %1$s.</string>
+    <string name="intake_nothing_named">EditPro öffnet PDFs und Bilder (JPG, PNG oder WebP). Übersprungen: %1$s.</string>
     <string name="intake_skipped">Nicht unterstützte Dateien übersprungen: %1$s.</string>
     <string name="intake_extra_pdfs">%1$s geöffnet. Öffne die anderen PDFs nacheinander.</string>
     <string name="next_edit_pdf">Diese PDF bearbeiten</string>
@@ -776,8 +776,57 @@
     <string name="library_gate_signin_title">Melde dich an, um weiter herunterzuladen</string>
     <string name="library_gate_signin_body">Dein erster Download war kostenlos. Um mehr herunterzuladen, melde dich mit Google an und teile ein Lerndokument: Jedes hochgeladene Dokument schaltet 3 weitere Downloads frei. Alle anderen Werkzeuge bleiben kostenlos.</string>
     <string name="library_gate_upload_title">Lade ein Lerndokument hoch, um mehr herunterzuladen</string>
-    <string name="library_gate_upload_body">Diese Bibliothek wächst, weil Schüler teilen. Lade ein Lerndokument hoch (Notizen, eine Aufgabe oder eine frühere Prüfung) und schalte 3 weitere Downloads frei. Das Hochladen in der App kommt bald; vorerst kannst du es auf der Website tun.</string>
-    <string name="library_gate_upload_action">Website öffnen</string>
+    <string name="library_gate_upload_body">Diese Bibliothek wächst, weil Schüler teilen. Lade ein Lerndokument hoch (Notizen, eine Aufgabe oder eine frühere Prüfung) und schalte 3 weitere Downloads frei.</string>
+    <string name="library_gate_upload_action">Dokument hochladen</string>
     <string name="library_gate_cancel">Jetzt nicht</string>
     <string name="profile_activity_desc">Alles, was du gescannt, konvertiert und bearbeitet hast</string>
+    <string name="upload_title">Dokument teilen</string>
+    <string name="upload_admin_title">Zur Bibliothek hinzufügen</string>
+    <string name="upload_intro_student">Teile Notizen, eine Aufgabe oder eine frühere Klausur mit anderen. Jeder aktive Upload schaltet 3 weitere Downloads frei.</string>
+    <string name="upload_intro_admin">Füge eine Datei direkt in Bereich, Klasse und Fach deiner Wahl hinzu.</string>
+    <string name="upload_sign_in_body">Melde dich mit Google an, um hochzuladen. Nutze dasselbe Konto wie auf der EditPro-Website.</string>
+    <string name="upload_not_admin">Dieses Konto ist kein EditPro-Admin.</string>
+    <string name="upload_choose_file">Datei wählen</string>
+    <string name="upload_no_file">Noch keine Datei gewählt</string>
+    <string name="upload_field_title">Titel (optional)</string>
+    <string name="upload_field_section">Bereich</string>
+    <string name="upload_field_class">Klasse</string>
+    <string name="upload_field_subject">Fach</string>
+    <string name="upload_no_subject">Kein Fach</string>
+    <string name="upload_field_category">Kategorie</string>
+    <string name="upload_field_label">Bezeichnung</string>
+    <string name="upload_allowed">Erlaubt: %1$s</string>
+    <string name="upload_button">Hochladen</string>
+    <string name="upload_progress">Teil %1$d von %2$d wird hochgeladen</string>
+    <string name="upload_done">Hochgeladen. Die Datei ist jetzt in der Bibliothek.</string>
+    <string name="upload_added_admin">Zur Bibliothek hinzugefügt.</string>
+    <string name="upload_refused">Nicht hochgeladen: %1$s</string>
+    <string name="upload_failed">Upload fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.</string>
+    <string name="upload_denied">Du darfst das nicht hochladen. Melde dich neu an und versuche es erneut.</string>
+    <string name="upload_my_files">Deine Uploads</string>
+    <string name="upload_none_yet">Du hast noch nichts geteilt.</string>
+    <string name="upload_status_live">Aktiv</string>
+    <string name="upload_status_uploading">Wird hochgeladen</string>
+    <string name="upload_status_pulled">Entfernt</string>
+    <string name="upload_delete">Löschen</string>
+    <string name="upload_delete_confirm">„%1$s“ löschen? Die Datei verschwindet aus der Bibliothek.</string>
+    <string name="upload_notice_pulled">„%1$s“ wurde entfernt: %2$s</string>
+    <string name="upload_dismiss">Schließen</string>
+    <string name="upload_no_structure">Die Bibliothek hat noch keine Bereiche.</string>
+    <string name="admin_library_add">Dateien zur Bibliothek hinzufügen</string>
+    <string name="admin_students_review">Dateien von Studierenden prüfen</string>
+    <string name="students_title">Dateien von Studierenden</string>
+    <string name="students_uploads_open">Uploads von Studierenden annehmen</string>
+    <string name="students_tab_live">Aktiv</string>
+    <string name="students_tab_pulled">Entfernt</string>
+    <string name="students_none">Nichts vorhanden.</string>
+    <string name="students_pull">Entfernen</string>
+    <string name="students_pull_title">„%1$s“ entfernen</string>
+    <string name="students_pull_reason">Grund, der dem Studierenden angezeigt wird</string>
+    <string name="students_pull_done">Entfernt. Der Studierende wurde informiert.</string>
+    <string name="students_pull_cleanup_pending">Entfernt, aber die Bereinigung ist nicht abgeschlossen. Nutze „Bereinigung wiederholen“.</string>
+    <string name="students_retry">Bereinigung wiederholen</string>
+    <string name="students_delete_record">Eintrag löschen</string>
+    <string name="students_cleaned">Bereinigt.</string>
+    <string name="library_upload_action">Hochladen</string>
 </resources>

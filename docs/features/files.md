@@ -2,7 +2,7 @@
 
 Status: **implemented**
 
-This feature is the canonical browser for Smart Edit-managed files. External documents are copied into app-managed storage before Smart Edit mutates them.
+This feature is the canonical browser for EditPro-managed files. External documents are copied into app-managed storage before EditPro mutates them.
 
 ## Behavior
 
@@ -24,7 +24,7 @@ This feature is the canonical browser for Smart Edit-managed files. External doc
 
 ## Storage invariants
 
-1. Smart Edit only renames, moves, trashes, opens, or shares files that live under its managed app storage root.
+1. EditPro only renames, moves, trashes, opens, or shares files that live under its managed app storage root.
 2. File-system moves happen off the main thread.
 3. Database changes for rename/move/trash are transactional.
 4. A database failure after a physical move attempts a filesystem rollback; rollback failure is attached as a suppressed error instead of silently discarded.

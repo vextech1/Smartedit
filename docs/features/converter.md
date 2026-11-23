@@ -29,7 +29,7 @@ Supported conversions:
 
 ## Correctness invariants
 
-- Conversion output is always written into Smart Edit managed storage.
+- Conversion output is always written into EditPro managed storage.
 - Completed output is registered in Files/Search and conversion History.
 - Failed or cancelled operations remove partial generated output.
 - Failed/cancelled jobs remain recorded with terminal state.

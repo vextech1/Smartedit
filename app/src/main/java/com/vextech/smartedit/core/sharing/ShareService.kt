@@ -43,11 +43,11 @@ class ShareService @Inject constructor(
 
     fun managedFile(uri: String): File {
         val parsed = Uri.parse(uri)
-        require(parsed.scheme == null || parsed.scheme == "file") { "Only Smart Edit managed files can be opened directly." }
+        require(parsed.scheme == null || parsed.scheme == "file") { "Only EditPro managed files can be opened directly." }
         val file = File(requireNotNull(parsed.path) { "Invalid managed file URI." }).canonicalFile
         val managedRoot = store.root.canonicalFile
         require(file.path == managedRoot.path || file.path.startsWith(managedRoot.path + File.separator)) {
-            "The file is outside Smart Edit managed storage."
+            "The file is outside EditPro managed storage."
         }
         require(file.isFile) { "The managed file is missing." }
         return file
