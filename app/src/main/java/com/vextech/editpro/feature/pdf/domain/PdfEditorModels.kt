@@ -95,6 +95,10 @@ enum class PdfEditorMessageKey {
     SECURITY_REMOVED,
     PRINT_NOT_ALLOWED,
     DOUBLE_SIDED_NEEDS_EVEN,
+    RANGE_EMPTY,
+    RANGE_NOT_A_RANGE,
+    RANGE_INVALID,
+    RANGE_PAST_END,
 }
 
 data class PdfEditorSession(

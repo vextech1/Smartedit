@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,7 +128,7 @@ fun PdfToolsScreen(
     }
 
     LaunchedEffect(state.shareFile?.absolutePath) {
-        state.shareFile?.let { file -> runCatching { share.share(file, "application/pdf") }; vm.consumeShare() }
+        state.shareFile?.let { file -> runCatching { share.share(file, if (file.extension.equals("zip", true)) "application/zip" else "application/pdf") }; vm.consumeShare() }
     }
     LaunchedEffect(state.printFile?.absolutePath) {
         state.printFile?.let { file -> runCatching { printPdf(context, file) }; vm.consumePrint() }
@@ -354,7 +356,7 @@ private fun ExportedFiles(files: List<File>, share: ShareService) {
         Text(stringResource(R.string.pdf_saved_files_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         files.asReversed().forEach { file ->
             TileRow(
-                icon = Icons.Rounded.PictureAsPdf,
+                icon = if (file.extension.equals("zip", true)) Icons.Rounded.FolderZip else Icons.Rounded.PictureAsPdf,
                 title = file.name,
                 subtitle = DateUtils.getRelativeTimeSpanString(file.lastModified(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
                 trailing = {
@@ -525,6 +527,8 @@ private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBa
     val selected = state.selectedPages
     val enabled = selected.isNotEmpty() && !state.busy
     var arrangeOpen by remember { mutableStateOf(false) }
+    var splitOpen by remember { mutableStateOf(false) }
+    if (splitOpen) SplitDialog(state.pages.size, onSplit = { vm.split(it) }, onDismiss = { splitOpen = false })
     if (arrangeOpen) ArrangeDialog(vm, onDismiss = { arrangeOpen = false })
     FeatureScaffold(
         title = stringResource(R.string.pdf_pages_title),
@@ -560,13 +564,42 @@ private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBa
                     PagesAction(Icons.AutoMirrored.Rounded.RotateRight, R.string.pdf_rotate_pages, enabled) { vm.rotateSelected(90) }
                     PagesAction(Icons.Rounded.ContentCopy, R.string.pdf_duplicate_pages, enabled) { vm.duplicateSelected() }
                     PagesAction(Icons.Rounded.IosShare, R.string.pdf_extract_pages, enabled) { vm.extractSelected() }
-                    PagesAction(Icons.AutoMirrored.Rounded.CallSplit, R.string.pdf_split, !state.busy) { vm.split() }
+                    PagesAction(Icons.AutoMirrored.Rounded.CallSplit, R.string.pdf_split, !state.busy) { splitOpen = true }
                     PagesAction(Icons.Rounded.SwapVert, R.string.pdf_arrange, !state.busy && state.pages.isNotEmpty()) { arrangeOpen = true }
                     PagesAction(Icons.Rounded.Delete, R.string.pdf_delete_pages, enabled, MaterialTheme.colorScheme.error) { vm.deleteSelected() }
                 }
             }
         }
     }
+}
+
+/** Split into one PDF per page, or one per typed range (`1-3, 5, 7-9`). Several parts also come as one ZIP. */
+@Composable
+private fun SplitDialog(pages: Int, onSplit: (String?) -> Unit, onDismiss: () -> Unit) {
+    var byRanges by remember { mutableStateOf(false) }
+    var ranges by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.pdf_split)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.pdf_split_summary, pages), style = MaterialTheme.typography.bodyMedium)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(!byRanges, { byRanges = false }, { Text(stringResource(R.string.pdf_split_every)) })
+                    FilterChip(byRanges, { byRanges = true }, { Text(stringResource(R.string.pdf_split_ranges)) })
+                }
+                if (byRanges) {
+                    OutlinedTextField(
+                        value = ranges, onValueChange = { ranges = it }, singleLine = true,
+                        label = { Text(stringResource(R.string.pdf_split_pages_hint)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    )
+                }
+            }
+        },
+        confirmButton = { TextButton({ onSplit(if (byRanges) ranges else null); onDismiss() }) { Text(stringResource(R.string.pdf_split)) } },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
 }
 
 /** Whole-document page order and rotation: reverse, rotate all, fix a two-pass double-sided scan. */
@@ -955,4 +988,8 @@ private fun pdfMessage(key: PdfEditorMessageKey): String = when (key) {
     PdfEditorMessageKey.SECURITY_REMOVED -> stringResource(R.string.pdf_security_removed)
     PdfEditorMessageKey.PRINT_NOT_ALLOWED -> stringResource(R.string.pdf_print_not_allowed)
     PdfEditorMessageKey.DOUBLE_SIDED_NEEDS_EVEN -> stringResource(R.string.pdf_double_sided_needs_even)
+    PdfEditorMessageKey.RANGE_EMPTY -> stringResource(R.string.pdf_range_empty)
+    PdfEditorMessageKey.RANGE_NOT_A_RANGE -> stringResource(R.string.pdf_range_not_a_range)
+    PdfEditorMessageKey.RANGE_INVALID -> stringResource(R.string.pdf_range_invalid)
+    PdfEditorMessageKey.RANGE_PAST_END -> stringResource(R.string.pdf_range_past_end)
 }

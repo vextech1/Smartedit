@@ -867,4 +867,12 @@
     <string name="pdf_double_sided_reversed">مسح وجهين: الأوجه الخلفية معكوسة</string>
     <string name="pdf_double_sided_normal">مسح وجهين: الأوجه الخلفية بالترتيب</string>
     <string name="pdf_double_sided_needs_even">يتطلب إصلاح الوجهين عددًا زوجيًا من الصفحات.</string>
+    <string name="pdf_split_summary">يحتوي هذا الملف على %1$d صفحة. يصبح كل جزء ملف PDF مستقلًا، وتتوفر الأجزاء أيضًا في ملف ZIP واحد.</string>
+    <string name="pdf_split_every">كل صفحة</string>
+    <string name="pdf_split_ranges">نطاقات الصفحات</string>
+    <string name="pdf_split_pages_hint">الصفحات، مثل 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">اكتب الصفحات المراد فصلها، مثل 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">هذه ليست صفحة أو نطاقًا. جرّب مثل 1-3, 5.</string>
+    <string name="pdf_range_invalid">هذا النطاق غير صالح.</string>
+    <string name="pdf_range_past_end">هذه الصفحة تتجاوز نهاية ملف PDF.</string>
 </resources>

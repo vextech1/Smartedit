@@ -77,6 +77,8 @@ interface PdfEngine {
     fun renderPages(input: File, outputDir: File, dpi: Int = 144, quality: Int = 90, password: String? = null): List<File>
     fun merge(inputs: List<File>, output: File)
     fun split(input: File, outputDir: File, password: String? = null): List<File>
+    /** One PDF per group of 0-based pages, named by [PageRanges.splitPartName]. */
+    fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String? = null): List<File>
     fun reorder(input: File, pageOrder: List<Int>, output: File, password: String? = null)
     fun extractPages(input: File, pages: List<Int>, output: File, password: String? = null)
     fun deletePages(input: File, pages: List<Int>, output: File, password: String? = null)
@@ -202,6 +204,25 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         outputDir.mkdirs()
         Splitter().split(doc).mapIndexed { i, part ->
             File(outputDir, "${input.nameWithoutExtension}_page_${i + 1}.pdf").also { out -> part.use { it.save(out) } }
+        }
+    }
+
+    override fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String?): List<File> = load(input, password).use { source ->
+        outputDir.mkdirs()
+        groups.map { group ->
+            val selection = PdfEditorPolicies.validatePageSelection(source.numberOfPages, group)
+            val out = File(outputDir, PageRanges.splitPartName(baseName, group)).let { f ->
+                var n = 2
+                var c = f
+                while (c.exists()) { c = File(outputDir, f.nameWithoutExtension + "-$n.pdf"); n++ }
+                c
+            }
+            PDDocument().use { target ->
+                target.documentInformation = copyInfo(source.documentInformation)
+                selection.forEach { target.importPage(source.getPage(it)) }
+                target.save(out)
+            }
+            out
         }
     }
 

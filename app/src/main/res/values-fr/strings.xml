@@ -843,4 +843,12 @@
     <string name="pdf_double_sided_reversed">Scan recto-verso : versos inversés</string>
     <string name="pdf_double_sided_normal">Scan recto-verso : versos dans l’ordre</string>
     <string name="pdf_double_sided_needs_even">La correction recto-verso exige un nombre pair de pages.</string>
+    <string name="pdf_split_summary">Ce PDF compte %1$d pages. Chaque partie devient son propre PDF, et plusieurs parties sont aussi fournies en un ZIP.</string>
+    <string name="pdf_split_every">Chaque page</string>
+    <string name="pdf_split_ranges">Plages de pages</string>
+    <string name="pdf_split_pages_hint">Pages, p. ex. 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">Saisissez les pages à extraire, comme 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">Ce n’est ni une page ni une plage. Essayez par exemple 1-3, 5.</string>
+    <string name="pdf_range_invalid">Cette plage n’est pas valide.</string>
+    <string name="pdf_range_past_end">Cette page dépasse la fin du PDF.</string>
 </resources>

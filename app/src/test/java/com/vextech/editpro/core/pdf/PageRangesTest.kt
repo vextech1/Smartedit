@@ -51,6 +51,22 @@ class PageRangesTest {
         assertTrue(PageRanges.parseForSplit("1-2", 5) is PageRangeResult.Ok)
     }
 
+    @Test fun everyPageMakesOneGroupPerPage() {
+        assertEquals(listOf(listOf(0), listOf(1), listOf(2)), PageRanges.everyPage(3))
+        assertEquals(emptyList<List<Int>>(), PageRanges.everyPage(0))
+    }
+
+    @Test fun splitPartNames() {
+        assertEquals("a-page-3.pdf", PageRanges.splitPartName("a", listOf(2)))
+        assertEquals("a-pages-1-3.pdf", PageRanges.splitPartName("a", listOf(0, 1, 2)))
+    }
+
+    @Test fun splitRangesGiveOneGroupPerPart() {
+        val ok = PageRanges.parseForSplit("1-3, 5, 7-9", 9) as PageRangeResult.Ok
+        assertEquals(listOf(listOf(0, 1, 2), listOf(4), listOf(6, 7, 8)), ok.groups)
+        assertEquals(PageRangeProblem.PAST_END, (PageRanges.parseForSplit("1-3, 12", 9) as PageRangeResult.Error).problem)
+    }
+
     @Test fun reversedOrder() {
         assertEquals(listOf(3, 2, 1, 0), PageRanges.reversedOrder(4))
         assertEquals(listOf(0), PageRanges.reversedOrder(1))
