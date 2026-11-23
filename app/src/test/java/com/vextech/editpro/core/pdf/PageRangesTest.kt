@@ -51,6 +51,12 @@ class PageRangesTest {
         assertTrue(PageRanges.parseForSplit("1-2", 5) is PageRangeResult.Ok)
     }
 
+    @Test fun reversedOrder() {
+        assertEquals(listOf(3, 2, 1, 0), PageRanges.reversedOrder(4))
+        assertEquals(listOf(0), PageRanges.reversedOrder(1))
+        assertEquals(emptyList<Int>(), PageRanges.reversedOrder(0))
+    }
+
     @Test fun doubleSidedOrder() {
         assertEquals(listOf(0, 5, 1, 4, 2, 3), PageRanges.doubleSidedOrder(6, true))
         assertEquals(listOf(0, 3, 1, 4, 2, 5), PageRanges.doubleSidedOrder(6, false))

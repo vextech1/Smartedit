@@ -1,5 +1,6 @@
 package com.vextech.editpro.feature.pdf
 
+import com.vextech.editpro.core.pdf.PageRanges
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -150,6 +151,24 @@ class PdfEditorViewModel @Inject constructor(
     fun deleteSelected() = selectedMutation { id, pages -> repository.deletePages(id, pages) }
     fun duplicateSelected() = selectedMutation { id, pages -> repository.duplicatePages(id, pages) }
     fun rotateSelected(degrees: Int) = selectedMutation { id, pages -> repository.rotatePages(id, pages, degrees) }
+    /** Last page first. */
+    fun reverseAll() {
+        val n = _state.value.pages.size
+        if (n > 1) reorder(PageRanges.reversedOrder(n))
+    }
+
+    /** Turns every page, not just the selected ones. [degrees] is 90 (clockwise) or 270 (anticlockwise). */
+    fun rotateAll(degrees: Int) {
+        val n = _state.value.pages.size
+        if (n > 0) mutate { id -> repository.rotatePages(id, (0 until n).toList(), degrees) }
+    }
+
+    /** Fixes a stack scanned in two passes (fronts, then backs). Needs an even page count. */
+    fun fixDoubleSided(backsReversed: Boolean) {
+        val order = PageRanges.doubleSidedOrder(_state.value.pages.size, backsReversed)
+        if (order == null) _state.update { it.copy(message = PdfEditorMessageKey.DOUBLE_SIDED_NEEDS_EVEN, detail = null) } else reorder(order)
+    }
+
     fun cropSelected(rect: PdfRect) = selectedMutation { id, pages -> repository.cropPages(id, pages, rect) }
     fun watermark(text: String) = mutate { id -> repository.watermark(id, text) }
     fun addPageNumbers(startNumber: Int = 1) = mutate { id -> repository.addPageNumbers(id, startNumber) }

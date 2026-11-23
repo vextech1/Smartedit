@@ -828,4 +828,11 @@
     <string name="sheet_reset">Zurücksetzen</string>
     <string name="sheet_apply">%1$s anwenden</string>
     <string name="sheet_close_without_applying">%1$s schließen, ohne anzuwenden</string>
+    <string name="pdf_arrange">Anordnen</string>
+    <string name="pdf_reverse_order">Reihenfolge umkehren</string>
+    <string name="pdf_rotate_all_right">Alle Seiten nach rechts drehen</string>
+    <string name="pdf_rotate_all_left">Alle Seiten nach links drehen</string>
+    <string name="pdf_double_sided_reversed">Duplexscan: Rückseiten umgekehrt</string>
+    <string name="pdf_double_sided_normal">Duplexscan: Rückseiten in Reihenfolge</string>
+    <string name="pdf_double_sided_needs_even">Die Duplex-Korrektur braucht eine gerade Seitenzahl.</string>
 </resources>

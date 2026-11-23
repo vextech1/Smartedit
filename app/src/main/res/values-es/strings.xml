@@ -836,4 +836,11 @@
     <string name="sheet_reset">Restablecer</string>
     <string name="sheet_apply">Aplicar %1$s</string>
     <string name="sheet_close_without_applying">Cerrar %1$s sin aplicar</string>
+    <string name="pdf_arrange">Organizar</string>
+    <string name="pdf_reverse_order">Invertir orden</string>
+    <string name="pdf_rotate_all_right">Girar todas las páginas a la derecha</string>
+    <string name="pdf_rotate_all_left">Girar todas las páginas a la izquierda</string>
+    <string name="pdf_double_sided_reversed">Escaneo a doble cara: reversos invertidos</string>
+    <string name="pdf_double_sided_normal">Escaneo a doble cara: reversos en orden</string>
+    <string name="pdf_double_sided_needs_even">La corrección a doble cara necesita un número par de páginas.</string>
 </resources>

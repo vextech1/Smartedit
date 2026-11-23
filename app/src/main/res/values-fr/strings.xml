@@ -836,4 +836,11 @@
     <string name="sheet_reset">Réinitialiser</string>
     <string name="sheet_apply">Appliquer %1$s</string>
     <string name="sheet_close_without_applying">Fermer %1$s sans appliquer</string>
+    <string name="pdf_arrange">Organiser</string>
+    <string name="pdf_reverse_order">Inverser l’ordre</string>
+    <string name="pdf_rotate_all_right">Pivoter toutes les pages à droite</string>
+    <string name="pdf_rotate_all_left">Pivoter toutes les pages à gauche</string>
+    <string name="pdf_double_sided_reversed">Scan recto-verso : versos inversés</string>
+    <string name="pdf_double_sided_normal">Scan recto-verso : versos dans l’ordre</string>
+    <string name="pdf_double_sided_needs_even">La correction recto-verso exige un nombre pair de pages.</string>
 </resources>

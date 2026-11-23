@@ -860,4 +860,11 @@
     <string name="sheet_reset">إعادة تعيين</string>
     <string name="sheet_apply">تطبيق %1$s</string>
     <string name="sheet_close_without_applying">إغلاق %1$s دون تطبيق</string>
+    <string name="pdf_arrange">ترتيب</string>
+    <string name="pdf_reverse_order">عكس الترتيب</string>
+    <string name="pdf_rotate_all_right">تدوير كل الصفحات لليمين</string>
+    <string name="pdf_rotate_all_left">تدوير كل الصفحات لليسار</string>
+    <string name="pdf_double_sided_reversed">مسح وجهين: الأوجه الخلفية معكوسة</string>
+    <string name="pdf_double_sided_normal">مسح وجهين: الأوجه الخلفية بالترتيب</string>
+    <string name="pdf_double_sided_needs_even">يتطلب إصلاح الوجهين عددًا زوجيًا من الصفحات.</string>
 </resources>

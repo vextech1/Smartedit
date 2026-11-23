@@ -45,6 +45,9 @@ object PageRanges {
         return PageRangeResult.Ok(groups)
     }
 
+    /** Last page first: each entry is the 0-based source page for that output position. */
+    fun reversedOrder(total: Int): List<Int> = (total - 1 downTo 0).toList()
+
     /**
      * Page order for a double-sided stack scanned in two passes: fronts 1..N first, then the backs, either reversed (the usual
      * case, N..1) or in order. Returns the 0-based source index for each output position, or null for an odd or tiny page count.

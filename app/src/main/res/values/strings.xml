@@ -873,4 +873,11 @@
     <string name="sheet_reset">Reset</string>
     <string name="sheet_apply">Apply %1$s</string>
     <string name="sheet_close_without_applying">Close %1$s without applying</string>
+    <string name="pdf_arrange">Arrange</string>
+    <string name="pdf_reverse_order">Reverse order</string>
+    <string name="pdf_rotate_all_right">Rotate all pages right</string>
+    <string name="pdf_rotate_all_left">Rotate all pages left</string>
+    <string name="pdf_double_sided_reversed">Double-sided scan: backs in reverse</string>
+    <string name="pdf_double_sided_normal">Double-sided scan: backs in order</string>
+    <string name="pdf_double_sided_needs_even">Double-sided fix needs an even number of pages.</string>
 </resources>

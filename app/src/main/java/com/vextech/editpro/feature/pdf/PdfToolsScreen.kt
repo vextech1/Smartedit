@@ -524,6 +524,8 @@ private fun MoreGroup(title: String, actions: List<MoreAction>, pick: (() -> Uni
 private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBack: () -> Unit, snackbarHostState: SnackbarHostState) {
     val selected = state.selectedPages
     val enabled = selected.isNotEmpty() && !state.busy
+    var arrangeOpen by remember { mutableStateOf(false) }
+    if (arrangeOpen) ArrangeDialog(vm, onDismiss = { arrangeOpen = false })
     FeatureScaffold(
         title = stringResource(R.string.pdf_pages_title),
         onBack = onBack,
@@ -559,11 +561,32 @@ private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBa
                     PagesAction(Icons.Rounded.ContentCopy, R.string.pdf_duplicate_pages, enabled) { vm.duplicateSelected() }
                     PagesAction(Icons.Rounded.IosShare, R.string.pdf_extract_pages, enabled) { vm.extractSelected() }
                     PagesAction(Icons.AutoMirrored.Rounded.CallSplit, R.string.pdf_split, !state.busy) { vm.split() }
+                    PagesAction(Icons.Rounded.SwapVert, R.string.pdf_arrange, !state.busy && state.pages.isNotEmpty()) { arrangeOpen = true }
                     PagesAction(Icons.Rounded.Delete, R.string.pdf_delete_pages, enabled, MaterialTheme.colorScheme.error) { vm.deleteSelected() }
                 }
             }
         }
     }
+}
+
+/** Whole-document page order and rotation: reverse, rotate all, fix a two-pass double-sided scan. */
+@Composable
+private fun ArrangeDialog(vm: PdfEditorViewModel, onDismiss: () -> Unit) {
+    fun run(block: () -> Unit): () -> Unit = { block(); onDismiss() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.pdf_arrange)) },
+        text = {
+            Column {
+                TextButton(run { vm.reverseAll() }) { Text(stringResource(R.string.pdf_reverse_order)) }
+                TextButton(run { vm.rotateAll(90) }) { Text(stringResource(R.string.pdf_rotate_all_right)) }
+                TextButton(run { vm.rotateAll(270) }) { Text(stringResource(R.string.pdf_rotate_all_left)) }
+                TextButton(run { vm.fixDoubleSided(true) }) { Text(stringResource(R.string.pdf_double_sided_reversed)) }
+                TextButton(run { vm.fixDoubleSided(false) }) { Text(stringResource(R.string.pdf_double_sided_normal)) }
+            }
+        },
+        confirmButton = { TextButton(onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
 }
 
 /** The page order after moving the page at [from] to [to]: each entry is an old page index, as `vm.reorder` expects. */
@@ -931,4 +954,5 @@ private fun pdfMessage(key: PdfEditorMessageKey): String = when (key) {
     PdfEditorMessageKey.SECURITY_APPLIED -> stringResource(R.string.pdf_security_applied)
     PdfEditorMessageKey.SECURITY_REMOVED -> stringResource(R.string.pdf_security_removed)
     PdfEditorMessageKey.PRINT_NOT_ALLOWED -> stringResource(R.string.pdf_print_not_allowed)
+    PdfEditorMessageKey.DOUBLE_SIDED_NEEDS_EVEN -> stringResource(R.string.pdf_double_sided_needs_even)
 }

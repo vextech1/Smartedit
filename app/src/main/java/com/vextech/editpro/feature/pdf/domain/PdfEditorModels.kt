@@ -94,6 +94,7 @@ enum class PdfEditorMessageKey {
     SECURITY_APPLIED,
     SECURITY_REMOVED,
     PRINT_NOT_ALLOWED,
+    DOUBLE_SIDED_NEEDS_EVEN,
 }
 
 data class PdfEditorSession(
