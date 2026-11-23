@@ -41,6 +41,7 @@ data class ConverterUiState(
     val dpi: Int = 150,
     val textFormat: TextFormat = TextFormat.MD,
     val pageMarkers: Boolean = false,
+    val keepScans: Boolean = true,
     val pageRange: String = "all",
     val pdfPassword: String = "",
     val busy: Boolean = false,
@@ -201,6 +202,10 @@ class ConverterViewModel @Inject constructor(
         _state.value = _state.value.copy(textFormat = value)
     }
 
+    fun setKeepScans(value: Boolean) {
+        _state.value = _state.value.copy(keepScans = value)
+    }
+
     fun setPageMarkers(value: Boolean) {
         _state.value = _state.value.copy(pageMarkers = value)
     }
@@ -286,6 +291,7 @@ class ConverterViewModel @Inject constructor(
             dpi = current.dpi,
             textFormat = current.textFormat,
             pageMarkers = current.pageMarkers,
+            keepScans = current.keepScans,
             pageRange = current.pageRange,
             pdfPassword = current.pdfPassword,
             pageSize = current.pageSize,

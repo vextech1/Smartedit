@@ -396,6 +396,10 @@ private fun ColumnScope.SetupStage(state: ConverterUiState, vm: ConverterViewMod
             }
         }
         if (isPdf && target == ConverterTarget.DOCX) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Switch(checked = state.keepScans, onCheckedChange = vm::setKeepScans)
+                Text(stringResource(R.string.converter_keep_scans), style = MaterialTheme.typography.bodyMedium)
+            }
             Text(stringResource(R.string.converter_docx_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

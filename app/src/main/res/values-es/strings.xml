@@ -859,4 +859,5 @@
     <string name="converter_text_plain">Texto sin formato (.txt)</string>
     <string name="converter_page_markers">Mostrar dónde empieza cada página</string>
     <string name="converter_error_no_text">No se encontró texto. Este PDF probablemente son imágenes escaneadas.</string>
+    <string name="converter_keep_scans">Conservar como imágenes las páginas sin texto (escaneos)</string>
 </resources>

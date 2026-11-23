@@ -883,4 +883,5 @@
     <string name="converter_text_plain">نص عادي (‎.txt)</string>
     <string name="converter_page_markers">إظهار بداية كل صفحة</string>
     <string name="converter_error_no_text">لم يُعثر على نص. من المرجح أن هذا الملف صور ممسوحة ضوئيًا.</string>
+    <string name="converter_keep_scans">الاحتفاظ بالصفحات التي لا تحتوي على نص (الممسوحة ضوئيًا) كصور</string>
 </resources>

@@ -851,4 +851,5 @@
     <string name="converter_text_plain">Nur Text (.txt)</string>
     <string name="converter_page_markers">Seitenanfänge markieren</string>
     <string name="converter_error_no_text">Kein Text gefunden. Diese PDF besteht wahrscheinlich aus gescannten Bildern.</string>
+    <string name="converter_keep_scans">Seiten ohne Text (Scans) als Bilder behalten</string>
 </resources>

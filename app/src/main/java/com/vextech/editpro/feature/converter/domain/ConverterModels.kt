@@ -43,6 +43,8 @@ data class ConverterOptions(
     val textFormat: TextFormat = TextFormat.MD,
     /** PDF to text: write a line where each page starts. */
     val pageMarkers: Boolean = false,
+    /** PDF to Word: put pages with no text (scans) in the document as pictures, so they are not lost. */
+    val keepScans: Boolean = true,
 )
 
 data class ConverterOutput(

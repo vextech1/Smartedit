@@ -1,5 +1,8 @@
 package com.vextech.editpro.feature.converter.data
 
+import com.vextech.editpro.core.pdf.DocxImageFormat
+import com.vextech.editpro.core.pdf.PageImage
+import com.vextech.editpro.core.pdf.PdfDocx
 import com.vextech.editpro.core.pdf.TextFormat
 import com.vextech.editpro.core.pdf.PdfTextLayout
 import android.graphics.Bitmap
@@ -300,13 +303,32 @@ class AndroidConverterRepository @Inject constructor(
         progress: suspend (Float) -> Unit,
     ): List<File> {
         val source = store.stageContent(Uri.parse(request.source.uri), ".pdf").also { staged += it }
-        progress(0.2f)
-        val text = pdf.extractText(source, request.options.pdfPassword.takeIf(String::isNotBlank))
+        val password = request.options.pdfPassword.takeIf(String::isNotBlank)
+        progress(0.1f)
+        val pages = pdf.textPages(source, password)
         currentCoroutineContext().ensureActive()
+        val analysis = PdfDocx.analyse(pages)
+        progress(0.4f)
+        // Pages with no text are kept as one picture each (as on the site: 108 dpi, JPEG 85) unless the person turned that off.
+        val images = HashMap<Int, PageImage>()
+        if (request.options.keepScans && analysis.scanPages.isNotEmpty()) {
+            val tempDir = store.temporaryDirectory("converter").also { transient += it }
+            analysis.scanPages.forEachIndexed { n, pageIndex ->
+                currentCoroutineContext().ensureActive()
+                val target = File(tempDir, "scan_${pageIndex + 1}.jpg")
+                pdf.renderPageImage(source, pageIndex, target, 108, PdfRenderFormat.JPEG, 85, password)
+                images[pageIndex] = PageImage(target.readBytes(), DocxImageFormat.JPEG, pages[pageIndex].width, pages[pageIndex].height)
+                target.delete()
+                progress(0.4f + (n + 1f) / analysis.scanPages.size * 0.45f)
+            }
+        }
         val base = request.source.displayName.substringBeforeLast('.', "document")
+        val result = PdfDocx.assemble(analysis, images, base)
+        if (result.textPages == 0 && result.imagePages == 0) throw ConverterFailure(ConverterMessageKey.NO_TEXT_FOUND)
         val out = store.uniqueFile(store.convertedDir, "${store.sanitizeName(base)}.docx").also { generated += it }
-        SimpleDocxWriter.write(text, out)
-        progress(0.92f)
+        out.parentFile?.mkdirs()
+        out.writeBytes(result.bytes)
+        progress(0.95f)
         return listOf(out)
     }
 

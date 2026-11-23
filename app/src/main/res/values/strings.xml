@@ -896,4 +896,5 @@
     <string name="converter_text_plain">Plain text (.txt)</string>
     <string name="converter_page_markers">Show where each page starts</string>
     <string name="converter_error_no_text">No text was found. This PDF is probably scanned pictures.</string>
+    <string name="converter_keep_scans">Keep pages with no text (scans) as pictures</string>
 </resources>

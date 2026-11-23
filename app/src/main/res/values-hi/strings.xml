@@ -851,4 +851,5 @@
     <string name="converter_text_plain">सादा टेक्स्ट (.txt)</string>
     <string name="converter_page_markers">हर पृष्ठ की शुरुआत दिखाएँ</string>
     <string name="converter_error_no_text">कोई टेक्स्ट नहीं मिला। यह PDF शायद स्कैन की गई तस्वीरें है।</string>
+    <string name="converter_keep_scans">बिना टेक्स्ट वाले पृष्ठ (स्कैन) तस्वीर के रूप में रखें</string>
 </resources>
