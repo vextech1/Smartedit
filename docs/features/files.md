@@ -43,14 +43,14 @@ tools/verify_files_feature.sh
 JVM unit tests:
 
 ```bash
-./gradlew :app:testDebugUnitTest --tests 'com.vextech.smartedit.feature.files.*'
+./gradlew :app:testDebugUnitTest --tests 'com.vextech.editpro.feature.files.*'
 ```
 
 Android repository integration tests:
 
 ```bash
 ./gradlew :app:connectedDebugAndroidTest \
-  -Pandroid.testInstrumentationRunnerArguments.class=com.vextech.smartedit.feature.files.AndroidFilesRepositoryTest
+  -Pandroid.testInstrumentationRunnerArguments.class=com.vextech.editpro.feature.files.AndroidFilesRepositoryTest
 ```
 
 The integration suite covers content-URI import, create/rename/move/favorite/trash consistency, unsafe/conflicting names, clipboard indexing, metadata refresh, destination conflicts, and folder-cycle rejection.

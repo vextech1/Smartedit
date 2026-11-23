@@ -37,7 +37,7 @@ for name, pk in by_name.items():
 
 for sub in ('main/java', 'test/java', 'androidTest/java'):
     for p in kt_files(sub):
-        for i in re.findall(r'^import\s+(com\.vextech\.smartedit\.[\w.*]+)', open(p, encoding='utf-8').read(), re.M):
+        for i in re.findall(r'^import\s+(com\.vextech\.editpro\.[\w.*]+)', open(p, encoding='utf-8').read(), re.M):
             if i.endswith(('.R', '.BuildConfig')): continue
             ok = (i[:-2] in pkgs) if i.endswith('.*') else (i in decl or i.rsplit('.', 1)[0] in decl)
             if not ok: errors.append(f'unresolved import {i} in {os.path.relpath(p, SRC)}')
@@ -59,7 +59,7 @@ for loc in sorted(glob.glob(os.path.join(SRC, 'main/res/values-*/strings.xml')))
     for k in sorted(set(en) - set(lk)): errors.append(f'{name} missing {k}')
     for k in sorted(set(lk) - set(en)): errors.append(f'{name} extra {k}')
 
-for p in kt_files('main/java/com/vextech/smartedit/core/ui'):
+for p in kt_files('main/java/com/vextech/editpro/core/ui'):
     t = open(p, encoding='utf-8').read()
     for m in re.finditer(r'(?<![\w.])(Text|Icon)\(\s*"[A-Za-z]', t):
         errors.append(f'hard-coded user string in {os.path.relpath(p, SRC)}')
@@ -106,7 +106,7 @@ for gf in gradle_files:
         if legacy in txt: errors.append(f'legacy {legacy} in {os.path.relpath(gf, ROOT)}')
 manifest_text = open(os.path.join(SRC, 'main/AndroidManifest.xml'), encoding='utf-8').read()
 if 'targetSdkVersion' in manifest_text: errors.append('targetSdkVersion pinned in AndroidManifest.xml (set it only in Gradle)')
-if not re.search(r'enableEdgeToEdge\(\)', open(os.path.join(SRC, 'main/java/com/vextech/smartedit/MainActivity.kt'), encoding='utf-8').read()):
+if not re.search(r'enableEdgeToEdge\(\)', open(os.path.join(SRC, 'main/java/com/vextech/editpro/MainActivity.kt'), encoding='utf-8').read()):
     errors.append('MainActivity must call enableEdgeToEdge() (edge-to-edge is enforced when targeting API 35+)')
 for removed in ('onBackPressed', 'startActivityForResult', 'getExternalStorageDirectory', 'requestLegacyExternalStorage'):
     for sub in ('main/java',):

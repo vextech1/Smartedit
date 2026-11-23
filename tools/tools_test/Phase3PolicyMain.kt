@@ -1,4 +1,4 @@
-import com.vextech.smartedit.core.library.*
+import com.vextech.editpro.core.library.*
 
 private var checks = 0
 private fun check(name: String, ok: Boolean) { checks++; if (!ok) throw AssertionError("FAILED: $name") }

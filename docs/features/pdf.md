@@ -135,14 +135,14 @@ The verifier:
 JVM tests:
 
 ```bash
-./gradlew :app:testDebugUnitTest --tests 'com.vextech.smartedit.feature.pdf.*'
+./gradlew :app:testDebugUnitTest --tests 'com.vextech.editpro.feature.pdf.*'
 ```
 
 Android PDFBox round-trip tests:
 
 ```bash
 ./gradlew :app:connectedDebugAndroidTest \
-  -Pandroid.testInstrumentationRunnerArguments.class=com.vextech.smartedit.feature.pdf.PdfBoxEngineTest
+  -Pandroid.testInstrumentationRunnerArguments.class=com.vextech.editpro.feature.pdf.PdfBoxEngineTest
 ```
 
 The Android suite covers structural edits, blank-page insertion, page numbering, hyperlinks, removable markup annotations, metadata/search/bookmarks, password permissions, form fill/flatten, secure-redaction behavior (including encrypted-redaction rejection), and merge/split/extract outputs.

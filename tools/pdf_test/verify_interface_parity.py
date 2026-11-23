@@ -3,15 +3,15 @@ import sys
 from pathlib import Path
 
 root = Path(sys.argv[1])
-repo_interface = (root / 'app/src/main/java/com/vextech/smartedit/feature/pdf/data/PdfEditorRepository.kt').read_text()
-repo_impl = (root / 'app/src/main/java/com/vextech/smartedit/feature/pdf/data/AndroidPdfEditorRepository.kt').read_text()
+repo_interface = (root / 'app/src/main/java/com/vextech/editpro/feature/pdf/data/PdfEditorRepository.kt').read_text()
+repo_impl = (root / 'app/src/main/java/com/vextech/editpro/feature/pdf/data/AndroidPdfEditorRepository.kt').read_text()
 required = set(re.findall(r'\bsuspend\s+fun\s+(\w+)\s*\(', repo_interface))
 actual = set(re.findall(r'\boverride\s+suspend\s+fun\s+(\w+)\s*\(', repo_impl))
 missing = required - actual
 if missing:
     raise SystemExit(f'AndroidPdfEditorRepository missing methods: {sorted(missing)}')
 
-engine = (root / 'app/src/main/java/com/vextech/smartedit/core/pdf/PdfEngine.kt').read_text()
+engine = (root / 'app/src/main/java/com/vextech/editpro/core/pdf/PdfEngine.kt').read_text()
 interface_text = engine.split('@Singleton', 1)[0]
 implementation_text = engine.split('class PdfBoxEngine', 1)[1]
 required = set(re.findall(r'\bfun\s+(\w+)\s*\(', interface_text))

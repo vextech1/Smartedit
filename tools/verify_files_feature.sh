@@ -5,8 +5,8 @@ OUT="$ROOT/tools/files_test/files-feature-tests.jar"
 mkdir -p "$ROOT/tools/files_test"
 
 kotlinc \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/files/domain/FileModels.kt" \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/files/data/ManagedFileOperator.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/files/domain/FileModels.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/files/data/ManagedFileOperator.kt" \
   "$ROOT/tools/files_test/FilesFeatureVerification.kt" \
   -include-runtime -d "$OUT"
 java -jar "$OUT"
@@ -15,18 +15,18 @@ python3 - "$ROOT" <<'PY'
 import re, sys, xml.etree.ElementTree as ET
 from pathlib import Path
 root=Path(sys.argv[1])
-files=root/'app/src/main/java/com/vextech/smartedit/feature/files'
+files=root/'app/src/main/java/com/vextech/editpro/feature/files'
 vm=(files/'FilesViewModel.kt').read_text()
 repo=(files/'data/AndroidFilesRepository.kt').read_text()
-dao=(root/'app/src/main/java/com/vextech/smartedit/core/database/dao/Daos.kt').read_text()
-di=(root/'app/src/main/java/com/vextech/smartedit/core/di/AppModule.kt').read_text()
+dao=(root/'app/src/main/java/com/vextech/editpro/core/database/dao/Daos.kt').read_text()
+di=(root/'app/src/main/java/com/vextech/editpro/core/di/AppModule.kt').read_text()
 screen=(files/'FilesScreen.kt').read_text()
-sharing=(root/'app/src/main/java/com/vextech/smartedit/core/sharing/ShareService.kt').read_text()
-android_test=(root/'app/src/androidTest/java/com/vextech/smartedit/feature/files/AndroidFilesRepositoryTest.kt').read_text()
-entity=(root/'app/src/main/java/com/vextech/smartedit/core/database/entity/Entities.kt').read_text()
+sharing=(root/'app/src/main/java/com/vextech/editpro/core/sharing/ShareService.kt').read_text()
+android_test=(root/'app/src/androidTest/java/com/vextech/editpro/feature/files/AndroidFilesRepositoryTest.kt').read_text()
+entity=(root/'app/src/main/java/com/vextech/editpro/core/database/entity/Entities.kt').read_text()
 
 checks={
-    'feature repository boundary': 'FilesRepository' in vm and 'SmartEditRepository' not in vm,
+    'feature repository boundary': 'FilesRepository' in vm and 'EditProRepository' not in vm,
     'blocking file IO dispatched off main': '@IoDispatcher' in repo and 'withContext(ioDispatcher)' in repo,
     'managed files have trash state': 'val isTrashed: Boolean = false' in entity,
     'active file queries exclude trash': 'WHERE isTrashed = 0' in dao,

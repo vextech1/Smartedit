@@ -1,7 +1,7 @@
-import com.vextech.smartedit.core.library.*
-import com.vextech.smartedit.core.model.HistoryAction
-import com.vextech.smartedit.core.model.ResourceType
-import com.vextech.smartedit.core.model.SearchHit
+import com.vextech.editpro.core.library.*
+import com.vextech.editpro.core.model.HistoryAction
+import com.vextech.editpro.core.model.ResourceType
+import com.vextech.editpro.core.model.SearchHit
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset

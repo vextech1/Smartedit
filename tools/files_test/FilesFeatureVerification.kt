@@ -1,8 +1,8 @@
-import com.vextech.smartedit.feature.files.data.ManagedFileOperator
-import com.vextech.smartedit.feature.files.domain.FileItem
-import com.vextech.smartedit.feature.files.domain.FileNamePolicy
-import com.vextech.smartedit.feature.files.domain.FileSort
-import com.vextech.smartedit.feature.files.domain.FileTreePolicy
+import com.vextech.editpro.feature.files.data.ManagedFileOperator
+import com.vextech.editpro.feature.files.domain.FileItem
+import com.vextech.editpro.feature.files.domain.FileNamePolicy
+import com.vextech.editpro.feature.files.domain.FileSort
+import com.vextech.editpro.feature.files.domain.FileTreePolicy
 import java.nio.file.Files
 
 private fun assertTrue(value: Boolean, message: String) { if (!value) error(message) }
@@ -25,7 +25,7 @@ fun main() {
     assertTrue("b" !in FileTreePolicy.moveTargets(items, "a").map { it.id }, "Cannot move a folder into its descendant")
     assertEquals(listOf("Alpha", "root.txt"), FileTreePolicy.visibleChildren(items, null, FileSort.NAME, true).map { it.name })
 
-    val temp = Files.createTempDirectory("smartedit_files_test").toFile()
+    val temp = Files.createTempDirectory("editpro_files_test").toFile()
     try {
         val source = temp.resolve("source.txt").apply { writeText("hello") }
         val target = temp.resolve("folder").resolve("renamed.txt")

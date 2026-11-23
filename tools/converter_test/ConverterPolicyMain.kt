@@ -1,6 +1,6 @@
-import com.vextech.smartedit.feature.converter.domain.ConverterOptions
-import com.vextech.smartedit.feature.converter.domain.ConverterPolicies
-import com.vextech.smartedit.feature.converter.domain.ConversionRequest
+import com.vextech.editpro.feature.converter.domain.ConverterOptions
+import com.vextech.editpro.feature.converter.domain.ConverterPolicies
+import com.vextech.editpro.feature.converter.domain.ConversionRequest
 
 fun main() {
     check(ConverterPolicies.parsePageRange("all", 3) == listOf(0,1,2))

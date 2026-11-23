@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/tools/tools_test/out"
-SRC="$ROOT/app/src/main/java/com/vextech/smartedit/core/library"
+SRC="$ROOT/app/src/main/java/com/vextech/editpro/core/library"
 rm -rf "$OUT" && mkdir -p "$OUT"
 kotlinc "$SRC/FileActionPolicies.kt" "$SRC/CompressionPolicies.kt" "$SRC/OcrPolicies.kt" "$SRC/ImageEditModel.kt" \
   "$ROOT/tools/tools_test/Phase3PolicyMain.kt" -include-runtime -d "$OUT/tools.jar" 2>&1 | grep -v "^warning:" || true

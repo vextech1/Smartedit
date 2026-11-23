@@ -3,7 +3,7 @@
 Status: **logic compiled and tested; Android layer written but not compiled** (no Android SDK available here).
 
 ## Architecture
-`SmartEditRepository` (285 lines, everything) is split into focused repositories in `core/repository`:
+`EditProRepository` (285 lines, everything) is split into focused repositories in `core/repository`:
 
 | Repository | Owns |
 |---|---|
@@ -15,7 +15,7 @@ Status: **logic compiled and tested; Android layer written but not compiled** (n
 | `SearchRepository` | Prefix search, filter, ranking, snippets |
 | `DocumentIndexRepository` | `registerFile` for output files |
 | `DashboardRepository` | Summary flow |
-| `SmartEditRepository` | Slim registrar (`registerFile`, `recordHistory`, a few flows) for Scanner/PDF/Converter/Compressor/Image editor/Backup |
+| `EditProRepository` | Slim registrar (`registerFile`, `recordHistory`, a few flows) for Scanner/PDF/Converter/Compressor/Image editor/Backup |
 
 Domain logic is pure Kotlin in `core/library` (no Android imports): `NotePolicies`, `TrashPolicies`, `FavoritePolicies`, `HistoryPolicies`, `HistoryExportFormatter`, `SearchPolicies`, plus models. Repositories return domain models; screens never see Room entities.
 

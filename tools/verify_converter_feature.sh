@@ -5,24 +5,24 @@ OUT="$ROOT/tools/converter_test/out"
 rm -rf "$OUT" && mkdir -p "$OUT"
 
 kotlinc \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/domain/ConverterModels.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/domain/ConverterModels.kt" \
   "$ROOT/tools/converter_test/ConverterPolicyMain.kt" \
   -include-runtime -d "$OUT/converter-policy.jar"
 java -jar "$OUT/converter-policy.jar"
 
 kotlinc \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/data/SimpleDocxWriter.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/data/SimpleDocxWriter.kt" \
   "$ROOT/tools/converter_test/DocxWriterMain.kt" \
   -include-runtime -d "$OUT/docx-writer.jar"
 java -jar "$OUT/docx-writer.jar"
 
-REPO="$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/data/AndroidConverterRepository.kt"
-VM="$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/ConverterViewModel.kt"
-SCREEN="$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/ConverterScreen.kt"
-DI="$ROOT/app/src/main/java/com/vextech/smartedit/core/di/AppModule.kt"
-PDF="$ROOT/app/src/main/java/com/vextech/smartedit/core/pdf/PdfEngine.kt"
+REPO="$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/data/AndroidConverterRepository.kt"
+VM="$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/ConverterViewModel.kt"
+SCREEN="$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/ConverterScreen.kt"
+DI="$ROOT/app/src/main/java/com/vextech/editpro/core/di/AppModule.kt"
+PDF="$ROOT/app/src/main/java/com/vextech/editpro/core/pdf/PdfEngine.kt"
 
-grep -q "interface ConverterRepository" "$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter/data/ConverterRepository.kt"
+grep -q "interface ConverterRepository" "$ROOT/app/src/main/java/com/vextech/editpro/feature/converter/data/ConverterRepository.kt"
 grep -q "class AndroidConverterRepository" "$REPO"
 grep -q "override fun observeJobs" "$REPO"
 grep -q "override suspend fun convert" "$REPO"
@@ -39,13 +39,13 @@ grep -q "fun renderPageImage" "$PDF"
 grep -q "PdfRenderFormat.PNG" "$PDF"
 grep -q "imageFilesToPdf" "$PDF"
 
-if find "$ROOT/app/src/main/java/com/vextech/smartedit/core" -path '*/conversion/*' -type f | grep -q .; then
+if find "$ROOT/app/src/main/java/com/vextech/editpro/core" -path '*/conversion/*' -type f | grep -q .; then
   echo "Legacy core conversion implementation still exists" >&2
   exit 1
 fi
 
 if grep -R -nE 'TODO|FIXME|NotImplementedError' \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/converter"; then
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/converter"; then
   echo "Converter placeholders found" >&2
   exit 1
 fi

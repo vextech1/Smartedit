@@ -1,0 +1,49 @@
+package com.vextech.editpro.core.model
+
+enum class ResourceType { DOCUMENT, NOTE, SCAN, IMAGE, PDF, CONVERSION, COMPRESSION, BACKUP }
+enum class HistoryAction { OPENED, CONVERTED, COMPRESSED, BACKED_UP, SCANNED, FAVORITED, DELETED, EDITED, CREATED, RESTORED }
+enum class ThemePreference { SYSTEM, LIGHT, DARK }
+enum class JobStatus { PENDING, RUNNING, COMPLETED, FAILED }
+
+data class AppSettings(
+    val theme: ThemePreference = ThemePreference.SYSTEM,
+    /** BCP-47 tag chosen in Settings; empty means "follow the phone's system language". */
+    val language: String = "",
+    val notificationsEnabled: Boolean = true,
+    val autoBackupEnabled: Boolean = false,
+    val confirmDeleteEnabled: Boolean = true,
+    val defaultExportFormat: String = "pdf",
+    val onboardingCompleted: Boolean = false,
+    /** The writing system text recognition starts on (an [com.vextech.editpro.core.library.OcrScript] name). */
+    val ocrScript: String = "LATIN",
+)
+
+data class ManagedResource(
+    val id: String,
+    val type: ResourceType,
+    val displayName: String,
+    val uri: String,
+    val mimeType: String,
+    val sizeBytes: Long,
+    val createdAt: Long,
+    val modifiedAt: Long,
+    val parentId: String? = null,
+    val isDirectory: Boolean = false,
+)
+
+data class SearchHit(
+    val resourceId: String,
+    val type: ResourceType,
+    val title: String,
+    val snippet: String,
+    val uri: String?,
+)
+
+data class DashboardSummary(
+    val totalFiles: Int = 0,
+    val totalNotes: Int = 0,
+    val favorites: Int = 0,
+    val recentConversions: Int = 0,
+    val recentCompressions: Int = 0,
+    val storageUsedBytes: Long = 0,
+)

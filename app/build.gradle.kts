@@ -12,7 +12,7 @@ if (file("google-services.json").isFile) {
 }
 
 android {
-    namespace = "com.vextech.smartedit"
+    namespace = "com.vextech.editpro"
     // Compose 1.12.1, Navigation3 1.2, Lifecycle 2.11, Core 1.19 and Hilt-Navigation 1.4 are built against
     // API 37.1, so the app has to compile against it. targetSdk is unchanged: compileSdk only
     // decides which APIs the compiler can see, runtime behavior stays that of targetSdk 36.
@@ -27,7 +27,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
-        testInstrumentationRunner = "com.vextech.smartedit.HiltTestRunner"
+        testInstrumentationRunner = "com.vextech.editpro.HiltTestRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "UNITY_GAME_ID", "\"800006237\"")

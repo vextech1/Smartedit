@@ -1,4 +1,4 @@
-import com.vextech.smartedit.feature.pdf.domain.*
+import com.vextech.editpro.feature.pdf.domain.*
 
 fun main() {
     check(PdfEditorPolicies.normalizeRotation(-90) == 270)

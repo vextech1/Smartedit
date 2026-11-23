@@ -3,7 +3,7 @@
 Status: **written at source level; logic verifiers pass; Android layer not compiled.**
 
 ## Structure
-`SmartEditNavigation` (app level) -> `StartRoute` decides -> `OnboardingRoute` (first launch only) or `ShellRoute` -> `MainShell`.
+`EditProNavigation` (app level) -> `StartRoute` decides -> `OnboardingRoute` (first launch only) or `ShellRoute` -> `MainShell`.
 
 `MainShell` has four tabs, each with its own back stack: **Home**, **Files**, **Activity**, **Profile**.
 - Tools open on top of the current tab and hide the bottom bar.

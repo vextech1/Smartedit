@@ -1,9 +1,9 @@
-import com.vextech.smartedit.feature.pdf.data.WorkingCopyHistory
+import com.vextech.editpro.feature.pdf.data.WorkingCopyHistory
 import java.nio.file.Files
 import java.io.File
 
 fun main() {
-    val root = Files.createTempDirectory("smartedit-pdf-history").toFile()
+    val root = Files.createTempDirectory("editpro-pdf-history").toFile()
     try {
         val working = File(root, "working.pdf").apply { writeText("v1") }
         val history = WorkingCopyHistory(File(root, "history"), 2)

@@ -1,10 +1,10 @@
-package com.vextech.smartedit.feature.converter.data
+package com.vextech.editpro.feature.converter.data
 
 import java.io.File
 import java.util.zip.ZipFile
 
 fun main() {
-    val out = File.createTempFile("smartedit-converter", ".docx")
+    val out = File.createTempFile("editpro-converter", ".docx")
     try {
         SimpleDocxWriter.write("Hello & <world>\nSecond line", out)
         check(out.length() > 0)

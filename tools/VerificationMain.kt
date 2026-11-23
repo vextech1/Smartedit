@@ -1,4 +1,4 @@
-import com.vextech.smartedit.core.util.CorePolicies
+import com.vextech.editpro.core.util.CorePolicies
 
 private fun checkCase(name: String, block: () -> Unit) {
     try { block(); println("PASS  $name") } catch (t: Throwable) { error("FAIL  $name: ${t.message}") }

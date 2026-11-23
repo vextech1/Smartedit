@@ -4,23 +4,23 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/tools/pdf_test/out"
 rm -rf "$OUT" && mkdir -p "$OUT"
 kotlinc \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/domain/PdfEditorModels.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/domain/PdfEditorModels.kt" \
   "$ROOT/tools/pdf_test/PdfPolicyMain.kt" \
   -include-runtime -d "$OUT/pdf-policy.jar"
 java -jar "$OUT/pdf-policy.jar"
 
 kotlinc \
-  "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/data/WorkingCopyHistory.kt" \
+  "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/data/WorkingCopyHistory.kt" \
   "$ROOT/tools/pdf_test/WorkingCopyMain.kt" \
   -include-runtime -d "$OUT/pdf-history.jar"
 java -jar "$OUT/pdf-history.jar"
 
-grep -q "interface PdfEditorRepository" "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/data/PdfEditorRepository.kt"
-grep -q "class AndroidPdfEditorRepository" "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/data/AndroidPdfEditorRepository.kt"
-grep -q "class PdfBoxEngine" "$ROOT/app/src/main/java/com/vextech/smartedit/core/pdf/PdfEngine.kt"
-grep -q "fun undo" "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/PdfEditorViewModel.kt"
-grep -q "fun redo" "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf/PdfEditorViewModel.kt"
-if grep -R -nE 'TODO|FIXME|NotImplementedError' "$ROOT/app/src/main/java/com/vextech/smartedit/feature/pdf" "$ROOT/app/src/main/java/com/vextech/smartedit/core/pdf"; then
+grep -q "interface PdfEditorRepository" "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/data/PdfEditorRepository.kt"
+grep -q "class AndroidPdfEditorRepository" "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/data/AndroidPdfEditorRepository.kt"
+grep -q "class PdfBoxEngine" "$ROOT/app/src/main/java/com/vextech/editpro/core/pdf/PdfEngine.kt"
+grep -q "fun undo" "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/PdfEditorViewModel.kt"
+grep -q "fun redo" "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf/PdfEditorViewModel.kt"
+if grep -R -nE 'TODO|FIXME|NotImplementedError' "$ROOT/app/src/main/java/com/vextech/editpro/feature/pdf" "$ROOT/app/src/main/java/com/vextech/editpro/core/pdf"; then
   echo "PDF placeholders found" >&2; exit 1
 fi
 python3 - <<'PY' "$ROOT"

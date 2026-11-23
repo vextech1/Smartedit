@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/tools/library_test/out"
-SRC="$ROOT/app/src/main/java/com/vextech/smartedit"
+SRC="$ROOT/app/src/main/java/com/vextech/editpro"
 rm -rf "$OUT" && mkdir -p "$OUT"
 kotlinc \
   "$SRC/core/model/Models.kt" \

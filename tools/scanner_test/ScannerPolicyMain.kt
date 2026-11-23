@@ -1,5 +1,5 @@
-import com.vextech.smartedit.feature.scanner.domain.*
-import com.vextech.smartedit.core.library.OcrPolicies
+import com.vextech.editpro.feature.scanner.domain.*
+import com.vextech.editpro.core.library.OcrPolicies
 fun main(){
     check(ScannerPolicies.reorderedIds(listOf("a","b","c"),0,2)==listOf("b","c","a"))
     check(ScannerPolicies.reorderedIds(listOf("a","b","c"),2,0)==listOf("c","a","b"))
