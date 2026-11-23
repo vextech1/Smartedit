@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "688212947039",
+    "project_id": "editpro1",
+    "storage_bucket": "editpro1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688212947039:android:8e18c632530c4bca6a6bea",
+        "android_client_info": {
+          "package_name": "com.vextech.editpro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688212947039-dkgafu0lfm1n10g15d7e1qlf8pi69th1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vextech.editpro",
+            "certificate_hash": "363e7ddca2330284788bfbebd3556756907ed3f7"
+          }
+        },
+        {
+          "client_id": "688212947039-8mgdpbq4q7248bg97duavgle5k6gitiu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfV3TeAgGpgdG26KxIOrYlgxP3QlFZY2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688212947039-8mgdpbq4q7248bg97duavgle5k6gitiu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

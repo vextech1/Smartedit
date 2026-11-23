@@ -30,6 +30,7 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
+          if [ -f app/google-services.json ]; then echo "using committed google-services.json"; exit 0; fi
           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
             echo "::error::GOOGLE_SERVICES_JSON repository secret is required"
             exit 1
