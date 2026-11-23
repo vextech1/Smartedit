@@ -894,4 +894,5 @@
     <string name="wm_range_past_end">“%1$s” आख़िरी पेज (%2$d) से आगे है।</string>
     <string name="wm_removable_note">वॉटरमार्क पेज के ऊपर बनाया जाता है। PDF एडिटिंग सॉफ़्टवेयर से कोई भी इसे बदल या हटा सकता है, इसलिए यह नकल को हतोत्साहित करता है, रोकता नहीं।</string>
     <string name="pdf_watermark_text">वॉटरमार्क टेक्स्ट</string>
+    <string name="wm_too_small">निशान इतने छोटे हैं कि पूरे पेज पर दोहराए नहीं जा सकते। उन्हें बड़ा करें या अंतर बढ़ाएँ।</string>
 </resources>

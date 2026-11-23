@@ -894,4 +894,5 @@
     <string name="wm_range_past_end">„%1$s“ liegt hinter der letzten Seite (%2$d).</string>
     <string name="wm_removable_note">Das Wasserzeichen wird über die Seite gelegt. Mit einem PDF-Editor kann es trotzdem jeder bearbeiten oder entfernen. Es schreckt vom Kopieren ab, verhindert es aber nicht.</string>
     <string name="pdf_watermark_text">Wasserzeichentext</string>
+    <string name="wm_too_small">Die Markierungen sind zu klein, um die Seite zu füllen. Mach sie größer oder erhöhe den Abstand.</string>
 </resources>

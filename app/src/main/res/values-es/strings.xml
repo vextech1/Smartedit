@@ -902,4 +902,5 @@
     <string name="wm_range_past_end">“%1$s” pasa de la última página (%2$d).</string>
     <string name="wm_removable_note">La marca de agua se dibuja sobre la página. Cualquiera puede editarla o quitarla con un programa de edición de PDF, así que disuade de copiar pero no lo impide.</string>
     <string name="pdf_watermark_text">Texto de la marca de agua</string>
+    <string name="wm_too_small">Las marcas son demasiado pequeñas para repetirse por toda la página. Hazlas más grandes o aumenta el espaciado.</string>
 </resources>

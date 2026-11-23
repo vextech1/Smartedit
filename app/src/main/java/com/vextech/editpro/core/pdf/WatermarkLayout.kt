@@ -37,6 +37,9 @@ enum class WatermarkProblem { EMPTY_TEXT, UNSUPPORTED_CHAR, BAD_COLOR, NO_LOGO, 
 
 data class MarkPoint(val x: Double, val y: Double)
 
+/** One mark's size in points ([size] is the text size, 0 for a logo) and where its copies go on a page. */
+data class MarkLayout(val w: Double, val h: Double, val size: Double, val centres: List<MarkPoint>)
+
 /** Raised when a repeat would need more marks on one page than [WatermarkLayout.MAX_TILES_PER_PAGE]. */
 class TooManyMarksException : IllegalArgumentException("The watermark is too small to repeat across the page. Make it larger.")
 
@@ -150,5 +153,26 @@ object WatermarkLayout {
         var h = w / aspect
         if (h > vh * 0.9) { h = vh * 0.9; w = h * aspect }
         return w to h
+    }
+
+    /**
+     * The mark's size and positions on a page that looks [vw] x [vh] on screen. [textUnit] is the width of the text at size 1
+     * (text marks); [logoAspect] is the picture's width divided by its height (logo marks). The engine and the live preview
+     * both use this, so the preview matches what is written to the file.
+     */
+    fun layout(vw: Double, vh: Double, d: WatermarkDraft, textUnit: Double, logoAspect: Double): MarkLayout {
+        var w: Double
+        var h: Double
+        var size = 0.0
+        if (d.kind == WatermarkKind.TEXT) {
+            size = (d.sizePct / 100.0 * vw / textUnit).coerceIn(4.0, 600.0)
+            w = textUnit * size
+            h = size * 0.72                      // cap height: what the eye centres on
+        } else {
+            w = d.sizePct / 100.0 * vw
+            h = w / logoAspect
+        }
+        if (h > vh * 0.9) { val k = vh * 0.9 / h; w *= k; h *= k; size *= k }   // never taller than the page
+        return MarkLayout(w, h, size, markCentres(vw, vh, w, h, d.angle.toDouble(), d.pos, d.marginPct.toDouble(), d.gapPct.toDouble()))
     }
 }

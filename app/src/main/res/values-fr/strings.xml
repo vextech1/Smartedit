@@ -902,4 +902,5 @@
     <string name="wm_range_past_end">« %1$s » dépasse la dernière page (%2$d).</string>
     <string name="wm_removable_note">Le filigrane est dessiné par-dessus la page. N’importe qui peut le modifier ou le retirer avec un logiciel d’édition de PDF : il décourage la copie mais ne l’empêche pas.</string>
     <string name="pdf_watermark_text">Texte du filigrane</string>
+    <string name="wm_too_small">Les marques sont trop petites pour se répéter sur toute la page. Agrandissez-les ou augmentez l’espacement.</string>
 </resources>

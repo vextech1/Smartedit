@@ -6,11 +6,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.vextech.editpro.R
 import com.vextech.editpro.core.pdf.PageRangeProblem
 import com.vextech.editpro.core.pdf.PageRangeResult
 import com.vextech.editpro.core.pdf.PageRanges
+import com.vextech.editpro.core.pdf.PageSpace
+import com.vextech.editpro.core.pdf.TooManyMarksException
 import com.vextech.editpro.core.pdf.WatermarkDraft
 import com.vextech.editpro.core.pdf.WatermarkKind
 import com.vextech.editpro.core.pdf.WatermarkLayout
@@ -24,6 +29,7 @@ import com.vextech.editpro.core.ui.sheet.SheetTextField
 import com.vextech.editpro.core.ui.sheet.SheetWarning
 import com.vextech.editpro.core.ui.sheet.ToolSheet
 import com.vextech.editpro.core.ui.sheet.rememberSheetEdits
+import com.vextech.editpro.feature.pdf.domain.PdfPageInfo
 import kotlin.math.roundToInt
 
 /** Everything the Watermark sheet edits before the tick: the settings, the chosen logo picture and the page box. */
@@ -36,10 +42,17 @@ data class WatermarkSheetState(
 /**
  * The Watermark tool as a sheet, with the controls of the site's PDF Watermark sheet: text or logo, nine spots or repeat,
  * size, how visible, turn, edge distance (or spacing for a repeat), and which pages.
+ * [onPreview] is told about every change (and null when the sheet closes) so the editor can draw the mark on the page as it is edited.
  * [onApply] gets the settings, the logo (null for text) and the 0-based pages (null for all).
  */
 @Composable
-fun WatermarkSheet(pageCount: Int, onCancel: () -> Unit, onApply: (WatermarkDraft, Uri?, Set<Int>?) -> Unit) {
+fun WatermarkSheet(
+    pageCount: Int,
+    page: PdfPageInfo?,
+    onPreview: (WatermarkSheetState?) -> Unit,
+    onCancel: () -> Unit,
+    onApply: (WatermarkDraft, Uri?, Set<Int>?) -> Unit,
+) {
     val edits = rememberSheetEdits(WatermarkSheetState())
     val state = edits.value
     val d = state.draft
@@ -54,6 +67,17 @@ fun WatermarkSheet(pageCount: Int, onCancel: () -> Unit, onApply: (WatermarkDraf
     val rangeError = range as? PageRangeResult.Error
     val problem = WatermarkLayout.validate(d, state.logo != null)
 
+    LaunchedEffect(state) { onPreview(state) }
+    DisposableEffect(Unit) { onDispose { onPreview(null) } }
+
+    // A repeat of marks too small to fit on the page would fail when applied, so say so here and hold the tick back.
+    val textUnit = remember(d.text) { approxTextUnit(d.text) }
+    val tooSmall = d.pos == WatermarkPos.TILE && problem == null && page != null &&
+        runCatching {
+            val (vw, vh) = PageSpace.visualSize(page.widthPoints.toDouble(), page.heightPoints.toDouble(), page.rotation)
+            WatermarkLayout.layout(vw, vh, d, textUnit, 1.0)
+        }.exceptionOrNull() is TooManyMarksException
+
     ToolSheet(
         title = stringResource(R.string.pdf_watermark),
         onCancel = onCancel,
@@ -63,7 +87,7 @@ fun WatermarkSheet(pageCount: Int, onCancel: () -> Unit, onApply: (WatermarkDraf
             val pages = if (state.pagesText.isBlank()) null else (range as? PageRangeResult.Ok)?.pages?.toSet()
             onApply(d, if (d.kind == WatermarkKind.LOGO) state.logo else null, pages)
         },
-        busy = problem != null || rangeError != null,
+        busy = problem != null || rangeError != null || tooSmall,
         history = edits,
     ) {
         SheetChips(
@@ -101,6 +125,7 @@ fun WatermarkSheet(pageCount: Int, onCancel: () -> Unit, onApply: (WatermarkDraf
             SheetSlider(stringResource(R.string.wm_edge, d.marginPct), d.marginPct.toFloat(), 0f..15f, { slide(d.copy(marginPct = it.roundToInt())) })
         }
         SheetTextField(stringResource(R.string.wm_pages), state.pagesText, { edits.editMerged(state.copy(pagesText = it)) }, placeholder = stringResource(R.string.wm_pages_hint))
+        if (tooSmall) SheetWarning(stringResource(R.string.wm_too_small))
         if (rangeError != null) SheetWarning(rangeMessage(rangeError))
         SheetHint(stringResource(R.string.wm_removable_note))
     }

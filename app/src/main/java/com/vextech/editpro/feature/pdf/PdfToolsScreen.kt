@@ -102,6 +102,7 @@ fun PdfToolsScreen(
     var mode by remember { mutableStateOf(EditorMode.EDIT) }
     var moreOpen by remember { mutableStateOf(false) }
     var dialog by remember { mutableStateOf<PdfDialog?>(null) }
+    var watermarkPreview by remember { mutableStateOf<WatermarkSheetState?>(null) }
     var pendingRect by remember { mutableStateOf<PdfRect?>(null) }
     var confirmExit by remember { mutableStateOf(false) }
 
@@ -220,6 +221,9 @@ fun PdfToolsScreen(
                     PdfPageCanvas(
                         previewPath = state.previews[currentPage],
                         pageInfo = info,
+                        pageIndex = currentPage,
+                        pageCount = state.pages.size,
+                        watermark = watermarkPreview,
                         tool = tool,
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(12.dp),
                         onRect = { rect ->
@@ -246,7 +250,7 @@ fun PdfToolsScreen(
                 if (dialog == PdfDialog.METADATA && metadataToEdit != null) {
                     MetadataSheet(metadataToEdit, onCancel = { dialog = null }) { value -> vm.updateMetadata(value); dialog = null }
                 } else if (dialog == PdfDialog.WATERMARK) {
-                    WatermarkSheet(state.pages.size, onCancel = { dialog = null }) { draft, logo, pages -> vm.watermark(draft, logo, pages); dialog = null }
+                    WatermarkSheet(state.pages.size, state.pages.getOrNull(currentPage), onPreview = { watermarkPreview = it }, onCancel = { dialog = null }) { draft, logo, pages -> vm.watermark(draft, logo, pages); dialog = null }
                 } else EditorDock(
                     panel = panel,
                     tool = tool,
@@ -767,6 +771,9 @@ private fun PermissionRow(label: String, checked: Boolean, onChange: (Boolean) -
 private fun PdfPageCanvas(
     previewPath: String?,
     pageInfo: PdfPageInfo,
+    pageIndex: Int,
+    pageCount: Int,
+    watermark: WatermarkSheetState?,
     tool: PdfCanvasTool,
     modifier: Modifier,
     onRect: (PdfRect) -> Unit,
@@ -813,6 +820,7 @@ private fun PdfPageCanvas(
             Modifier.fillMaxWidth().aspectRatio(ratio.coerceAtLeast(.1f)).background(Color.White).onSizeChanged { size = it }.then(gesture),
         ) {
             PdfPreviewImage(previewPath, Modifier.fillMaxSize())
+            if (watermark != null) WatermarkPreviewLayer(watermark, pageIndex, pageCount, pageInfo, Modifier.fillMaxSize())
             androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
                 val a = start; val b = end
                 if (a != null && b != null && tool != PdfCanvasTool.INK) {

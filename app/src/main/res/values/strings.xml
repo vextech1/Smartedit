@@ -939,4 +939,5 @@
     <string name="wm_range_past_end">“%1$s” goes past the last page (%2$d).</string>
     <string name="wm_removable_note">The watermark is drawn on top of the page. Anyone can still edit or remove it with PDF editing software, so it discourages copying but does not prevent it.</string>
     <string name="pdf_watermark_text">Watermark text</string>
+    <string name="wm_too_small">The marks are too small to repeat across the page. Make them larger or increase the spacing.</string>
 </resources>

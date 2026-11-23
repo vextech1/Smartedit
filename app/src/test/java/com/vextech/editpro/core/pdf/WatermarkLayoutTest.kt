@@ -129,4 +129,30 @@ class WatermarkLayoutTest {
         assertEquals('Ж', WinAnsi.firstUnsupported("abcЖ"))
         assertEquals('学', WinAnsi.firstUnsupported("学"))
     }
+
+    @Test fun textLayoutFitsTheRequestedWidthAndCentresOnThePage() {
+        // Text 5 units wide at size 1, 60% of a 600-wide page: size = 360 / 5 = 72, so the mark is 360 wide and 72 * 0.72 tall.
+        val l = WatermarkLayout.layout(600.0, 800.0, WatermarkDraft(sizePct = 60, pos = WatermarkPos.MC, angle = 0), 5.0, 1.0)
+        assertEquals(72.0, l.size, eps); assertEquals(360.0, l.w, eps); assertEquals(72.0 * 0.72, l.h, eps)
+        assertEquals(300.0, l.centres.single().x, eps); assertEquals(400.0, l.centres.single().y, eps)
+    }
+
+    @Test fun textSizeIsLimitedTo600Points() {
+        val l = WatermarkLayout.layout(2000.0, 3000.0, WatermarkDraft(sizePct = 100), 0.5, 1.0)
+        assertEquals(600.0, l.size, eps)
+    }
+
+    @Test fun logoLayoutKeepsAspectAndNeverExceedsPageHeight() {
+        val wide = WatermarkLayout.layout(600.0, 800.0, WatermarkDraft(kind = WatermarkKind.LOGO, sizePct = 50), 1.0, 2.0)
+        assertEquals(300.0, wide.w, eps); assertEquals(150.0, wide.h, eps)
+        val tall = WatermarkLayout.layout(600.0, 800.0, WatermarkDraft(kind = WatermarkKind.LOGO, sizePct = 100), 1.0, 0.5)
+        assertEquals(720.0, tall.h, eps); assertEquals(360.0, tall.w, eps)
+    }
+
+    @Test fun layoutRefusesATinyRepeat() {
+        try {
+            WatermarkLayout.layout(595.0, 842.0, WatermarkDraft(pos = WatermarkPos.TILE, sizePct = 5, gapPct = 0), 40.0, 1.0)
+            fail("expected TooManyMarksException")
+        } catch (_: TooManyMarksException) { }
+    }
 }

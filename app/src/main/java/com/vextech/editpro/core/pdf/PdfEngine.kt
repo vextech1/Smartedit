@@ -352,16 +352,9 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 val box = page.cropBox
                 val rotation = PdfEditorPolicies.normalizeRotation(page.rotation)
                 val (vw, vh) = PageSpace.visualSize(box.width.toDouble(), box.height.toDouble(), rotation)
-                var w: Double; var h: Double; var size = 0.0
-                if (isText) {
-                    size = (draft.sizePct / 100.0 * vw / unit).coerceIn(4.0, 600.0)
-                    w = unit * size; h = size * 0.72          // cap height: what the eye centres on
-                } else {
-                    w = draft.sizePct / 100.0 * vw
-                    h = logo!!.height.toDouble() / logo.width * w
-                }
-                if (h > vh * 0.9) { val k = vh * 0.9 / h; w *= k; h *= k; size *= k }   // never taller than the page
-                val centres = WatermarkLayout.markCentres(vw, vh, w, h, draft.angle.toDouble(), draft.pos, draft.marginPct.toDouble(), draft.gapPct.toDouble())
+                val mark = WatermarkLayout.layout(vw, vh, draft, unit, if (isText) 1.0 else logo!!.width.toDouble() / logo.height)
+                val w = mark.w; val h = mark.h; val size = mark.size
+                val centres = mark.centres
                 PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
                     for (c in centres) {
                         val corner = WatermarkLayout.cornerFor(c.x, c.y, w, h, draft.angle.toDouble())

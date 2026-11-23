@@ -926,4 +926,5 @@
     <string name="wm_range_past_end">«%1$s» يتجاوز آخر صفحة (%2$d).</string>
     <string name="wm_removable_note">تُرسم العلامة المائية فوق الصفحة. يمكن لأي شخص تعديلها أو إزالتها ببرنامج تحرير PDF، لذا فهي تثني عن النسخ لكنها لا تمنعه.</string>
     <string name="pdf_watermark_text">نص العلامة المائية</string>
+    <string name="wm_too_small">العلامات صغيرة جدًا بحيث لا يمكن تكرارها على الصفحة. كبّرها أو زد التباعد.</string>
 </resources>
