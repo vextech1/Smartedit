@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "SmartEdit"
+rootProject.name = "EditPro"
 include(":app")

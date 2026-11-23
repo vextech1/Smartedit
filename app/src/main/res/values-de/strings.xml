@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">EditPro</string><string name="converter">Konverter</string><string name="compressor">Kompressor</string><string name="notes">Notizen</string><string name="files">Dateien</string><string name="search">Suche</string><string name="favorites">Favoriten</string><string name="trash">Papierkorb</string><string name="backup">Sicherung</string><string name="settings">Einstellungen</string><string name="ai_assist">KI-Assistent</string>
     <string name="back">Zurück</string><string name="cancel">Abbrechen</string><string name="close">Schließen</string><string name="create">Erstellen</string><string name="details">Details</string><string name="more_options">Weitere Optionen</string><string name="name">Name</string><string name="open">Öffnen</string><string name="rename">Umbenennen</string><string name="share">Teilen</string>
-    <string name="files_import">Dateien importieren</string><string name="files_new_folder">Neuer Ordner</string><string name="files_import_clipboard">Zwischenablage importieren</string><string name="files_toggle_view">Listen- oder Rasteransicht wechseln</string><string name="files_sort_name">Name</string><string name="files_sort_modified">Geändert</string><string name="files_sort_size">Größe</string><string name="files_sort_type">Typ</string><string name="files_empty_title">Leerer Ordner</string><string name="files_empty_description">Importiere eine Datei, erstelle einen Ordner oder füge Inhalte aus einer anderen Smart-Edit-Funktion hinzu.</string><string name="files_folder">Ordner</string><string name="files_favorite">Favorit</string><string name="files_move">Verschieben</string><string name="files_move_title">%1$s verschieben</string><string name="files_root">Dateien (Stamm)</string><string name="files_move_to_trash">In Papierkorb verschieben</string><string name="files_move_to_trash_title">In den Papierkorb verschieben?</string><string name="files_move_to_trash_message">%1$s wird in den Papierkorb verschoben und kann später wiederhergestellt werden.</string><string name="files_type">Typ</string><string name="files_size">Größe</string><string name="files_location">Speicherort</string><string name="files_created">Erstellt</string><string name="files_modified">Geändert</string><string name="files_open_failed">Keine App konnte diese Datei öffnen.</string><string name="files_share_failed">Diese Datei konnte nicht geteilt werden.</string>
+    <string name="files_import">Dateien importieren</string><string name="files_new_folder">Neuer Ordner</string><string name="files_import_clipboard">Zwischenablage importieren</string><string name="files_toggle_view">Listen- oder Rasteransicht wechseln</string><string name="files_sort_name">Name</string><string name="files_sort_modified">Geändert</string><string name="files_sort_size">Größe</string><string name="files_sort_type">Typ</string><string name="files_empty_title">Leerer Ordner</string><string name="files_empty_description">Importiere eine Datei, erstelle einen Ordner oder füge Inhalte aus einer anderen EditPro-Funktion hinzu.</string><string name="files_folder">Ordner</string><string name="files_favorite">Favorit</string><string name="files_move">Verschieben</string><string name="files_move_title">%1$s verschieben</string><string name="files_root">Dateien (Stamm)</string><string name="files_move_to_trash">In Papierkorb verschieben</string><string name="files_move_to_trash_title">In den Papierkorb verschieben?</string><string name="files_move_to_trash_message">%1$s wird in den Papierkorb verschoben und kann später wiederhergestellt werden.</string><string name="files_type">Typ</string><string name="files_size">Größe</string><string name="files_location">Speicherort</string><string name="files_created">Erstellt</string><string name="files_modified">Geändert</string><string name="files_open_failed">Keine App konnte diese Datei öffnen.</string><string name="files_share_failed">Diese Datei konnte nicht geteilt werden.</string>
 
     <string name="files_error_import">Die ausgewählte Datei konnte nicht importiert werden.</string>
     <string name="files_error_clipboard_import">Der Inhalt der Zwischenablage konnte nicht importiert werden.</string>
@@ -302,7 +302,7 @@
     <string name="history_filter_empty_title">Hier ist nichts</string>
     <string name="history_filter_favorites">Favoriten</string>
     <string name="history_filter_processed">Konvertiert &amp; komprimiert</string>
-    <string name="history_pdf_title">Smart-Edit-Aktivität</string>
+    <string name="history_pdf_title">EditPro-Aktivität</string>
     <string name="history_today">Heute</string>
     <string name="history_yesterday">Gestern</string>
     <!-- Library: trash -->
@@ -455,7 +455,7 @@
     <string name="backup_empty">Noch keine Backups</string>
     <string name="backup_detail">%1$s · %2$s</string>
     <string name="backup_restore_title">Backup wiederherstellen?</string>
-    <string name="backup_restore_message">Die aktuellen Smart-Edit-Dateien und App-Daten werden durch das ausgewählte Backup ersetzt. Die Wiederherstellung wird zunächst zwischengespeichert und zurückgesetzt, falls die Prüfung fehlschlägt.</string>
+    <string name="backup_restore_message">Die aktuellen EditPro-Dateien und App-Daten werden durch das ausgewählte Backup ersetzt. Die Wiederherstellung wird zunächst zwischengespeichert und zurückgesetzt, falls die Prüfung fehlschlägt.</string>
     <string name="settings_appearance">Darstellung</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Hell</string>
@@ -673,7 +673,7 @@
     <string name="account_deleted">Dein Konto und die gespeicherten Kontodaten wurden gelöscht.</string>
     <string name="account_loading">Wird geladen…</string>
     <string name="account_sign_in">Mit Google anmelden</string>
-    <string name="account_sign_in_body">Melde dich an, um dein Konto zu behalten. Alle Smart-Edit-Werkzeuge bleiben kostenlos, mit oder ohne Konto.</string>
+    <string name="account_sign_in_body">Melde dich an, um dein Konto zu behalten. Alle EditPro-Werkzeuge bleiben kostenlos, mit oder ohne Konto.</string>
     <string name="account_sign_in_title">Mit Google anmelden</string>
     <string name="account_sign_out">Abmelden</string>
     <string name="account_signed_in_as">Angemeldet als %1$s</string>
