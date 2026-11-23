@@ -14,7 +14,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 
 | Item | Owner | Status | Branch / PR |
 |---|---|---|---|
-| Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | In progress (first) | |
+| Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | Built, waiting for CI. Metadata now runs in a ToolSheet. Wide-screen side panel not done yet | `pdf/phase0-sheet` |
 | Phase 1 lane A: Organize extras | stage-one session | Queued after Phase 0 | |
 | Phase 1 lane B: Split by ranges + ZIP | stage-one session | Queued | |
 | Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Queued | |

@@ -870,4 +870,7 @@
     <string name="students_delete_record">Delete record</string>
     <string name="students_cleaned">Cleaned up.</string>
     <string name="library_upload_action">Upload</string>
+    <string name="sheet_reset">Reset</string>
+    <string name="sheet_apply">Apply %1$s</string>
+    <string name="sheet_close_without_applying">Close %1$s without applying</string>
 </resources>

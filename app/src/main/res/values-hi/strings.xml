@@ -825,4 +825,7 @@
     <string name="students_delete_record">रिकॉर्ड हटाएँ</string>
     <string name="students_cleaned">सफ़ाई हो गई।</string>
     <string name="library_upload_action">अपलोड करें</string>
+    <string name="sheet_reset">रीसेट करें</string>
+    <string name="sheet_apply">%1$s लागू करें</string>
+    <string name="sheet_close_without_applying">%1$s को लागू किए बिना बंद करें</string>
 </resources>

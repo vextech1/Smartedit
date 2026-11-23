@@ -39,6 +39,9 @@ import com.vextech.editpro.core.ads.ExportInterstitialEffect
 import com.vextech.editpro.core.ads.UnityAdsService
 import com.vextech.editpro.core.sharing.ShareService
 import com.vextech.editpro.core.ui.FeatureScaffold
+import com.vextech.editpro.core.ui.sheet.LocalSheetHistoryRegistry
+import com.vextech.editpro.core.ui.sheet.SheetHistoryRegistry
+import androidx.compose.runtime.CompositionLocalProvider
 import com.vextech.editpro.feature.pdf.domain.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -101,6 +104,7 @@ fun PdfToolsScreen(
     var confirmExit by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val sheetRegistry = remember { SheetHistoryRegistry() }
     val events = remember { UiEventChannel() }
     CollectUiEvents(events.events, snackbarHostState)
 
@@ -193,15 +197,19 @@ fun PdfToolsScreen(
             onBack = requestExit,
             snackbarHost = { SnackbarHost(snackbarHostState) },
             actions = {
-                IconButton(onClick = { vm.undo() }, enabled = state.session?.canUndo == true && !state.busy) {
+                val sheetHistory = sheetRegistry.active
+                val sheetUndo = sheetHistory?.canUndo == true
+                val sheetRedo = sheetHistory?.canRedo == true
+                IconButton(onClick = { if (sheetUndo) sheetHistory?.undo() else vm.undo() }, enabled = sheetUndo || (state.session?.canUndo == true && !state.busy)) {
                     Icon(Icons.AutoMirrored.Rounded.Undo, stringResource(R.string.pdf_undo))
                 }
-                IconButton(onClick = { vm.redo() }, enabled = state.session?.canRedo == true && !state.busy) {
+                IconButton(onClick = { if (sheetRedo) sheetHistory?.redo() else vm.redo() }, enabled = sheetRedo || (state.session?.canRedo == true && !state.busy)) {
                     Icon(Icons.AutoMirrored.Rounded.Redo, stringResource(R.string.pdf_redo))
                 }
                 Button(onClick = { vm.save() }, enabled = !state.busy, modifier = Modifier.padding(end = 8.dp)) { Text(stringResource(R.string.pdf_save)) }
             },
         ) { padding ->
+            CompositionLocalProvider(LocalSheetHistoryRegistry provides sheetRegistry) {
             Column(Modifier.fillMaxSize().padding(padding)) {
                 if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                 PageStrip(state, vm, Modifier.fillMaxWidth().height(104.dp))
@@ -232,7 +240,10 @@ fun PdfToolsScreen(
                     )
                 } else Spacer(Modifier.weight(1f))
 
-                EditorDock(
+                val metadataToEdit = state.metadata
+                if (dialog == PdfDialog.METADATA && metadataToEdit != null) {
+                    MetadataSheet(metadataToEdit, onCancel = { dialog = null }) { value -> vm.updateMetadata(value); dialog = null }
+                } else EditorDock(
                     panel = panel,
                     tool = tool,
                     onTool = { tool = if (tool == it) PdfCanvasTool.NONE else it },
@@ -243,6 +254,7 @@ fun PdfToolsScreen(
                     onProtect = { tool = PdfCanvasTool.NONE; panel = null; mode = EditorMode.PROTECT },
                     onMore = { moreOpen = true },
                 )
+            }
             }
         }
     }
@@ -312,7 +324,7 @@ fun PdfToolsScreen(
         PdfDialog.LINK -> TextInputDialog(stringResource(R.string.pdf_add_link), stringResource(R.string.pdf_link_url), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { url -> pendingRect?.let { vm.link(it, url) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.REDACT_CONFIRM -> ConfirmRedactionDialog({ dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { pendingRect?.let(vm::redact); dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.FORMS -> FormsDialog(state.forms, { dialog = null }, vm::setFormField, vm::flattenForms)
-        PdfDialog.METADATA -> state.metadata?.let { MetadataDialog(it, { dialog = null }) { value -> vm.updateMetadata(value); dialog = null } }
+        PdfDialog.METADATA -> Unit   // shown as a sheet above the dock
         PdfDialog.BOOKMARKS -> BookmarksDialog(state.bookmarks, currentPage, { dialog = null }, vm::addBookmark, vm::removeBookmark) { vm.selectPage(it); dialog = null }
         PdfDialog.ANNOTATIONS -> AnnotationsDialog(state.annotations, { dialog = null }, vm::removeAnnotation) { vm.selectPage(it); dialog = null }
         PdfDialog.EXTRACTED_TEXT -> TextViewerDialog(stringResource(R.string.pdf_extracted_text), state.extractedText, onDismiss = { dialog = null })
@@ -839,28 +851,6 @@ private fun FormsDialog(fields: List<PdfFormField>, onDismiss: () -> Unit, onSet
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
-    )
-}
-
-@Composable
-private fun MetadataDialog(metadata: PdfDocumentMetadata, onDismiss: () -> Unit, onSave: (PdfDocumentMetadata) -> Unit) {
-    var title by remember(metadata) { mutableStateOf(metadata.title) }
-    var author by remember(metadata) { mutableStateOf(metadata.author) }
-    var subject by remember(metadata) { mutableStateOf(metadata.subject) }
-    var keywords by remember(metadata) { mutableStateOf(metadata.keywords) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_properties)) },
-        text = {
-            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.pdf_title)) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(author, { author = it }, label = { Text(stringResource(R.string.pdf_author)) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(subject, { subject = it }, label = { Text(stringResource(R.string.pdf_subject)) }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(keywords, { keywords = it }, label = { Text(stringResource(R.string.pdf_keywords)) }, modifier = Modifier.fillMaxWidth())
-            }
-        },
-        confirmButton = { TextButton(onClick = { onSave(metadata.copy(title = title, author = author, subject = subject, keywords = keywords)) }) { Text(stringResource(R.string.pdf_save)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 

@@ -825,4 +825,7 @@
     <string name="students_delete_record">Eintrag löschen</string>
     <string name="students_cleaned">Bereinigt.</string>
     <string name="library_upload_action">Hochladen</string>
+    <string name="sheet_reset">Zurücksetzen</string>
+    <string name="sheet_apply">%1$s anwenden</string>
+    <string name="sheet_close_without_applying">%1$s schließen, ohne anzuwenden</string>
 </resources>
