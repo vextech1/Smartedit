@@ -54,6 +54,8 @@ data class CompressorUiState(
     val files: List<CompressorFile> = emptyList(),
     val preset: CompressionPreset = CompressionPreset.BALANCED,
     val pdfMode: PdfCompressionMode = PdfCompressionMode.STANDARD,
+    /** Make PDFs black and white. Every page becomes a picture, so text can no longer be selected. */
+    val grayscale: Boolean = false,
     val running: Boolean = false,
     /** True while one file is being redone with a password; the earlier results stay on screen. */
     val retrying: Boolean = false,
@@ -117,9 +119,10 @@ class CompressorViewModel @Inject constructor(
     fun remove(file: CompressorFile) { if (!_state.value.running) _state.update { it.copy(files = it.files - file, results = emptyList()) } }
     fun setPreset(preset: CompressionPreset) { _state.update { it.copy(preset = preset) } }
     fun setPdfMode(mode: PdfCompressionMode) { _state.update { it.copy(pdfMode = mode) } }
+    fun setGrayscale(on: Boolean) { _state.update { it.copy(grayscale = on) } }
 
     /** Starts over with an empty selection after results were shown. */
-    fun reset() { if (!_state.value.running) _state.value = CompressorUiState(preset = _state.value.preset, pdfMode = _state.value.pdfMode) }
+    fun reset() { if (!_state.value.running) _state.value = CompressorUiState(preset = _state.value.preset, pdfMode = _state.value.pdfMode, grayscale = _state.value.grayscale) }
 
     fun cancel() { job?.cancel() }
 
@@ -162,7 +165,7 @@ class CompressorViewModel @Inject constructor(
     }
 
     private suspend fun compressOne(file: CompressorFile, snapshot: CompressorUiState, password: String? = null): CompressorResult = try {
-        val result = service.compress(Uri.parse(file.uri), file.name, file.mimeType, snapshot.preset, snapshot.pdfMode, password) { progress ->
+        val result = service.compress(Uri.parse(file.uri), file.name, file.mimeType, snapshot.preset, snapshot.pdfMode, password, snapshot.grayscale) { progress ->
             _state.update { it.copy(progress = progress) }
         }
         CompressorResult(

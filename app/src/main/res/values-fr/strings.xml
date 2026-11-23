@@ -860,4 +860,6 @@
     <string name="converter_page_markers">Indiquer le début de chaque page</string>
     <string name="converter_error_no_text">Aucun texte trouvé. Ce PDF est probablement composé d’images numérisées.</string>
     <string name="converter_keep_scans">Conserver les pages sans texte (scans) sous forme d’images</string>
+    <string name="compressor_grayscale">Convertir en niveaux de gris (noir et blanc)</string>
+    <string name="compressor_grayscale_hint">Les niveaux de gris transforment chaque page en image. Le texte ne peut plus être sélectionné ni recherché.</string>
 </resources>

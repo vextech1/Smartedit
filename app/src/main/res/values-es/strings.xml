@@ -860,4 +860,6 @@
     <string name="converter_page_markers">Mostrar dónde empieza cada página</string>
     <string name="converter_error_no_text">No se encontró texto. Este PDF probablemente son imágenes escaneadas.</string>
     <string name="converter_keep_scans">Conservar como imágenes las páginas sin texto (escaneos)</string>
+    <string name="compressor_grayscale">Convertir a escala de grises (blanco y negro)</string>
+    <string name="compressor_grayscale_hint">La escala de grises convierte cada página en una imagen. El texto ya no se podrá seleccionar ni buscar.</string>
 </resources>

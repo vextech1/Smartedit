@@ -73,6 +73,12 @@ object CompressionPolicies {
         return Math.floor(saved).toInt().coerceIn(-100, 100)
     }
 
+    /** A black-and-white copy turns every page into a picture, so it always uses the maximum (raster) path. */
+    fun effectivePdfMode(mode: PdfCompressionMode, grayscale: Boolean): PdfCompressionMode = if (grayscale) PdfCompressionMode.MAXIMUM else mode
+
+    /** A grayscale copy is wanted even when it is not smaller; any other result is dropped when it grew. */
+    fun keepsLargerResult(grayscale: Boolean): Boolean = grayscale
+
     fun verdict(original: Long, compressed: Long): CompressionVerdict = when {
         compressed > original -> CompressionVerdict.LARGER
         percentSaved(original, compressed) >= MIN_SAVING_PERCENT -> CompressionVerdict.SMALLER

@@ -6,6 +6,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Matrix as AndroidMatrix
 import android.graphics.Paint
 import androidx.exifinterface.media.ExifInterface
@@ -130,7 +132,7 @@ interface PdfEngine {
      * Rebuilds the PDF with every page rendered to a JPEG. [onProgress] receives 0..1 before each page and may throw
      * to cancel; nothing is written to [output] in that case. A protected source stays protected with the same password.
      */
-    fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String? = null, onProgress: (Float) -> Unit = {})
+    fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String? = null, onProgress: (Float) -> Unit = {}, grayscale: Boolean = false)
 
     /**
      * Shrinks a PDF without rendering pages: embedded pictures larger than [maxDimension] are scaled down and
@@ -902,7 +904,7 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         }
     }
 
-    override fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String?, onProgress: (Float) -> Unit) {
+    override fun rasterCompress(input: File, output: File, dpi: Int, jpegQuality: Int, password: String?, onProgress: (Float) -> Unit, grayscale: Boolean) {
         load(input, password).use { source ->
             val renderer = PDFRenderer(source)
             PDDocument().use { target ->
@@ -916,13 +918,15 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                     val sideways = PdfEditorPolicies.normalizeRotation(srcPage.rotation) % 180 != 0
                     val pageWidth = if (sideways) box.height else box.width
                     val pageHeight = if (sideways) box.width else box.height
-                    val bitmap = renderer.renderImageWithDPI(index, dpi.toFloat(), ImageType.RGB)
+                    val rendered = renderer.renderImageWithDPI(index, dpi.toFloat(), ImageType.RGB)
+                    val bitmap = if (grayscale) toGrayscale(rendered) else rendered
                     try {
                         val page = PDPage(PDRectangle(pageWidth, pageHeight))
                         target.addPage(page)
                         val image = JPEGFactory.createFromImage(target, bitmap, jpegQuality / 100f)
                         PDPageContentStream(target, page).use { it.drawImage(image, 0f, 0f, pageWidth, pageHeight) }
                     } finally {
+                        if (bitmap !== rendered) rendered.recycle()
                         bitmap.recycle()
                     }
                 }
@@ -931,6 +935,14 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
                 target.save(output)
             }
         }
+    }
+
+    /** A black-and-white copy of [src] (colour removed, brightness kept). */
+    private fun toGrayscale(src: Bitmap): Bitmap {
+        val out = Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888)
+        val paint = Paint().apply { colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) }) }
+        Canvas(out).drawBitmap(src, 0f, 0f, paint)
+        return out
     }
 
     /** A rebuilt document is new, so a protected source needs its protection applied again or the copy would be open to anyone. */

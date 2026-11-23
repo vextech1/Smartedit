@@ -94,4 +94,15 @@ class CompressionPoliciesTest {
         assertEquals(PdfPasswordIssue.REQUIRED, CompressionPolicies.passwordIssue(""))
         assertEquals(PdfPasswordIssue.WRONG, CompressionPolicies.passwordIssue("guess"))
     }
+
+    @Test fun grayscaleAlwaysUsesTheMaximumPath() {
+        assertEquals(PdfCompressionMode.MAXIMUM, CompressionPolicies.effectivePdfMode(PdfCompressionMode.STANDARD, true))
+        assertEquals(PdfCompressionMode.STANDARD, CompressionPolicies.effectivePdfMode(PdfCompressionMode.STANDARD, false))
+        assertEquals(PdfCompressionMode.MAXIMUM, CompressionPolicies.effectivePdfMode(PdfCompressionMode.MAXIMUM, false))
+    }
+
+    @Test fun onlyGrayscaleKeepsAResultThatGrew() {
+        assertEquals(true, CompressionPolicies.keepsLargerResult(true))
+        assertEquals(false, CompressionPolicies.keepsLargerResult(false))
+    }
 }

@@ -13,6 +13,8 @@ import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.automirrored.rounded.NoteAdd
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -193,6 +195,14 @@ private fun SetupContent(state: CompressorUiState, vm: CompressorViewModel, onAd
                 style = MaterialTheme.typography.bodySmall,
                 color = if (state.pdfMode == PdfCompressionMode.MAXIMUM) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = state.grayscale, enabled = !state.running, role = Role.Checkbox, onValueChange = vm::setGrayscale),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Checkbox(checked = state.grayscale, onCheckedChange = null, enabled = !state.running)
+                Text(stringResource(R.string.compressor_grayscale), style = MaterialTheme.typography.bodyLarge)
+            }
+            if (state.grayscale) Text(stringResource(R.string.compressor_grayscale_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         }
     }
 }

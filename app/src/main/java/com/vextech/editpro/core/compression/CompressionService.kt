@@ -72,6 +72,7 @@ class CompressionService @Inject constructor(
         preset: CompressionPreset,
         pdfMode: PdfCompressionMode,
         password: String? = null,
+        grayscale: Boolean = false,
         onProgress: (Float) -> Unit = {},
     ): CompressionResult {
         val kind = CompressionPolicies.kindOf(displayName, mimeType)
@@ -90,7 +91,7 @@ class CompressionService @Inject constructor(
                 val originalBytes = input.length().also { sourceBytes = it }
                 val job = currentCoroutineContext()[Job]
                 when (kind) {
-                    CompressionKind.PDF -> compressPdf(input, displayName, originalBytes, preset, pdfMode, password, { job?.ensureActive(); onProgress(it) }) { produced = it }
+                    CompressionKind.PDF -> compressPdf(input, displayName, originalBytes, preset, pdfMode, password, grayscale, { job?.ensureActive(); onProgress(it) }) { produced = it }
                     else -> compressImage(input, displayName, originalBytes, preset) { produced = it }
                 }
             }
@@ -131,23 +132,26 @@ class CompressionService @Inject constructor(
         preset: CompressionPreset,
         mode: PdfCompressionMode,
         password: String?,
+        grayscale: Boolean,
         onProgress: (Float) -> Unit,
         onOutput: (File) -> Unit,
     ): CompressionResult {
         val target = store.uniqueFile(store.compressedDir, CompressionPolicies.outputName(displayName, "pdf"))
         onOutput(target)
         var optimized: Int? = null
-        when (mode) {
+        // A black-and-white copy turns every page into a picture, so it always uses the raster path.
+        when (CompressionPolicies.effectivePdfMode(mode, grayscale)) {
             PdfCompressionMode.STANDARD -> {
                 val params = CompressionPolicies.embeddedImageParams(preset)
                 optimized = pdf.optimizeImages(input, target, params.maxDimension, params.jpegQuality, onProgress, password).imagesReplaced
             }
             PdfCompressionMode.MAXIMUM -> {
                 val raster = CompressionPolicies.rasterParams(preset)
-                pdf.rasterCompress(input, target, raster.dpi, raster.jpegQuality, password, onProgress)
+                pdf.rasterCompress(input, target, raster.dpi, raster.jpegQuality, password, onProgress, grayscale)
             }
         }
-        return finish(displayName, originalBytes, target, "application/pdf", optimized)
+        // A grayscale copy is wanted even when it is not smaller (the site does the same).
+        return finish(displayName, originalBytes, target, "application/pdf", optimized, keepLarger = CompressionPolicies.keepsLargerResult(grayscale))
     }
 
     private fun compressImage(
@@ -171,10 +175,10 @@ class CompressionService @Inject constructor(
     }
 
     /** Keeps the compressed copy only when it is not larger than the original. */
-    private fun finish(name: String, originalBytes: Long, target: File, mime: String, optimized: Int?): CompressionResult {
+    private fun finish(name: String, originalBytes: Long, target: File, mime: String, optimized: Int?, keepLarger: Boolean = false): CompressionResult {
         val compressedBytes = target.length()
         val verdict = CompressionPolicies.verdict(originalBytes, compressedBytes)
-        if (verdict == CompressionVerdict.LARGER) {
+        if (verdict == CompressionVerdict.LARGER && !keepLarger) {
             target.delete()
             return CompressionResult(name, originalBytes, compressedBytes, verdict, null, null, optimized)
         }
