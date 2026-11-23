@@ -828,4 +828,27 @@
     <string name="sheet_reset">Zurücksetzen</string>
     <string name="sheet_apply">%1$s anwenden</string>
     <string name="sheet_close_without_applying">%1$s schließen, ohne anzuwenden</string>
+    <string name="pdf_arrange">Anordnen</string>
+    <string name="pdf_reverse_order">Reihenfolge umkehren</string>
+    <string name="pdf_rotate_all_right">Alle Seiten nach rechts drehen</string>
+    <string name="pdf_rotate_all_left">Alle Seiten nach links drehen</string>
+    <string name="pdf_double_sided_reversed">Duplexscan: Rückseiten umgekehrt</string>
+    <string name="pdf_double_sided_normal">Duplexscan: Rückseiten in Reihenfolge</string>
+    <string name="pdf_double_sided_needs_even">Die Duplex-Korrektur braucht eine gerade Seitenzahl.</string>
+    <string name="pdf_split_summary">Diese PDF hat %1$d Seiten. Jeder Teil wird eine eigene PDF, mehrere Teile gibt es auch als ZIP.</string>
+    <string name="pdf_split_every">Jede Seite</string>
+    <string name="pdf_split_ranges">Seitenbereiche</string>
+    <string name="pdf_split_pages_hint">Seiten, z. B. 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">Gib die Seiten zum Abtrennen ein, z. B. 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">Das ist keine Seite und kein Bereich. Versuche z. B. 1-3, 5.</string>
+    <string name="pdf_range_invalid">Das ist kein gültiger Bereich.</string>
+    <string name="pdf_range_past_end">Diese Seite liegt hinter dem Ende der PDF.</string>
+    <string name="converter_dpi_screen">Bildschirm (100 dpi)</string>
+    <string name="converter_dpi_standard">Standard (150 dpi)</string>
+    <string name="converter_dpi_high">Hoch (220 dpi)</string>
+    <string name="converter_text_format">Textformat</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">Nur Text (.txt)</string>
+    <string name="converter_page_markers">Seitenanfänge markieren</string>
+    <string name="converter_error_no_text">Kein Text gefunden. Diese PDF besteht wahrscheinlich aus gescannten Bildern.</string>
 </resources>

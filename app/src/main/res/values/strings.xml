@@ -873,4 +873,27 @@
     <string name="sheet_reset">Reset</string>
     <string name="sheet_apply">Apply %1$s</string>
     <string name="sheet_close_without_applying">Close %1$s without applying</string>
+    <string name="pdf_arrange">Arrange</string>
+    <string name="pdf_reverse_order">Reverse order</string>
+    <string name="pdf_rotate_all_right">Rotate all pages right</string>
+    <string name="pdf_rotate_all_left">Rotate all pages left</string>
+    <string name="pdf_double_sided_reversed">Double-sided scan: backs in reverse</string>
+    <string name="pdf_double_sided_normal">Double-sided scan: backs in order</string>
+    <string name="pdf_double_sided_needs_even">Double-sided fix needs an even number of pages.</string>
+    <string name="pdf_split_summary">This PDF has %1$d pages. Each part becomes its own PDF, and several parts also come as one ZIP.</string>
+    <string name="pdf_split_every">Every page</string>
+    <string name="pdf_split_ranges">Page ranges</string>
+    <string name="pdf_split_pages_hint">Pages, e.g. 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">Type the pages to split out, like 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">That isn’t a page or range. Try something like 1-3, 5.</string>
+    <string name="pdf_range_invalid">That isn’t a valid range.</string>
+    <string name="pdf_range_past_end">That page is past the end of this PDF.</string>
+    <string name="converter_dpi_screen">Screen (100 dpi)</string>
+    <string name="converter_dpi_standard">Standard (150 dpi)</string>
+    <string name="converter_dpi_high">High (220 dpi)</string>
+    <string name="converter_text_format">Text format</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">Plain text (.txt)</string>
+    <string name="converter_page_markers">Show where each page starts</string>
+    <string name="converter_error_no_text">No text was found. This PDF is probably scanned pictures.</string>
 </resources>

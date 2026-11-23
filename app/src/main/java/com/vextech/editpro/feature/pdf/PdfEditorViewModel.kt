@@ -1,5 +1,8 @@
 package com.vextech.editpro.feature.pdf
 
+import com.vextech.editpro.core.pdf.PageRangeProblem
+import com.vextech.editpro.core.pdf.PageRangeResult
+import com.vextech.editpro.core.pdf.PageRanges
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -150,6 +153,24 @@ class PdfEditorViewModel @Inject constructor(
     fun deleteSelected() = selectedMutation { id, pages -> repository.deletePages(id, pages) }
     fun duplicateSelected() = selectedMutation { id, pages -> repository.duplicatePages(id, pages) }
     fun rotateSelected(degrees: Int) = selectedMutation { id, pages -> repository.rotatePages(id, pages, degrees) }
+    /** Last page first. */
+    fun reverseAll() {
+        val n = _state.value.pages.size
+        if (n > 1) reorder(PageRanges.reversedOrder(n))
+    }
+
+    /** Turns every page, not just the selected ones. [degrees] is 90 (clockwise) or 270 (anticlockwise). */
+    fun rotateAll(degrees: Int) {
+        val n = _state.value.pages.size
+        if (n > 0) mutate { id -> repository.rotatePages(id, (0 until n).toList(), degrees) }
+    }
+
+    /** Fixes a stack scanned in two passes (fronts, then backs). Needs an even page count. */
+    fun fixDoubleSided(backsReversed: Boolean) {
+        val order = PageRanges.doubleSidedOrder(_state.value.pages.size, backsReversed)
+        if (order == null) _state.update { it.copy(message = PdfEditorMessageKey.DOUBLE_SIDED_NEEDS_EVEN, detail = null) } else reorder(order)
+    }
+
     fun cropSelected(rect: PdfRect) = selectedMutation { id, pages -> repository.cropPages(id, pages, rect) }
     fun watermark(text: String) = mutate { id -> repository.watermark(id, text) }
     fun addPageNumbers(startNumber: Int = 1) = mutate { id -> repository.addPageNumbers(id, startNumber) }
@@ -173,10 +194,25 @@ class PdfEditorViewModel @Inject constructor(
         }
     }
 
-    fun split() = viewModelScope.launch {
+    /** [ranges] is null for "every page", otherwise text like `1-3, 5, 7-9`; each part becomes its own PDF. */
+    fun split(ranges: String?) = viewModelScope.launch {
         val id = _state.value.session?.id ?: return@launch
+        val total = _state.value.pages.size
+        val groups = if (ranges == null) PageRanges.everyPage(total) else when (val r = PageRanges.parseForSplit(ranges, total)) {
+            is PageRangeResult.Ok -> r.groups
+            is PageRangeResult.Error -> {
+                val key = when (r.problem) {
+                    PageRangeProblem.EMPTY -> PdfEditorMessageKey.RANGE_EMPTY
+                    PageRangeProblem.NOT_A_RANGE -> PdfEditorMessageKey.RANGE_NOT_A_RANGE
+                    PageRangeProblem.INVALID_RANGE -> PdfEditorMessageKey.RANGE_INVALID
+                    PageRangeProblem.PAST_END -> PdfEditorMessageKey.RANGE_PAST_END
+                }
+                _state.update { it.copy(message = key, detail = if (r.problem == PageRangeProblem.PAST_END) "${r.text} / $total" else r.text) }
+                return@launch
+            }
+        }
         busyRun(PdfEditorMessageKey.OPERATION_FAILED) {
-            _state.update { it.copy(exportedFiles = repository.splitToManaged(id)) }
+            _state.update { it.copy(exportedFiles = repository.splitToManaged(id, groups)) }
         }
     }
 

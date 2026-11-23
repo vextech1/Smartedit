@@ -836,4 +836,27 @@
     <string name="sheet_reset">Restablecer</string>
     <string name="sheet_apply">Aplicar %1$s</string>
     <string name="sheet_close_without_applying">Cerrar %1$s sin aplicar</string>
+    <string name="pdf_arrange">Organizar</string>
+    <string name="pdf_reverse_order">Invertir orden</string>
+    <string name="pdf_rotate_all_right">Girar todas las páginas a la derecha</string>
+    <string name="pdf_rotate_all_left">Girar todas las páginas a la izquierda</string>
+    <string name="pdf_double_sided_reversed">Escaneo a doble cara: reversos invertidos</string>
+    <string name="pdf_double_sided_normal">Escaneo a doble cara: reversos en orden</string>
+    <string name="pdf_double_sided_needs_even">La corrección a doble cara necesita un número par de páginas.</string>
+    <string name="pdf_split_summary">Este PDF tiene %1$d páginas. Cada parte será un PDF propio y varias partes también se entregan en un ZIP.</string>
+    <string name="pdf_split_every">Cada página</string>
+    <string name="pdf_split_ranges">Rangos de páginas</string>
+    <string name="pdf_split_pages_hint">Páginas, p. ej. 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">Escribe las páginas que quieres separar, como 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">Eso no es una página ni un rango. Prueba con algo como 1-3, 5.</string>
+    <string name="pdf_range_invalid">Ese rango no es válido.</string>
+    <string name="pdf_range_past_end">Esa página está después del final del PDF.</string>
+    <string name="converter_dpi_screen">Pantalla (100 ppp)</string>
+    <string name="converter_dpi_standard">Estándar (150 ppp)</string>
+    <string name="converter_dpi_high">Alta (220 ppp)</string>
+    <string name="converter_text_format">Formato de texto</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">Texto sin formato (.txt)</string>
+    <string name="converter_page_markers">Mostrar dónde empieza cada página</string>
+    <string name="converter_error_no_text">No se encontró texto. Este PDF probablemente son imágenes escaneadas.</string>
 </resources>

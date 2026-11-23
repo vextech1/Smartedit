@@ -223,12 +223,22 @@ class AndroidPdfEditorRepository @Inject constructor(
         out
     }
 
-    override suspend fun splitToManaged(sessionId: String): List<File> = withContext(io) {
+    override suspend fun splitToManaged(sessionId: String, groups: List<List<Int>>): List<File> = withContext(io) {
         val h = requireHolder(sessionId)
-        val dir = File(store.documentsDir, "${h.sourceName.substringBeforeLast('.')}_split_${System.currentTimeMillis()}").apply { mkdirs() }
-        val outputs = engine.split(h.working, dir, h.password)
-        for (file in outputs) registerOutput(file, "Split PDF page")
-        outputs
+        val base = h.sourceName.substringBeforeLast('.')
+        val dir = File(store.documentsDir, "${base}_split_${System.currentTimeMillis()}").apply { mkdirs() }
+        val outputs = engine.splitGroups(h.working, groups, dir, base, h.password)
+        for (file in outputs) registerOutput(file, "Split PDF")
+        if (outputs.size < 2) return@withContext outputs
+        val zip = store.uniqueFile(dir, "$base-split.zip")
+        java.util.zip.ZipOutputStream(zip.outputStream().buffered()).use { z ->
+            for (file in outputs) {
+                z.putNextEntry(java.util.zip.ZipEntry(file.name))
+                file.inputStream().buffered().use { it.copyTo(z) }
+                z.closeEntry()
+            }
+        }
+        outputs + zip
     }
 
     override suspend fun mergeToManaged(uris: List<Uri>): File = withContext(io) {

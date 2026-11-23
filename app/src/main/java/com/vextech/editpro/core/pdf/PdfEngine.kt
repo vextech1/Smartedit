@@ -1,5 +1,6 @@
 package com.vextech.editpro.core.pdf
 
+import com.tom_roush.pdfbox.text.TextPosition
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -77,6 +78,8 @@ interface PdfEngine {
     fun renderPages(input: File, outputDir: File, dpi: Int = 144, quality: Int = 90, password: String? = null): List<File>
     fun merge(inputs: List<File>, output: File)
     fun split(input: File, outputDir: File, password: String? = null): List<File>
+    /** One PDF per group of 0-based pages, named by [PageRanges.splitPartName]. */
+    fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String? = null): List<File>
     fun reorder(input: File, pageOrder: List<Int>, output: File, password: String? = null)
     fun extractPages(input: File, pages: List<Int>, output: File, password: String? = null)
     fun deletePages(input: File, pages: List<Int>, output: File, password: String? = null)
@@ -100,6 +103,8 @@ interface PdfEngine {
     fun annotations(input: File, password: String? = null): List<PdfAnnotationInfo>
     fun removeAnnotation(input: File, annotationId: String, output: File, password: String? = null)
     fun extractText(input: File, password: String? = null): String
+    /** Every page's text with position, size and bold/italic, for [PdfTextLayout]. Pages without a text layer come back empty. */
+    fun textPages(input: File, password: String? = null): List<PageInput>
     fun search(input: File, query: String, password: String? = null): List<PdfSearchHit>
     fun formFields(input: File, password: String? = null): List<PdfFormField>
     fun setFormField(input: File, fieldName: String, value: String, output: File, password: String? = null)
@@ -202,6 +207,25 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         outputDir.mkdirs()
         Splitter().split(doc).mapIndexed { i, part ->
             File(outputDir, "${input.nameWithoutExtension}_page_${i + 1}.pdf").also { out -> part.use { it.save(out) } }
+        }
+    }
+
+    override fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String?): List<File> = load(input, password).use { source ->
+        outputDir.mkdirs()
+        groups.map { group ->
+            val selection = PdfEditorPolicies.validatePageSelection(source.numberOfPages, group)
+            val out = File(outputDir, PageRanges.splitPartName(baseName, group)).let { f ->
+                var n = 2
+                var c = f
+                while (c.exists()) { c = File(outputDir, f.nameWithoutExtension + "-$n.pdf"); n++ }
+                c
+            }
+            PDDocument().use { target ->
+                target.documentInformation = copyInfo(source.documentInformation)
+                selection.forEach { target.importPage(source.getPage(it)) }
+                target.save(out)
+            }
+            out
         }
     }
 
@@ -563,6 +587,58 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
     }
 
     override fun extractText(input: File, password: String?): String = load(input, password).use { PDFTextStripper().getText(it) }
+
+    override fun textPages(input: File, password: String?): List<PageInput> = load(input, password).use { doc ->
+        (0 until doc.numberOfPages).map { index ->
+            val page = doc.getPage(index)
+            val box = page.cropBox
+            val turned = page.rotation % 180 != 0
+            val width = (if (turned) box.height else box.width).toDouble()
+            val height = (if (turned) box.width else box.height).toDouble()
+            val stripper = PositionedTextStripper(height).apply { startPage = index + 1; endPage = index + 1 }
+            stripper.getText(doc)
+            PageInput(width, height, stripper.items)
+        }
+    }
+
+    /** Collects each run of same-font text with its position instead of building a string. */
+    private class PositionedTextStripper(private val pageHeight: Double) : PDFTextStripper() {
+        val items = ArrayList<TextItem>()
+
+        override fun writeString(text: String, textPositions: List<TextPosition>) {
+            var start = 0
+            while (start < textPositions.size) {
+                val first = textPositions[start]
+                val style = styleOf(first)
+                var end = start + 1
+                while (end < textPositions.size && styleOf(textPositions[end]) == style) end++
+                val run = textPositions.subList(start, end)
+                val last = run.last()
+                val x = first.xDirAdj.toDouble()
+                items += TextItem(
+                    str = run.joinToString("") { it.unicode ?: "" },
+                    x = x,
+                    y = pageHeight - first.yDirAdj.toDouble(),
+                    w = last.xDirAdj.toDouble() + last.widthDirAdj.toDouble() - x,
+                    size = style.size,
+                    bold = style.bold,
+                    italic = style.italic,
+                )
+                start = end
+            }
+        }
+
+        private data class Style(val size: Double, val bold: Boolean, val italic: Boolean)
+
+        private fun styleOf(p: TextPosition): Style {
+            val font = p.font
+            val name = runCatching { font.name }.getOrNull().orEmpty()
+            val descriptor = runCatching { font.fontDescriptor }.getOrNull()
+            val bold = PdfTextLayout.isBoldFont(name) || (descriptor?.isForceBold == true) || ((descriptor?.fontWeight ?: 0f) >= 700f)
+            val italic = PdfTextLayout.isItalicFont(name) || (descriptor?.isItalic == true)
+            return Style(Math.round(p.fontSizeInPt * 2f) / 2.0, bold, italic)
+        }
+    }
 
     override fun search(input: File, query: String, password: String?): List<PdfSearchHit> {
         require(query.isNotBlank())

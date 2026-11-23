@@ -45,6 +45,19 @@ object PageRanges {
         return PageRangeResult.Ok(groups)
     }
 
+    /** One group per page: "every page" for Split. */
+    fun everyPage(total: Int): List<List<Int>> = (0 until total).map { listOf(it) }
+
+    /** File name for one split part, as on the site: `name-page-3.pdf` or `name-pages-1-3.pdf`. */
+    fun splitPartName(base: String, group: List<Int>): String {
+        val first = group.first() + 1
+        val last = group.last() + 1
+        return "$base-${if (group.size == 1) "page-$first" else "pages-$first-$last"}.pdf"
+    }
+
+    /** Last page first: each entry is the 0-based source page for that output position. */
+    fun reversedOrder(total: Int): List<Int> = (total - 1 downTo 0).toList()
+
     /**
      * Page order for a double-sided stack scanned in two passes: fronts 1..N first, then the backs, either reversed (the usual
      * case, N..1) or in order. Returns the 0-based source index for each output position, or null for an odd or tiny page count.

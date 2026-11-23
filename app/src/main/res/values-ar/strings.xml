@@ -860,4 +860,27 @@
     <string name="sheet_reset">إعادة تعيين</string>
     <string name="sheet_apply">تطبيق %1$s</string>
     <string name="sheet_close_without_applying">إغلاق %1$s دون تطبيق</string>
+    <string name="pdf_arrange">ترتيب</string>
+    <string name="pdf_reverse_order">عكس الترتيب</string>
+    <string name="pdf_rotate_all_right">تدوير كل الصفحات لليمين</string>
+    <string name="pdf_rotate_all_left">تدوير كل الصفحات لليسار</string>
+    <string name="pdf_double_sided_reversed">مسح وجهين: الأوجه الخلفية معكوسة</string>
+    <string name="pdf_double_sided_normal">مسح وجهين: الأوجه الخلفية بالترتيب</string>
+    <string name="pdf_double_sided_needs_even">يتطلب إصلاح الوجهين عددًا زوجيًا من الصفحات.</string>
+    <string name="pdf_split_summary">يحتوي هذا الملف على %1$d صفحة. يصبح كل جزء ملف PDF مستقلًا، وتتوفر الأجزاء أيضًا في ملف ZIP واحد.</string>
+    <string name="pdf_split_every">كل صفحة</string>
+    <string name="pdf_split_ranges">نطاقات الصفحات</string>
+    <string name="pdf_split_pages_hint">الصفحات، مثل 1-3, 5, 7-9</string>
+    <string name="pdf_range_empty">اكتب الصفحات المراد فصلها، مثل 1-3, 5.</string>
+    <string name="pdf_range_not_a_range">هذه ليست صفحة أو نطاقًا. جرّب مثل 1-3, 5.</string>
+    <string name="pdf_range_invalid">هذا النطاق غير صالح.</string>
+    <string name="pdf_range_past_end">هذه الصفحة تتجاوز نهاية ملف PDF.</string>
+    <string name="converter_dpi_screen">شاشة (100 نقطة/بوصة)</string>
+    <string name="converter_dpi_standard">قياسي (150 نقطة/بوصة)</string>
+    <string name="converter_dpi_high">عالٍ (220 نقطة/بوصة)</string>
+    <string name="converter_text_format">تنسيق النص</string>
+    <string name="converter_text_markdown">Markdown (‎.md)</string>
+    <string name="converter_text_plain">نص عادي (‎.txt)</string>
+    <string name="converter_page_markers">إظهار بداية كل صفحة</string>
+    <string name="converter_error_no_text">لم يُعثر على نص. من المرجح أن هذا الملف صور ممسوحة ضوئيًا.</string>
 </resources>

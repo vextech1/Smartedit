@@ -52,6 +52,7 @@ interface PdfEditorRepository {
     suspend fun removeProtection(sessionId: String, password: String): PdfEditorSession
 
     suspend fun extractToManaged(sessionId: String, pages: List<Int>): File
-    suspend fun splitToManaged(sessionId: String): List<File>
+    /** One PDF per group of 0-based pages, plus a ZIP of them all (last in the list) when there is more than one. */
+    suspend fun splitToManaged(sessionId: String, groups: List<List<Int>>): List<File>
     suspend fun mergeToManaged(uris: List<Uri>): File
 }
