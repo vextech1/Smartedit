@@ -50,3 +50,4 @@ reports/
 node_modules/
 dist/
 .svelte-kit/
+!keystore/editpro-debug.jks

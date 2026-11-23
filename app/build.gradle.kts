@@ -35,6 +35,17 @@ android {
         buildConfigField("String", "UNITY_REWARDED_ID", "\"Rewarded_Android\"")
     }
 
+    // A fixed debug key shared by every debug build (local and CI), so its SHA fingerprints can be registered once in Firebase.
+    // It protects nothing: release builds must use their own key.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/editpro-debug.jks")
+            storePassword = "android"
+            keyAlias = "editprodebug"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
