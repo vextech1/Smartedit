@@ -8,6 +8,7 @@ import com.vextech.editpro.core.files.UriMetadataReader
 import com.vextech.editpro.core.model.HistoryAction
 import com.vextech.editpro.core.model.ResourceType
 import com.vextech.editpro.core.pdf.PdfEngine
+import com.vextech.editpro.core.pdf.StampOptions
 import com.vextech.editpro.core.pdf.WatermarkDraft
 import com.vextech.editpro.core.repository.EditProRepository
 import com.vextech.editpro.feature.pdf.domain.*
@@ -192,7 +193,7 @@ class AndroidPdfEditorRepository @Inject constructor(
         if (scaled !== decoded) decoded.recycle()
         return scaled
     }
-    override suspend fun addPageNumbers(sessionId: String, startNumber: Int) = mutate(sessionId) { h, out -> engine.addPageNumbers(h.working, startNumber, out, h.password) }
+    override suspend fun addStamp(sessionId: String, options: StampOptions) = mutate(sessionId) { h, out -> engine.addStamp(h.working, options, out, h.password) }
     override suspend fun addText(sessionId: String, page: Int, rect: PdfRect, text: String, fontSize: Float) = mutate(sessionId) { h, out -> engine.addText(h.working, page, rect, text, fontSize, out, h.password) }
     override suspend fun highlight(sessionId: String, page: Int, rect: PdfRect) = mutate(sessionId, EditPermission.ANNOTATE) { h, out -> engine.highlight(h.working, page, rect, out, h.password) }
     override suspend fun underline(sessionId: String, page: Int, rect: PdfRect) = mutate(sessionId, EditPermission.ANNOTATE) { h, out -> engine.underline(h.working, page, rect, out, h.password) }

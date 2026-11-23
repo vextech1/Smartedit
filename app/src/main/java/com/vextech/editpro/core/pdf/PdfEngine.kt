@@ -97,6 +97,11 @@ interface PdfEngine {
      */
     fun watermark(input: File, draft: WatermarkDraft, logo: Bitmap?, pages: Set<Int>?, output: File, password: String? = null): Int
     fun addPageNumbers(input: File, startNumber: Int, output: File, password: String? = null)
+    /**
+     * Prints page numbers, headers, footers or Bates numbers as set in [options]; returns how many pages were stamped.
+     * Text uses the PDF standard fonts, so Western letters only. Placement follows the page as it looks on screen.
+     */
+    fun addStamp(input: File, options: StampOptions, output: File, password: String? = null): Int
     fun addText(input: File, pageIndex: Int, rect: PdfRect, text: String, fontSize: Float, output: File, password: String? = null)
     fun highlight(input: File, pageIndex: Int, rect: PdfRect, output: File, password: String? = null)
     fun underline(input: File, pageIndex: Int, rect: PdfRect, output: File, password: String? = null)
@@ -409,6 +414,47 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             }
             doc.save(output)
         }
+    }
+
+    override fun addStamp(input: File, options: StampOptions, output: File, password: String?): Int {
+        var stamped = 0
+        load(input, password).use { doc ->
+            val total = doc.numberOfPages
+            val problem = StampLayout.validate(options, total)
+            require(problem == null) { "Page number settings are not valid: ${problem?.problem}" }
+            val font = when (options.font) {
+                StampFont.HELVETICA -> PDType1Font.HELVETICA
+                StampFont.TIMES -> PDType1Font.TIMES_ROMAN
+                StampFont.COURIER -> PDType1Font.COURIER
+            }
+            val size = options.size
+            val shade = if (options.gray) 0.35f else 0f
+            for (index in StampLayout.pageSpan(options, total)) {
+                val page = doc.getPage(index)
+                val box = page.cropBox
+                val rotation = PdfEditorPolicies.normalizeRotation(page.rotation)
+                val (vw, vh) = PageSpace.visualSize(box.width.toDouble(), box.height.toDouble(), rotation)
+                val items = StampLayout.items(options, index, total, vw, vh) { text -> font.getStringWidth(text) / 1000.0 * size }
+                if (items.isEmpty()) continue
+                PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
+                    stream.setNonStrokingColor(shade, shade, shade)
+                    for (item in items) {
+                        val at = PageSpace.screenToPage(box.width.toDouble(), box.height.toDouble(), rotation, item.x, item.y)
+                        stream.beginText()
+                        stream.setFont(font, size.toFloat())
+                        stream.setTextMatrix(
+                            PdfBoxMatrix.getRotateInstance(Math.toRadians(rotation.toDouble()), (box.lowerLeftX + at.u).toFloat(), (box.lowerLeftY + at.v).toFloat()),
+                        )
+                        stream.showText(item.text)
+                        stream.endText()
+                    }
+                }
+                stamped++
+            }
+            output.parentFile?.mkdirs()
+            doc.save(output)
+        }
+        return stamped
     }
 
     override fun addText(input: File, pageIndex: Int, rect: PdfRect, text: String, fontSize: Float, output: File, password: String?) {

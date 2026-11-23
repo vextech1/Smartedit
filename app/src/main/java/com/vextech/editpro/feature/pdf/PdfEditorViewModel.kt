@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vextech.editpro.feature.pdf.data.MergeInputUnreadableException
+import com.vextech.editpro.core.pdf.StampOptions
 import com.vextech.editpro.core.pdf.WatermarkDraft
 import com.vextech.editpro.feature.pdf.data.PdfEditorRepository
 import com.vextech.editpro.feature.pdf.domain.*
@@ -175,7 +176,7 @@ class PdfEditorViewModel @Inject constructor(
 
     fun cropSelected(rect: PdfRect) = selectedMutation { id, pages -> repository.cropPages(id, pages, rect) }
     fun watermark(draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?) = mutate { id -> repository.watermark(id, draft, logo, pages) }
-    fun addPageNumbers(startNumber: Int = 1) = mutate { id -> repository.addPageNumbers(id, startNumber) }
+    fun addStamp(options: StampOptions) = mutate { id -> repository.addStamp(id, options) }
 
     fun insertBlankPage() {
         val current = _state.value
