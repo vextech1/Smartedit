@@ -886,4 +886,4 @@
     <string name="converter_keep_scans">الاحتفاظ بالصفحات التي لا تحتوي على نص (الممسوحة ضوئيًا) كصور</string>
     <string name="compressor_grayscale">تحويل إلى تدرج الرمادي (أبيض وأسود)</string>
     <string name="compressor_grayscale_hint">التدرج الرمادي يحوّل كل صفحة إلى صورة. لن يمكن تحديد النص أو البحث فيه.</string>
-</resources>
+    <string name="pdf_creator">أُنشئ باستخدام</string>\n    <string name="pdf_producer">منتج PDF</string>\n    <string name="pdf_remove_all_metadata">إزالة كل البيانات الوصفية (العنوان والمؤلف والتواريخ وأسماء البرامج)</string>\n</resources>

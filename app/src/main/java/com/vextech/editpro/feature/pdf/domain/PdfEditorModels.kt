@@ -30,7 +30,12 @@ data class PdfDocumentMetadata(
     val keywords: String = "",
     val creator: String = "",
     val producer: String = "",
-)
+    /** When true, saving strips every field, the dates and the XMP block instead of writing the fields above. */
+    val removeAll: Boolean = false,
+) {
+    /** What is actually written: with [removeAll] ticked, the typed values are ignored. */
+    fun asApplied(): PdfDocumentMetadata = if (removeAll) PdfDocumentMetadata(removeAll = true) else this
+}
 
 data class PdfBookmark(
     val id: String,

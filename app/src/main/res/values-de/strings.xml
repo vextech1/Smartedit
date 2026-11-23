@@ -854,4 +854,4 @@
     <string name="converter_keep_scans">Seiten ohne Text (Scans) als Bilder behalten</string>
     <string name="compressor_grayscale">In Graustufen umwandeln (Schwarz-Weiß)</string>
     <string name="compressor_grayscale_hint">Graustufen machen jede Seite zu einem Bild. Text lässt sich dann nicht mehr markieren oder durchsuchen.</string>
-</resources>
+    <string name="pdf_creator">Erstellt mit</string>\n    <string name="pdf_producer">PDF-Ersteller</string>\n    <string name="pdf_remove_all_metadata">Alle Metadaten entfernen (Titel, Autor, Datum, Softwarenamen)</string>\n</resources>

@@ -862,4 +862,4 @@
     <string name="converter_keep_scans">Conserver les pages sans texte (scans) sous forme d’images</string>
     <string name="compressor_grayscale">Convertir en niveaux de gris (noir et blanc)</string>
     <string name="compressor_grayscale_hint">Les niveaux de gris transforment chaque page en image. Le texte ne peut plus être sélectionné ni recherché.</string>
-</resources>
+    <string name="pdf_creator">Créé avec</string>\n    <string name="pdf_producer">Producteur du PDF</string>\n    <string name="pdf_remove_all_metadata">Supprimer toutes les métadonnées (titre, auteur, dates, noms de logiciels)</string>\n</resources>

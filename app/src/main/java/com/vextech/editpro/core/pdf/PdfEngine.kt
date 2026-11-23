@@ -692,8 +692,14 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
 
     override fun updateMetadata(input: File, metadata: PdfDocumentMetadata, output: File, password: String?) {
         load(input, password).use { doc ->
-            doc.documentInformation.apply {
-                title = metadata.title; author = metadata.author; subject = metadata.subject; keywords = metadata.keywords; creator = metadata.creator; producer = metadata.producer
+            if (metadata.removeAll) {
+                // Title, author, subject, keywords, software names and both dates, plus the XMP block that repeats them.
+                doc.documentInformation = PDDocumentInformation()
+                doc.documentCatalog.metadata = null
+            } else {
+                doc.documentInformation.apply {
+                    title = metadata.title; author = metadata.author; subject = metadata.subject; keywords = metadata.keywords; creator = metadata.creator; producer = metadata.producer
+                }
             }
             doc.save(output)
         }
