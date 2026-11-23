@@ -15,9 +15,9 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Item | Owner | Status | Branch / PR |
 |---|---|---|---|
 | Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | Done and merged to main (CI green). Metadata runs in a ToolSheet. Wide-screen side panel not done yet | `pdf/phase0-sheet` |
-| Phase 1 lane A: Organize extras | stage-one session | Built (Arrange dialog: reverse, rotate all, double-sided fix); awaiting CI | `pdf/phase1-organize` |
-| Phase 1 lane B: Split by ranges + ZIP | stage-one session | Built (Split dialog: every page or ranges, ZIP when 2+ parts); awaiting CI | `pdf/phase1-split` |
-| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Part built: image presets 100/150/220, text as Markdown/plain with page markers (layout port + tests). Word "keep scans as pictures" still to do | `pdf/phase1-converter` |
+| Phase 1 lane A: Organize extras | stage-one session | Merged (PR #1): Arrange dialog with reverse, rotate all, double-sided fix | |
+| Phase 1 lane B: Split by ranges + ZIP | stage-one session | Merged (PR #1): Split dialog, every page or ranges, ZIP when 2+ parts | |
+| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Part merged (PR #1): image presets 100/150/220, text as Markdown/plain with page markers. Still to do: Word "keep scans as pictures" (needs a structured docx writer) | |
 | Phase 1 lane D: Compressor grayscale | stage-one session | Queued | |
 | Phase 1 lane E: Metadata remove-all | stage-one session | Queued | |
 | Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Queued | |
