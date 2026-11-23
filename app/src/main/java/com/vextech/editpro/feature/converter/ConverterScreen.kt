@@ -1,5 +1,6 @@
 package com.vextech.editpro.feature.converter
 
+import com.vextech.editpro.core.pdf.TextFormat
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -237,7 +238,7 @@ private fun RecentJobCard(job: ConversionJob, onClick: () -> Unit) {
     val icon = when {
         target.endsWith("_zip") -> Icons.Rounded.FolderZip
         target == "pdf" -> Icons.Rounded.PictureAsPdf
-        target == "docx" || target == "txt" -> Icons.Rounded.Description
+        target == "docx" || target == "txt" || target == "md" -> Icons.Rounded.Description
         else -> Icons.Rounded.Image
     }
     Surface(
@@ -369,7 +370,8 @@ private fun ColumnScope.SetupStage(state: ConverterUiState, vm: ConverterViewMod
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SectionLabel(stringResource(R.string.converter_resolution, state.dpi))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(96, 144, 200, 300).forEach { dpi -> FilterChip(selected = state.dpi == dpi, onClick = { vm.setDpi(dpi) }, label = { Text("$dpi DPI") }) }
+                    listOf(100 to R.string.converter_dpi_screen, 150 to R.string.converter_dpi_standard, 220 to R.string.converter_dpi_high)
+                        .forEach { (dpi, label) -> FilterChip(selected = state.dpi == dpi, onClick = { vm.setDpi(dpi) }, label = { Text(stringResource(label)) }) }
                 }
             }
         }
@@ -378,6 +380,19 @@ private fun ColumnScope.SetupStage(state: ConverterUiState, vm: ConverterViewMod
             Column {
                 SectionLabel(stringResource(R.string.converter_quality, state.quality))
                 Slider(value = state.quality.toFloat(), onValueChange = { vm.setQuality(it.roundToInt()) }, valueRange = 40f..100f)
+            }
+        }
+        if (isPdf && target == ConverterTarget.TEXT) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionLabel(stringResource(R.string.converter_text_format))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = state.textFormat == TextFormat.MD, onClick = { vm.setTextFormat(TextFormat.MD) }, label = { Text(stringResource(R.string.converter_text_markdown)) })
+                    FilterChip(selected = state.textFormat == TextFormat.TXT, onClick = { vm.setTextFormat(TextFormat.TXT) }, label = { Text(stringResource(R.string.converter_text_plain)) })
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Switch(checked = state.pageMarkers, onCheckedChange = vm::setPageMarkers)
+                    Text(stringResource(R.string.converter_page_markers), style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
         if (isPdf && target == ConverterTarget.DOCX) {
@@ -532,6 +547,7 @@ private fun converterMessageRes(key: ConverterMessageKey): Int = when (key) {
     ConverterMessageKey.CONVERSION_CANCELLED -> R.string.converter_cancelled
     ConverterMessageKey.CONVERSION_COMPLETE -> R.string.converter_complete
     ConverterMessageKey.OUTPUT_MISSING -> R.string.converter_error_output_missing
+    ConverterMessageKey.NO_TEXT_FOUND -> R.string.converter_error_no_text
 }
 
 private fun converterJobStatus(status: String): Int = when (status.uppercase()) {

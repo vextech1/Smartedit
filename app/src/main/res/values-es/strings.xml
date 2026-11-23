@@ -851,4 +851,12 @@
     <string name="pdf_range_not_a_range">Eso no es una página ni un rango. Prueba con algo como 1-3, 5.</string>
     <string name="pdf_range_invalid">Ese rango no es válido.</string>
     <string name="pdf_range_past_end">Esa página está después del final del PDF.</string>
+    <string name="converter_dpi_screen">Pantalla (100 ppp)</string>
+    <string name="converter_dpi_standard">Estándar (150 ppp)</string>
+    <string name="converter_dpi_high">Alta (220 ppp)</string>
+    <string name="converter_text_format">Formato de texto</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">Texto sin formato (.txt)</string>
+    <string name="converter_page_markers">Mostrar dónde empieza cada página</string>
+    <string name="converter_error_no_text">No se encontró texto. Este PDF probablemente son imágenes escaneadas.</string>
 </resources>

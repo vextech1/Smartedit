@@ -1,5 +1,7 @@
 package com.vextech.editpro.feature.converter.domain
 
+import com.vextech.editpro.core.pdf.TextFormat
+
 enum class ConverterSourceKind { IMAGES, PDF }
 
 enum class ImageTargetFormat(
@@ -33,10 +35,14 @@ enum class ConverterPageSize { FIT_IMAGE, A4, LETTER }
 
 data class ConverterOptions(
     val quality: Int = 92,
-    val dpi: Int = 144,
+    val dpi: Int = 150,
     val pageRange: String = "all",
     val pdfPassword: String = "",
     val pageSize: ConverterPageSize = ConverterPageSize.FIT_IMAGE,
+    /** PDF to text: Markdown keeps headings, lists, bold and italic; plain text keeps only the words. */
+    val textFormat: TextFormat = TextFormat.MD,
+    /** PDF to text: write a line where each page starts. */
+    val pageMarkers: Boolean = false,
 )
 
 data class ConverterOutput(
@@ -78,6 +84,7 @@ enum class ConverterMessageKey {
     CONVERSION_CANCELLED,
     CONVERSION_COMPLETE,
     OUTPUT_MISSING,
+    NO_TEXT_FOUND,
 }
 
 class ConverterFailure(
@@ -122,6 +129,7 @@ object ConverterPolicies {
         "zip" -> "application/zip"
         "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         "txt" -> "text/plain"
+        "md" -> "text/markdown"
         "png" -> "image/png"
         "webp" -> "image/webp"
         else -> "image/jpeg"

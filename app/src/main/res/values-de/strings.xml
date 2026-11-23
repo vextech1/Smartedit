@@ -843,4 +843,12 @@
     <string name="pdf_range_not_a_range">Das ist keine Seite und kein Bereich. Versuche z. B. 1-3, 5.</string>
     <string name="pdf_range_invalid">Das ist kein gültiger Bereich.</string>
     <string name="pdf_range_past_end">Diese Seite liegt hinter dem Ende der PDF.</string>
+    <string name="converter_dpi_screen">Bildschirm (100 dpi)</string>
+    <string name="converter_dpi_standard">Standard (150 dpi)</string>
+    <string name="converter_dpi_high">Hoch (220 dpi)</string>
+    <string name="converter_text_format">Textformat</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">Nur Text (.txt)</string>
+    <string name="converter_page_markers">Seitenanfänge markieren</string>
+    <string name="converter_error_no_text">Kein Text gefunden. Diese PDF besteht wahrscheinlich aus gescannten Bildern.</string>
 </resources>

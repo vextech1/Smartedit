@@ -843,4 +843,12 @@
     <string name="pdf_range_not_a_range">यह पृष्ठ या सीमा नहीं है। 1-3, 5 जैसा आज़माएँ।</string>
     <string name="pdf_range_invalid">यह सीमा मान्य नहीं है।</string>
     <string name="pdf_range_past_end">यह पृष्ठ PDF के अंत से आगे है।</string>
+    <string name="converter_dpi_screen">स्क्रीन (100 dpi)</string>
+    <string name="converter_dpi_standard">मानक (150 dpi)</string>
+    <string name="converter_dpi_high">उच्च (220 dpi)</string>
+    <string name="converter_text_format">टेक्स्ट फ़ॉर्मेट</string>
+    <string name="converter_text_markdown">Markdown (.md)</string>
+    <string name="converter_text_plain">सादा टेक्स्ट (.txt)</string>
+    <string name="converter_page_markers">हर पृष्ठ की शुरुआत दिखाएँ</string>
+    <string name="converter_error_no_text">कोई टेक्स्ट नहीं मिला। यह PDF शायद स्कैन की गई तस्वीरें है।</string>
 </resources>

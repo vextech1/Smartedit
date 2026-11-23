@@ -1,5 +1,6 @@
 package com.vextech.editpro.feature.converter
 
+import com.vextech.editpro.core.pdf.TextFormat
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,7 +38,9 @@ data class ConverterUiState(
     val sources: List<ConverterSource> = emptyList(),
     val target: ConverterTarget? = null,
     val quality: Int = 92,
-    val dpi: Int = 144,
+    val dpi: Int = 150,
+    val textFormat: TextFormat = TextFormat.MD,
+    val pageMarkers: Boolean = false,
     val pageRange: String = "all",
     val pdfPassword: String = "",
     val busy: Boolean = false,
@@ -194,6 +197,14 @@ class ConverterViewModel @Inject constructor(
         _state.value = _state.value.copy(dpi = value.coerceIn(72, 300))
     }
 
+    fun setTextFormat(value: TextFormat) {
+        _state.value = _state.value.copy(textFormat = value)
+    }
+
+    fun setPageMarkers(value: Boolean) {
+        _state.value = _state.value.copy(pageMarkers = value)
+    }
+
     fun setPageRange(value: String) {
         _state.value = _state.value.copy(pageRange = value)
     }
@@ -273,6 +284,8 @@ class ConverterViewModel @Inject constructor(
         val options = ConverterOptions(
             quality = current.quality,
             dpi = current.dpi,
+            textFormat = current.textFormat,
+            pageMarkers = current.pageMarkers,
             pageRange = current.pageRange,
             pdfPassword = current.pdfPassword,
             pageSize = current.pageSize,

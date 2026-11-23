@@ -1,5 +1,7 @@
 package com.vextech.editpro.feature.converter.data
 
+import com.vextech.editpro.core.pdf.TextFormat
+import com.vextech.editpro.core.pdf.PdfTextLayout
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -316,11 +318,15 @@ class AndroidConverterRepository @Inject constructor(
     ): List<File> {
         val source = store.stageContent(Uri.parse(request.source.uri), ".pdf").also { staged += it }
         progress(0.2f)
-        val text = pdf.extractText(source, request.options.pdfPassword.takeIf(String::isNotBlank))
+        val pages = pdf.textPages(source, request.options.pdfPassword.takeIf(String::isNotBlank))
         currentCoroutineContext().ensureActive()
+        progress(0.6f)
+        val result = PdfTextLayout.toText(pages, request.options.textFormat, request.options.pageMarkers)
+        if (result.textPages == 0) throw ConverterFailure(ConverterMessageKey.NO_TEXT_FOUND)
         val base = request.source.displayName.substringBeforeLast('.', "document")
-        val out = store.uniqueFile(store.convertedDir, "${store.sanitizeName(base)}.txt").also { generated += it }
-        out.writeText(text)
+        val extension = if (request.options.textFormat == TextFormat.MD) "md" else "txt"
+        val out = store.uniqueFile(store.convertedDir, "${store.sanitizeName(base)}.$extension").also { generated += it }
+        out.writeText(result.text)
         progress(0.92f)
         return listOf(out)
     }
@@ -372,7 +378,7 @@ class AndroidConverterRepository @Inject constructor(
         is ConversionRequest.ImagesToFormat -> format.extension
         is ConversionRequest.PdfToImages -> "${format.extension}_zip"
         is ConversionRequest.PdfToDocx -> "docx"
-        is ConversionRequest.PdfToText -> "txt"
+        is ConversionRequest.PdfToText -> if (options.textFormat == TextFormat.MD) "md" else "txt"
     }
 
     private fun ImageTargetFormat.bitmapFormat(): Bitmap.CompressFormat = when (this) {
@@ -391,6 +397,7 @@ class AndroidConverterRepository @Inject constructor(
         "zip" -> "application/zip"
         "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         "txt" -> "text/plain"
+        "md" -> "text/markdown"
         "png" -> "image/png"
         "webp" -> "image/webp"
         else -> "image/jpeg"
