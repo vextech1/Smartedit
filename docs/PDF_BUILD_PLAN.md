@@ -21,7 +21,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 1 lane D: Compressor grayscale | stage-one session | Merged (CI green): grayscale tick box with the text-can't-be-selected warning, always uses the raster path, keeps the result even if larger | |
 | Phase 1 lane E: Metadata remove-all | stage-one session | Merged (CI green): Remove all metadata tick (info, dates and XMP), Created with and PDF producer fields | |
 | Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Merged (CI green): margin none/small/large for A4 and Letter, clear error when a PDF to merge is protected or damaged | |
-| Phase 2 lane G: Watermark (logic + tests first) | open, for another agent | Not started | |
+| Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Built: text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, in a ToolSheet; awaiting CI | `pdf/phase2-watermark` |
 | Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | open, for another agent | Not started | |
 | Phase 2 lane I: Crop (logic + tests first) | open, for another agent | Not started | |
 | Phase 3: Extract images | open, for another agent | Not started | |

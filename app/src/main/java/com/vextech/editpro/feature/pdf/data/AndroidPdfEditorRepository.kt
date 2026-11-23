@@ -8,6 +8,7 @@ import com.vextech.editpro.core.files.UriMetadataReader
 import com.vextech.editpro.core.model.HistoryAction
 import com.vextech.editpro.core.model.ResourceType
 import com.vextech.editpro.core.pdf.PdfEngine
+import com.vextech.editpro.core.pdf.WatermarkDraft
 import com.vextech.editpro.core.repository.EditProRepository
 import com.vextech.editpro.feature.pdf.domain.*
 import java.io.File
@@ -166,7 +167,31 @@ class AndroidPdfEditorRepository @Inject constructor(
 
     override suspend fun rotatePages(sessionId: String, pages: List<Int>, degrees: Int) = mutate(sessionId, EditPermission.ASSEMBLE) { h, out -> engine.rotatePages(h.working, pages, degrees, out, h.password) }
     override suspend fun cropPages(sessionId: String, pages: List<Int>, rect: PdfRect) = mutate(sessionId) { h, out -> engine.cropPages(h.working, pages, rect, out, h.password) }
-    override suspend fun watermark(sessionId: String, text: String) = mutate(sessionId) { h, out -> engine.watermark(h.working, text, out, h.password) }
+    override suspend fun watermark(sessionId: String, draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?): PdfEditorSession = withContext(io) {
+        if (logo == null) return@withContext mutateOnIo(sessionId) { h, out -> engine.watermark(h.working, draft, null, pages, out, h.password) }
+        val staged = store.stageContent(logo, ".img")
+        try {
+            val bitmap = requireNotNull(decodeLogo(staged)) { "That image could not be read. Use a PNG or JPEG picture." }
+            try { mutateOnIo(sessionId) { h, out -> engine.watermark(h.working, draft, bitmap, pages, out, h.password) } }
+            finally { bitmap.recycle() }
+        } finally { staged.delete() }
+    }
+
+    /** Reads a logo no larger than 1000 pixels on its long side, as the site does, so a huge picture cannot exhaust memory. */
+    private fun decodeLogo(file: File): android.graphics.Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= 1000) sample *= 2
+        val decoded = BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
+        val longSide = maxOf(decoded.width, decoded.height)
+        if (longSide <= 1000) return decoded
+        val k = 1000f / longSide
+        val scaled = android.graphics.Bitmap.createScaledBitmap(decoded, (decoded.width * k).toInt().coerceAtLeast(1), (decoded.height * k).toInt().coerceAtLeast(1), true)
+        if (scaled !== decoded) decoded.recycle()
+        return scaled
+    }
     override suspend fun addPageNumbers(sessionId: String, startNumber: Int) = mutate(sessionId) { h, out -> engine.addPageNumbers(h.working, startNumber, out, h.password) }
     override suspend fun addText(sessionId: String, page: Int, rect: PdfRect, text: String, fontSize: Float) = mutate(sessionId) { h, out -> engine.addText(h.working, page, rect, text, fontSize, out, h.password) }
     override suspend fun highlight(sessionId: String, page: Int, rect: PdfRect) = mutate(sessionId, EditPermission.ANNOTATE) { h, out -> engine.highlight(h.working, page, rect, out, h.password) }

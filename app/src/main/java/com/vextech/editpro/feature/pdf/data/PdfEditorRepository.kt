@@ -1,6 +1,7 @@
 package com.vextech.editpro.feature.pdf.data
 
 import android.net.Uri
+import com.vextech.editpro.core.pdf.WatermarkDraft
 import com.vextech.editpro.feature.pdf.domain.*
 import java.io.File
 
@@ -22,7 +23,7 @@ interface PdfEditorRepository {
     suspend fun insertBlankPage(sessionId: String, insertAt: Int, widthPoints: Float, heightPoints: Float): PdfEditorSession
     suspend fun rotatePages(sessionId: String, pages: List<Int>, degrees: Int): PdfEditorSession
     suspend fun cropPages(sessionId: String, pages: List<Int>, rect: PdfRect): PdfEditorSession
-    suspend fun watermark(sessionId: String, text: String): PdfEditorSession
+    suspend fun watermark(sessionId: String, draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?): PdfEditorSession
     suspend fun addPageNumbers(sessionId: String, startNumber: Int = 1): PdfEditorSession
     suspend fun addText(sessionId: String, page: Int, rect: PdfRect, text: String, fontSize: Float): PdfEditorSession
     suspend fun highlight(sessionId: String, page: Int, rect: PdfRect): PdfEditorSession

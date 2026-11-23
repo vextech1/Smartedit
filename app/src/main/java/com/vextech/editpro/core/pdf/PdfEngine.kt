@@ -28,6 +28,7 @@ import com.tom_roush.pdfbox.pdmodel.graphics.color.PDColor
 import com.tom_roush.pdfbox.pdmodel.graphics.color.PDDeviceRGB
 import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.form.PDFormXObject
+import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
 import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
 import com.tom_roush.pdfbox.pdmodel.interactive.action.PDActionURI
@@ -90,7 +91,11 @@ interface PdfEngine {
     fun insertBlankPage(input: File, insertAt: Int, widthPoints: Float, heightPoints: Float, output: File, password: String? = null)
     fun rotatePages(input: File, pages: List<Int>, degrees: Int, output: File, password: String? = null)
     fun cropPages(input: File, pages: List<Int>, rect: PdfRect, output: File, password: String? = null)
-    fun watermark(input: File, text: String, output: File, password: String? = null)
+    /**
+     * Stamps a text or picture watermark on [pages] (0-based; null means every page) and returns how many pages were marked.
+     * [logo] is the picture for a [WatermarkKind.LOGO] draft. Placement follows the page as it looks on screen, so rotated pages stay upright.
+     */
+    fun watermark(input: File, draft: WatermarkDraft, logo: Bitmap?, pages: Set<Int>?, output: File, password: String? = null): Int
     fun addPageNumbers(input: File, startNumber: Int, output: File, password: String? = null)
     fun addText(input: File, pageIndex: Int, rect: PdfRect, text: String, fontSize: Float, output: File, password: String? = null)
     fun highlight(input: File, pageIndex: Int, rect: PdfRect, output: File, password: String? = null)
@@ -323,22 +328,71 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         }
     }
 
-    override fun watermark(input: File, text: String, output: File, password: String?) {
-        require(text.isNotBlank())
+    override fun watermark(input: File, draft: WatermarkDraft, logo: Bitmap?, pages: Set<Int>?, output: File, password: String?): Int {
+        val problem = WatermarkLayout.validate(draft, logo != null)
+        require(problem == null) { "Watermark settings are not valid: $problem" }
+        var marked = 0
         load(input, password).use { doc ->
-            doc.pages.forEach { page ->
-                val box = page.cropBox
-                PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
-                    stream.setNonStrokingColor(135 / 255f, 135 / 255f, 135 / 255f)
-                    stream.beginText()
-                    stream.setFont(PDType1Font.HELVETICA_BOLD, 42f)
-                    stream.setTextMatrix(PdfBoxMatrix.getRotateInstance(Math.toRadians(35.0), box.width * .15f, box.height * .45f))
-                    stream.showText(safeText(text, 80))
-                    stream.endText()
-                }
+            val isText = draft.kind == WatermarkKind.TEXT
+            val text = draft.text.trim()
+            val font = PDType1Font.HELVETICA_BOLD
+            val unit = if (isText) font.getStringWidth(text) / 1000.0 else 0.0
+            val (red, green, blue) = WatermarkLayout.parseHex(draft.colorHex) ?: Triple(0f, 0f, 0f)
+            val image: PDImageXObject? = if (!isText && logo != null) {
+                if (logo.hasAlpha()) LosslessFactory.createFromImage(doc, logo) else JPEGFactory.createFromImage(doc, logo, .92f)
+            } else null
+            val alpha = draft.opacityPct / 100f
+            val state = PDExtendedGraphicsState().apply {
+                setNonStrokingAlphaConstant(alpha)
+                setStrokingAlphaConstant(alpha)
             }
+            for (index in 0 until doc.numberOfPages) {
+                if (pages != null && index !in pages) continue
+                val page = doc.getPage(index)
+                val box = page.cropBox
+                val rotation = PdfEditorPolicies.normalizeRotation(page.rotation)
+                val (vw, vh) = PageSpace.visualSize(box.width.toDouble(), box.height.toDouble(), rotation)
+                var w: Double; var h: Double; var size = 0.0
+                if (isText) {
+                    size = (draft.sizePct / 100.0 * vw / unit).coerceIn(4.0, 600.0)
+                    w = unit * size; h = size * 0.72          // cap height: what the eye centres on
+                } else {
+                    w = draft.sizePct / 100.0 * vw
+                    h = logo!!.height.toDouble() / logo.width * w
+                }
+                if (h > vh * 0.9) { val k = vh * 0.9 / h; w *= k; h *= k; size *= k }   // never taller than the page
+                val centres = WatermarkLayout.markCentres(vw, vh, w, h, draft.angle.toDouble(), draft.pos, draft.marginPct.toDouble(), draft.gapPct.toDouble())
+                PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
+                    for (c in centres) {
+                        val corner = WatermarkLayout.cornerFor(c.x, c.y, w, h, draft.angle.toDouble())
+                        val at = PageSpace.screenToPage(box.width.toDouble(), box.height.toDouble(), rotation, corner.x, corner.y)
+                        val matrix = PdfBoxMatrix.getRotateInstance(
+                            Math.toRadians((rotation + draft.angle).toDouble()),
+                            (box.lowerLeftX + at.u).toFloat(),
+                            (box.lowerLeftY + at.v).toFloat(),
+                        )
+                        stream.saveGraphicsState()
+                        stream.setGraphicsStateParameters(state)
+                        if (isText) {
+                            stream.beginText()
+                            stream.setNonStrokingColor(red, green, blue)
+                            stream.setFont(font, size.toFloat())
+                            stream.setTextMatrix(matrix)
+                            stream.showText(text)
+                            stream.endText()
+                        } else {
+                            stream.transform(matrix)
+                            stream.drawImage(image!!, 0f, 0f, w.toFloat(), h.toFloat())
+                        }
+                        stream.restoreGraphicsState()
+                    }
+                }
+                marked++
+            }
+            output.parentFile?.mkdirs()
             doc.save(output)
         }
+        return marked
     }
 
     override fun addPageNumbers(input: File, startNumber: Int, output: File, password: String?) {

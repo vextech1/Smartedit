@@ -245,6 +245,8 @@ fun PdfToolsScreen(
                 val metadataToEdit = state.metadata
                 if (dialog == PdfDialog.METADATA && metadataToEdit != null) {
                     MetadataSheet(metadataToEdit, onCancel = { dialog = null }) { value -> vm.updateMetadata(value); dialog = null }
+                } else if (dialog == PdfDialog.WATERMARK) {
+                    WatermarkSheet(state.pages.size, onCancel = { dialog = null }) { draft, logo, pages -> vm.watermark(draft, logo, pages); dialog = null }
                 } else EditorDock(
                     panel = panel,
                     tool = tool,
@@ -319,7 +321,7 @@ fun PdfToolsScreen(
 
     when (dialog) {
         PdfDialog.SAVE_AS -> TextInputDialog(stringResource(R.string.pdf_save_as), stringResource(R.string.pdf_filename), onDismiss = { dialog = null }) { vm.save(it); dialog = null }
-        PdfDialog.WATERMARK -> TextInputDialog(stringResource(R.string.pdf_watermark), stringResource(R.string.pdf_watermark_text), onDismiss = { dialog = null }) { vm.watermark(it); dialog = null }
+        PdfDialog.WATERMARK -> Unit   // shown as a sheet above the dock
         PdfDialog.SEARCH -> SearchDialog(state.searchQuery, state.searchHits, { dialog = null }, vm::search) { page -> vm.selectPage(page); dialog = null }
         PdfDialog.TEXT -> TextInputDialog(stringResource(R.string.pdf_add_text), stringResource(R.string.pdf_text), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.addText(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.NOTE -> TextInputDialog(stringResource(R.string.pdf_add_note), stringResource(R.string.pdf_note), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.note(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }

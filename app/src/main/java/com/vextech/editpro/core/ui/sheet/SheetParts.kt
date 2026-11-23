@@ -1,6 +1,18 @@
 package com.vextech.editpro.core.ui.sheet
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,4 +126,31 @@ fun SheetHint(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun SheetWarning(text: String, modifier: Modifier = Modifier) {
     Text(text, modifier, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+}
+
+/** A scrolling row of single-choice chips. [options] are `id to label` pairs. */
+@Composable
+fun SheetChips(options: List<Pair<String, String>>, selectedId: String, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEach { (id, label) ->
+            FilterChip(selected = id == selectedId, onClick = { onPick(id) }, label = { Text(label) })
+        }
+    }
+}
+
+/** Round colour choices. [colors] are `#rrggbb` strings paired with a spoken name. */
+@Composable
+fun SheetSwatches(colors: List<Pair<String, String>>, selected: String, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        colors.forEach { (hex, name) ->
+            val on = hex.equals(selected, ignoreCase = true)
+            val argb = hex.removePrefix("#").toLongOrNull(16)?.let { 0xFF000000L or it } ?: 0xFF000000L
+            Box(
+                Modifier.size(40.dp).clip(CircleShape).background(Color(argb))
+                    .border(if (on) 3.dp else 1.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    .clickable { onPick(hex) }
+                    .semantics { contentDescription = name },
+            )
+        }
+    }
 }
