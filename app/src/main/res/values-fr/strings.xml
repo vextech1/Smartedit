@@ -1070,4 +1070,11 @@
     <string name="resize_p_li_banner">Bannière LinkedIn</string>
     <string name="resize_p_fb_cover">Couverture Facebook</string>
     <string name="resize_p_x_header">En-tête X</string>
+    <string name="round_title">Arrondir</string>
+    <string name="round_circle">Cercle</string>
+    <string name="round_rounded">Arrondi</string>
+    <string name="round_soft">Doux</string>
+    <string name="round_roundness">Arrondi des coins</string>
+    <string name="round_shape">Forme de l\'image</string>
+    <string name="round_original">Garder la forme</string>
 </resources>

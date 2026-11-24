@@ -1062,4 +1062,11 @@
     <string name="resize_p_li_banner">लिंक्डइन बैनर</string>
     <string name="resize_p_fb_cover">फ़ेसबुक कवर</string>
     <string name="resize_p_x_header">X हेडर</string>
+    <string name="round_title">गोल करें</string>
+    <string name="round_circle">गोला</string>
+    <string name="round_rounded">गोल कोने</string>
+    <string name="round_soft">मुलायम</string>
+    <string name="round_roundness">गोलाई</string>
+    <string name="round_shape">तस्वीर का आकार</string>
+    <string name="round_original">आकार वही रखें</string>
 </resources>

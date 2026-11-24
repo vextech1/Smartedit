@@ -1107,4 +1107,11 @@
     <string name="resize_p_li_banner">LinkedIn banner</string>
     <string name="resize_p_fb_cover">Facebook cover</string>
     <string name="resize_p_x_header">X header</string>
+    <string name="round_title">Round</string>
+    <string name="round_circle">Circle</string>
+    <string name="round_rounded">Rounded</string>
+    <string name="round_soft">Soft</string>
+    <string name="round_roundness">Roundness</string>
+    <string name="round_shape">Picture shape</string>
+    <string name="round_original">Keep shape</string>
 </resources>

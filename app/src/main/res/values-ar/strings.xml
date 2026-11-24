@@ -1094,4 +1094,11 @@
     <string name="resize_p_li_banner">غلاف لينكدإن</string>
     <string name="resize_p_fb_cover">غلاف فيسبوك</string>
     <string name="resize_p_x_header">رأس X</string>
+    <string name="round_title">تدوير</string>
+    <string name="round_circle">دائرة</string>
+    <string name="round_rounded">مستدير</string>
+    <string name="round_soft">ناعم</string>
+    <string name="round_roundness">الاستدارة</string>
+    <string name="round_shape">شكل الصورة</string>
+    <string name="round_original">الشكل الأصلي</string>
 </resources>

@@ -48,6 +48,8 @@ import com.vextech.editpro.core.image.FitMode
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeForm
 import com.vextech.editpro.core.image.ResizeParse
+import com.vextech.editpro.core.image.RoundForm
+import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.layout.onSizeChanged
@@ -106,6 +108,10 @@ fun ImageEditorScreen(
     LaunchedEffect(resizeForm, state.tool, fullSize) {
         if (state.tool == EditorTool.RESIZE && fullSize != null) vm.previewResize((resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok)?.spec)
     }
+    var roundForm by remember(state.tool == EditorTool.ROUND) { mutableStateOf(RoundForm()) }
+    LaunchedEffect(roundForm, state.tool) {
+        if (state.tool == EditorTool.ROUND) vm.previewRound(roundForm.spec())
+    }
     BackHandler(enabled = state.tool != EditorTool.NONE) { vm.closeTool() }
 
     val editing = state.source != null
@@ -120,6 +126,7 @@ fun ImageEditorScreen(
             EditorTool.FLIP -> stringResource(R.string.ie_flip)
             EditorTool.EXPORT -> stringResource(R.string.ie_export)
             EditorTool.RESIZE -> stringResource(R.string.resize_title)
+            EditorTool.ROUND -> stringResource(R.string.round_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -161,6 +168,16 @@ fun ImageEditorScreen(
                             resizeForm = resizeForm.copy(panX = px, panY = py)
                         }
                     }
+                    if (state.tool == EditorTool.ROUND && roundForm.ratioId != RoundShapes.ORIGINAL) {
+                        // The preview already shows the cropped shape; dragging moves which part of the photo stays in.
+                        ResizeDragLayer(imageAspect, Modifier.fillMaxSize()) { dx, dy, boxW, boxH ->
+                            val (sw, sh) = vm.roundBaseSize() ?: return@ResizeDragLayer
+                            val (ow, oh) = roundForm.outputSize(sw, sh)
+                            val fit = ResizeFit.fitRect(sw, sh, ow, oh, FitMode.FILL, roundForm.zoom, roundForm.panX, roundForm.panY)
+                            val (px, py) = ResizeFit.panBy(roundForm.panX, roundForm.panY, dx, dy, boxW, boxH, fit)
+                            roundForm = roundForm.copy(panX = px, panY = py)
+                        }
+                    }
                     if (state.tool == EditorTool.CROP) {
                         CropOverlay(
                             crop = state.crop,
@@ -196,6 +213,7 @@ fun ImageEditorScreen(
                         sourceWidth = fullSize.first, sourceHeight = fullSize.second, form = resizeForm, onForm = { resizeForm = it },
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
+                    EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
                     EditorTool.EXPORT -> ExportSheet(
                         hasAlpha = state.hasAlpha, limitKB = state.exportLimitKB, estimate = state.export,
                         onChange = vm::estimateExport, onApply = vm::save, onCancel = vm::closeTool,
@@ -220,6 +238,7 @@ fun ImageEditorScreen(
                     ImageToolId.CROP -> vm.openCrop()
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
+                    ImageToolId.ROUND -> vm.openRound()
                     ImageToolId.EXPORT -> vm.openExport()
                     ImageToolId.RESIZE -> vm.openResize()
                     ImageToolId.REMOVE_BACKGROUND -> vm.removeBackground()

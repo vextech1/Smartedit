@@ -1070,4 +1070,11 @@
     <string name="resize_p_li_banner">Banner de LinkedIn</string>
     <string name="resize_p_fb_cover">Portada de Facebook</string>
     <string name="resize_p_x_header">Cabecera de X</string>
+    <string name="round_title">Redondear</string>
+    <string name="round_circle">Círculo</string>
+    <string name="round_rounded">Redondeado</string>
+    <string name="round_soft">Suave</string>
+    <string name="round_roundness">Redondez</string>
+    <string name="round_shape">Forma de la imagen</string>
+    <string name="round_original">Mantener forma</string>
 </resources>

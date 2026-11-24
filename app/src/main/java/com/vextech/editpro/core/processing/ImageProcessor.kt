@@ -191,6 +191,21 @@ class ImageProcessor @Inject constructor() {
         return out
     }
 
+    /** Crops to [width] x [height] (filled, zoomed and panned) and cuts the corners to [radiusPct] percent of the shorter side, leaving them transparent. */
+    fun roundCorners(source: Bitmap, width: Int, height: Int, radiusPct: Int, zoom: Double, panX: Double, panY: Double): Bitmap {
+        val filled = resizeFit(source, width, height, com.vextech.editpro.core.image.FitMode.FILL, zoom, panX, panY, Color.TRANSPARENT)
+        if (radiusPct <= 0) return filled
+        val r = com.vextech.editpro.core.image.RoundShapes.radiusFor(width, height, radiusPct).toFloat()
+        val out = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(out)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        canvas.drawRoundRect(RectF(0f, 0f, width.toFloat(), height.toFloat()), r, r, paint)
+        paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(filled, 0f, 0f, paint)
+        filled.recycle()
+        return out
+    }
+
     /** Puts a picture with see-through pixels on white, for formats that cannot keep transparency. */
     fun onWhite(source: Bitmap): Bitmap {
         if (!source.hasAlpha()) return source

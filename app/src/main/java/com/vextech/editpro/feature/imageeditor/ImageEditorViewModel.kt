@@ -33,6 +33,8 @@ import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeSpec
+import com.vextech.editpro.core.image.RoundShapes
+import com.vextech.editpro.core.image.RoundSpec
 import com.vextech.editpro.core.image.Turn
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +45,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -279,11 +281,39 @@ class ImageEditorViewModel @Inject constructor(
 
     fun applyResize(spec: ResizeSpec) = commit(EditOp.Resize(spec))
 
+    // ---- round sheet
+
+    fun openRound() {
+        if (committed == null) return
+        _state.update { it.copy(tool = EditorTool.ROUND) }
+    }
+
+    /** Shows [spec] on the picture a moment after the last change; null puts the unrounded picture back. Nothing is recorded until [applyRound]. */
+    fun previewRound(spec: RoundSpec?) {
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val shown = withContext(io) { if (spec == null) base else roundOf(base, spec) }
+            _state.update { if (it.tool == EditorTool.ROUND) it.copy(preview = shown) else it }
+        }
+    }
+
+    /** Size of the picture Round starts from (the edits so far), in preview pixels. */
+    fun roundBaseSize(): Pair<Int, Int>? = committed?.let { it.width to it.height }
+
+    fun applyRound(spec: RoundSpec) = commit(EditOp.Round(spec))
+
+    private fun roundOf(source: Bitmap, spec: RoundSpec): Bitmap {
+        val (w, h) = RoundShapes.outputSize(source.width, source.height, spec.ratio, maxOf(source.width, source.height))
+        return processor.roundCorners(source, w, h, spec.radiusPct, spec.zoom, spec.panX, spec.panY)
+    }
+
     // ---- export sheet
 
     fun openExport() {
         if (_state.value.source == null || _state.value.saving) return
-        val hasAlpha = sourceHasAlpha || _state.value.stack.done.any { it == EditOp.RemoveBackground }
+        val hasAlpha = sourceHasAlpha || EditPolicies.makesTransparency(_state.value.stack.done)
         val limit = (_state.value.stack.done.lastOrNull { it is EditOp.Resize } as? EditOp.Resize)?.spec?.maxBytes?.let { (it / 1024).toInt() }
         _state.update { it.copy(tool = EditorTool.EXPORT, hasAlpha = hasAlpha, exportLimitKB = limit, export = null) }
         estimateExport(ExportRequest(if (limit != null) ExportFormat.JPEG else ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0))
@@ -411,6 +441,7 @@ class ImageEditorViewModel @Inject constructor(
                     val (w, h) = if (exact) op.spec.width to op.spec.height else previewDims(op.spec.width, op.spec.height)
                     processor.resizeFit(current, w, h, op.spec.mode, op.spec.zoom, op.spec.panX, op.spec.panY, op.spec.background)
                 }
+                is EditOp.Round -> roundOf(current, op.spec)
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {
