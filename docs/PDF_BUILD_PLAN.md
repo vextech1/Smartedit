@@ -17,7 +17,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | Done and merged to main (CI green). Metadata runs in a ToolSheet. Wide-screen side panel not done yet | `pdf/phase0-sheet` |
 | Phase 1 lane A: Organize extras | stage-one session | Merged (PR #1): Arrange dialog with reverse, rotate all, double-sided fix | |
 | Phase 1 lane B: Split by ranges + ZIP | stage-one session | Merged (PR #1): Split dialog, every page or ranges, ZIP when 2+ parts | |
-| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Merged (PR #1) and PDF to Word with structure and "keep scans as pictures" built; awaiting CI | |
+| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Merged (CI green): image presets 100/150/220, text as Markdown/plain with page markers, PDF to Word with headings, bullets and "keep scans as pictures" | `pdf/phase1-converter-word` |
 | Phase 1 lane D: Compressor grayscale | stage-one session | Merged (CI green): grayscale tick box with the text-can't-be-selected warning, always uses the raster path, keeps the result even if larger | |
 | Phase 1 lane E: Metadata remove-all | stage-one session | Merged (CI green): Remove all metadata tick (info, dates and XMP), Created with and PDF producer fields | |
 | Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Merged (CI green): margin none/small/large for A4 and Letter, clear error when a PDF to merge is protected or damaged | |
