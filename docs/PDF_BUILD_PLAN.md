@@ -1,44 +1,49 @@
 # PDF tools: build plan (bring the EditPro site's PDF tools and editing sheets into the app)
 
-Audience: any engineer or AI agent helping build this. Read "Rules", "Repo and branch state" and your phase, then work only inside your lane.
+Status (2026-11-24): **Phases 0 to 5 are built and merged to `main`, with CI green.** Phase 6 (polish) is partly done; what is left is listed under "Open items".
+Nothing here has been tried on a real phone by a person yet.
+
+Audience: any engineer or AI agent helping build this. Read "Rules" and "Open items", then work inside your own lane.
 Reference implementation (read-only): the site, repo `vextech1/editpro` (SvelteKit). Everything the app must match is in
 `src/lib/tools.ts` (tool list and wording), `src/lib/components/*Pdf*.svelte`, `src/lib/components/editor/*` (sheets, dock, undo) and `src/lib/core/pdf-*.ts` (logic).
-The app's advantages (annotations, ink, redact, forms, bookmarks, search, password protection, print, undo/redo, saved-files list) stay. Never remove them.
+The app's advantages (annotations, ink, redact, forms, bookmarks, search, password protection, print, undo/redo, saved-files list) stay. Never remove or weaken an app feature to match the site; bring the site's missing options in next to them.
+The follow-on job, the image editor, has its own plan: `docs/IMAGE_BUILD_PLAN.md`. It reuses the sheet framework built here (`core/ui/sheet/*`).
 
-## Reminders
-- **After the PDF work, the next job is the image edit tools.** Do the same comparison for them (site `PhotoEditor.svelte`, `editor/sheets/*`, `core/image-*.ts`, `photo-*.ts` against the app's `feature/imageeditor`) and write `docs/IMAGE_BUILD_PLAN.md` before building. Do not start it until the PDF phases are done.
-- **The app is ahead of the site in many features** (for example PDF annotations, ink, redaction, forms, bookmarks, search, password protection, print, undo/redo, saved-files list, plus extra converter formats such as WebP). Never remove or weaken an app feature to match the site. Bring the site's missing options in next to them. If the app already does something better, keep the app's version and note it in your PR.
+## Status
+Update this table in the same commit as your work.
 
-## Who does what, and status
-Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this plan. Everyone else starts on the "next steps" below. **Update this table in the same commit as your work** (change the status, add your branch or PR), so it always shows what is being built.
+| Phase | What was built | Status |
+|---|---|---|
+| 0: Foundation | `ToolSheet` (handle, `Reset \| Title \| tick`, 46% max height on phones), form parts (text box, select, tick box, slider, chips, colour swatches, hint, warning), page-range parser, two-level undo (unapplied sheet edits first, then saved versions). Metadata runs in a sheet | Merged |
+| 1A: Organize | Arrange dialog: reverse, rotate all, double-sided scan fix | Merged |
+| 1B: Split | Every page or by ranges; ZIP when there are two or more parts | Merged |
+| 1C: Converter | PDF to images at 100/150/220 dpi; text as Markdown or plain with page markers; PDF to Word with headings, bullets and "keep scans as pictures" | Merged |
+| 1D: Compressor | Grayscale tick box with the text-can't-be-selected warning; always uses the raster path; result kept even if larger | Merged |
+| 1E: Metadata | Remove-all tick (info, dates, XMP); Created with and PDF producer fields | Merged |
+| 1F: Small items | Images to PDF margin (none/small/large for A4 and Letter); clear error when a PDF to merge is protected or damaged | Merged |
+| 2G: Watermark | Text or logo; nine spots or repeat; size, visible, turn, edge distance or spacing; page range; live preview on the page | Merged |
+| 2H: Page numbers | Header and footer, left/centre/right; six ready-made styles; tokens `{n}` `{total}` `{date}` `{file}` `{bates}`; Bates; first number; page range; font, size, margin mm, gray | Merged |
+| 2I: Crop and resize | Trim margins in mm or fit to paper (A3, A4, A5, Letter, Legal); page range; live trim preview; per-page "margins too large" check. The drawn-box crop stays | Merged |
+| 3: Extract pictures | Sheet; JPEG copied byte for byte, others rebuilt as PNG; tiny pictures skipped; ZIP | Merged |
+| 4: Compress summary | The app already had per-file before/after, saved %, 20 files and the notes. Added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | Merged |
+| 5: Reading mode | Full-screen reader, one Exit button, Back also exits, system bars hidden. Opens from More > Reading mode | Merged |
+| 6: Polish and release check | Strings in six languages and static checks clean; TalkBack semantics for the shared sheet parts; `docs/features/pdf.md` and `tools.md` updated; More menu reviewed (no duplicates); full CI run on `main` green | Partly done, see below |
 
-| Item | Owner | Status | Branch / PR |
-|---|---|---|---|
-| Phase 0: ToolSheet, form parts, PageRange, two-level undo | stage-one session | Done and merged to main (CI green). Metadata runs in a ToolSheet. Wide-screen side panel not done yet | `pdf/phase0-sheet` |
-| Phase 1 lane A: Organize extras | stage-one session | Merged (PR #1): Arrange dialog with reverse, rotate all, double-sided fix | |
-| Phase 1 lane B: Split by ranges + ZIP | stage-one session | Merged (PR #1): Split dialog, every page or ranges, ZIP when 2+ parts | |
-| Phase 1 lane C: Converter (PDF to images, text, Word) | stage-one session | Merged (CI green): image presets 100/150/220, text as Markdown/plain with page markers, PDF to Word with headings, bullets and "keep scans as pictures" | `pdf/phase1-converter-word` |
-| Phase 1 lane D: Compressor grayscale | stage-one session | Merged (CI green): grayscale tick box with the text-can't-be-selected warning, always uses the raster path, keeps the result even if larger | |
-| Phase 1 lane E: Metadata remove-all | stage-one session | Merged (CI green): Remove all metadata tick (info, dates and XMP), Created with and PDF producer fields | |
-| Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Merged (CI green): margin none/small/large for A4 and Letter, clear error when a PDF to merge is protected or damaged | |
-| Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Merged (CI green): text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
-| Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Merged (CI green): six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
-| Phase 2 lane I: Crop (trim margins, fit to paper, sheet) | stage-one session | Merged; live trim preview on the page and a per-page "margins too large" check added on top (Claude session, Andrew) | `pdf/phase2-crop`, `pdf/phase2-crop-preview` |
-| Phase 3: Extract images | Claude session | Merged (PR #2, CI green): Extract pictures sheet, JPEG copied byte for byte, PNG rebuild, skip tiny, ZIP | `pdf/phase3-extract-images` |
-| Phase 4: Compress summary | Claude session (Andrew) | Merged (CI green): the app already had per-file before/after, saved %, 20 files and the notes; added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | `pdf/phase4-compress-summary` |
-| Phase 5: Reading mode | stage-one session | Merged (CI green): full-screen reader with one Exit button, Back also exits, system bars hidden, page stays selected. Opens from More > Reading mode | `pdf/phase5-reading-mode` |
-| Phase 6: Polish and release check | Claude session; Claude session (Andrew) is doing sheet accessibility and the PDF/tools docs | In progress. Done by Andrew's session: TalkBack semantics for sheet parts (selectable swatches and chips, labelled sliders, announced errors, headings), docs for the new sheets. More menu reviewed: every entry that moved into a sheet now opens that sheet, none is a duplicate. Still open: full CI run on main after the last merge; a person checks the sheets with TalkBack on a phone | `pdf/phase6-polish`, `pdf/phase6-a11y-docs` |
+## Open items
+1. **A person checks everything on a phone.** CI only compiles and runs unit tests. Look at: each sheet with TalkBack, watermark and trim previews, a watermark with a see-through logo, page numbers and watermark on a rotated page, compressing 2 or 3 files (including one grayscale run) and the ZIP card, Reading mode exit.
+2. **Wide-screen side panel for `ToolSheet`** (about 360 dp, on tablets and landscape). Not done; sheets are bottom sheets only.
+3. **Move the remaining tools into sheets.** Split, Arrange and a few others still use dialogs or panels.
+4. **Accessibility audit of the page canvas and the dock.** Only the shared sheet parts were done; focus order in sheets was not changed or tested.
+5. **`docs/features/converter.md`** has not been compared with what lane C built (image presets, Markdown text, Word with headings and bullets).
+6. A second session claimed Phase 6 on branch `pdf/phase6-polish`; no such branch was ever pushed. Anyone taking an item above should add their branch here.
 
-**Summary (as of 2026-11-24)**
-- Merged to main: Phase 0; Phase 1 A–F; Phase 2 G (Watermark), H (Page numbers), I (Crop); Phase 4 (Compress summary); Phase 5 (Reading mode).
-- In progress: Phase 3 (Extract images).
-- Remaining: Phase 6 (Polish and release check); wide-screen side panel for ToolSheet; move the other tools into sheets; then image edit tools and `docs/IMAGE_BUILD_PLAN.md`. Nothing has been tried on a phone yet.
-
-**Next steps for other agents, in order of independence:**
-1. Phase 3 (Extract images) and Phase 5 (Reading mode): they do not need the new sheet, so start now. Build the logic and tests, and put the screen in a plain screen or dialog; switch it into `ToolSheet` after Phase 0 merges.
-2. Phase 2 (G, H, I): write the pure logic and its unit tests now (text layout, template tokens, margins, paper sizes). Build the sheet UI once Phase 0 is on `main`.
-3. Phase 4 (Compress summary): after Phase 1 lane D merges, to avoid conflicts in the compressor.
-Stage-one files you must not touch until Phase 0/1 merge: `feature/pdf/PdfToolsScreen.kt`, `PdfEditorViewModel.kt`, `feature/converter/*`, `feature/compressor/*`, `feature/pdf/data/*` (ask in the PR if you must).
+## Notes from the build
+- PdfBox limits: grayscale compression goes through the raster path (text cannot be selected afterwards, and the screen says so); JPEG pictures are copied byte for byte when extracted.
+- Text on a page (watermark, page numbers) uses the PDF standard fonts, so Western letters only; the sheets say so. A logo covers other alphabets for watermarks.
+- Cropping hides content, it does not erase it; the sheet points to Redact.
+- A watermark can be edited or removed by anyone with PDF software; the sheet says so.
+- High-dpi PDF to images on long files is memory-heavy; the converter keeps the site's warning and caps resolution.
+- Sheets cannot be visually tested in CI; layouts follow the site's spacing and stay simple.
 
 ## Rules
 1. Package and application id: `com.vextech.editpro`. Code lives in `app/src/main/java/com/vextech/editpro/`. No "Smart Edit" / "smartedit" anywhere.
@@ -54,66 +59,6 @@ Stage-one files you must not touch until Phase 0/1 merge: `feature/pdf/PdfToolsS
 ## Repo state
 Only `main` matters. It has everything so far: EditPro rename and package, Google sign-in, My files, upload flow, Settings, the class Library with student and admin uploads and moderation (shared Firestore with the site), the fixed debug signing key, and AI Assist removed from Profile. Start every branch from the latest `main`.
 Not done by design: replacing a Library file of the same name, Library links, structure editing and relabelling (admin side). Nothing has been run on a real device by a person yet (sign-in and uploads untested).
-
-## Today: app vs site (PDF)
-App already has: open/merge/insert/blank page, reorder/delete/duplicate/rotate/extract pages, split to single pages, crop (drawn box), fixed watermark text, fixed page numbers,
-annotate (highlight, underline, strikeout, ink, rectangle, text, note, link, images, signature), redact, forms + flatten, bookmarks, search, extract text, metadata view/edit,
-protect/unprotect, print, share, undo/redo, converter (images to PDF, PDF to images, PDF to Word/text), compressor, OCR, scanner.
-Site extras the app lacks are listed in the phases below. Editor design differences:
-
-| | Site | App |
-|---|---|---|
-| Applying edits | Edit in a bottom sheet, then tick (apply) or Reset | Applied immediately |
-| Undo/redo | Unapplied edits first, then saved versions | Saved changes only |
-| Settings UI | Bottom sheets (46% max on phones, side panel on wide screens) | Dialogs, panels, full screens |
-| Tool access | Scrolling dock + group sheets | Dock + long More menu |
-| Scope | Page ranges in many tools | Mostly whole document |
-
-## Phases
-Do phases in order; inside a phase, lanes can run in parallel because they touch different files.
-
-### Phase 0: Foundation (one agent; blocks everything else)
-Files: new `core/ui/sheet/` (or `feature/pdf/sheet/`), `feature/pdf/PdfToolsScreen.kt`, `PdfEditorViewModel.kt`.
-- `ToolSheet` composable: grab handle (closes without applying), header `Reset | Title | tick`, max height 46% on phones, side panel (about 360dp) on wide screens, focus handling, Back closes the sheet. Reference: `editor/ToolSheet.svelte`, `sheet.css`.
-- Form parts: labelled field/select, slider row, checkbox row, hint and warning text, page-range field. Reference: `Field.svelte`, `SliderRow.svelte`, `Chips.svelte`.
-- `PageRange` parser: `1-3, 5, 7-9`, rejects 0, reversed, out of range; returns sorted unique indices. Unit tests mirror the site's range parsing.
-- Two-level undo: a sheet keeps a timeline of unapplied edits (one step per drag or burst of typing); the top bar's Undo/Redo use the open sheet first, then the saved versions. Reference: `sheet-history.svelte.ts`, `core/timeline.ts`. Unit-test the timeline.
-- Wire the dock/More menu to open sheets. Colours and corner radius follow `EditProDesign.kt`.
-Done when: one existing tool (use Metadata) runs in a `ToolSheet` with Reset and tick, tests green.
-
-### Phase 1: Missing options in tools the app has (parallel lanes)
-- Lane A, Organize: Reverse order, Rotate all (both directions), double-sided scan fix (both "backs reversed" and normal). Port `doubleSidedOrder` from `core/pdf-edit.ts` with tests.
-- Lane B, Split: split by ranges (`1-3, 5, 7-9`) plus every page; result as separate files and one ZIP. Port logic from `SplitTool.svelte`/`pdf-tools.ts`. Extend `splitToManaged`.
-- Lane C, Converter: PDF to images single page + presets Screen 100 / Standard 150 / High 220 dpi; PDF to text Markdown output and page markers (port `core/pdf-markdown.ts`, `pdf-text.ts`); PDF to Word "keep pages with no text (scans) as pictures".
-- Lane D, Compressor: grayscale option with the warning that text can no longer be selected; keep standard/maximum and presets.
-- Lane E, Metadata: "Remove all metadata" tick box; show Created with and PDF producer; move into a `ToolSheet`.
-- Lane F, small items: Merge error for protected/damaged files; Images to PDF margin (none/small/large).
-
-### Phase 2: Full watermark, page numbers, crop (parallel lanes, each a `ToolSheet`)
-- Lane G, Watermark: text or picture/logo; size %, angle (45, 0, 30, custom), see-through %, centre or tiled, page selection. Reference `WatermarkPdf.svelte`, `sheets/PdfWatermarkSheet.svelte`, `core/pdf-watermark.ts`. Keep the note that watermarks are removable.
-- Lane H, Page numbers/headers/footers: six spots (header and footer left/centre/right), ready-made styles, custom text with `{n}`, `{total}`, `{date}`, `{file}`, `{bates}`, Bates prefix/start/digits, first number, from/to page, size, margin mm, grayscale. Reference `StampPdf.svelte`, `core/pdf-stamp.ts`. Western letters only; keep the site's note. Unit-test the text template and positions.
-- Lane I, Crop: Trim margins in mm (top/bottom/left/right) and Fit to paper (A4, Letter, A3, A5, Legal; portrait/landscape/match each page; margin mm); page selection by range. Keep the app's drawn-box crop. Keep the note that cropped content is hidden, not erased (point to Redact). Reference `CropPdf.svelte`.
-
-### Phase 3: Extract images from a PDF (one agent)
-Port `ExtractImages.svelte` + `core/pdf-pictures.ts`: save embedded pictures singly or as a ZIP; JPEG (DCTDecode) copied byte-for-byte; option to skip images under 50 px; count skipped; keep the site's note about unsupported kinds (scanned fax, spot colour) and that vector drawings are not pictures. Add as a tool tile and a sheet.
-
-### Phase 4: Compress summary
-Per-file before/after size and saved %, up to 20 files at once, same notes as the site. Reference `CompressPdf.svelte`, `core/pdf-compress.ts`.
-
-### Phase 5: Reading mode
-Full-screen reader with a single Exit control, system Back also exits, document otherwise untouched. Reference `ReadingMode.svelte`, `PdfReader.svelte`.
-
-### Phase 6: Polish and release check
-- Strings in all six locales for everything added; `static_checks.py` clean.
-- Accessibility: content descriptions, focus order in sheets, reduced motion.
-- Remove More-menu entries that moved into sheets; update `docs/features/pdf.md`, `tools.md`.
-- Final full CI run on `main`; a person checks sheets on a phone (cannot be done in CI).
-
-## Risks
-- PdfBox limits: grayscale compression and exact JPEG passthrough may need custom handling; confirm before promising.
-- Memory: high-dpi PDF to images on long files; keep the site's warning, cap resolution.
-- Text: PdfBox standard fonts cover Western letters only; keep the site's limitation text.
-- Sheets cannot be visually tested in CI; keep layouts simple and follow the site's spacing.
 
 ## Hand-off checklist for each PR
 Branch name, phase/lane, what changed, tests added, `static_checks.py` output, CI run link, anything that could not match the site and why.
