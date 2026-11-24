@@ -1000,4 +1000,17 @@
     <string name="ie_temperature">Temperatura (de frío a cálido)</string>
     <string name="ie_tint">Tinte (de verde a magenta)</string>
     <string name="ie_filter_document">Documento limpio</string>
+    <string name="ie_flip">Voltear</string>
+    <string name="ie_flip_horizontal">De izquierda a derecha</string>
+    <string name="ie_flip_vertical">De arriba abajo</string>
+    <string name="ie_flip_hint">Toca de nuevo para deshacer el volteo. No se guarda nada hasta que toques la marca.</string>
+    <string name="ie_rotate_hint">Toca las veces que necesites. No se guarda nada hasta que toques la marca.</string>
+    <string name="ie_export">Exportar</string>
+    <string name="ie_export_original">Tamaño original</string>
+    <string name="ie_export_px">%1$d px</string>
+    <string name="ie_export_quality">Calidad %1$d</string>
+    <string name="ie_export_png_note">PNG conserva cada píxel, así que la calidad no se aplica y los archivos pueden ser grandes.</string>
+    <string name="ie_export_estimate">%1$d × %2$d px · unos %3$s</string>
+    <string name="ie_export_estimating">Calculando el tamaño…</string>
+    <string name="ie_export_alpha_note">Esta imagen tiene zonas transparentes, así que no se ofrece JPG.</string>
 </resources>

@@ -19,6 +19,20 @@ class ImageProcessor @Inject constructor() {
         source, 0, 0, source.width, source.height, Matrix().apply { postScale(-1f, 1f) }, true
     )
 
+    fun flipVertical(source: Bitmap): Bitmap = Bitmap.createBitmap(
+        source, 0, 0, source.width, source.height, Matrix().apply { postScale(1f, -1f) }, true
+    )
+
+    /** Applies a [Turn] the way the sheet shows it: mirror first, then turn clockwise. Never modifies or recycles [source]. */
+    fun turn(source: Bitmap, turn: com.vextech.editpro.core.image.Turn): Bitmap {
+        if (!turn.isTurned) return source
+        val matrix = Matrix().apply {
+            postScale(if (turn.flipH) -1f else 1f, if (turn.flipV) -1f else 1f)
+            postRotate(90f * (((turn.turns % 4) + 4) % 4))
+        }
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
+
     /**
      * Rewrites a JPEG so its pixels are upright and the EXIF orientation no longer matters. The scanner decodes with
      * BitmapFactory (which ignores EXIF), so without this camera and gallery photos can end up sideways and any crop

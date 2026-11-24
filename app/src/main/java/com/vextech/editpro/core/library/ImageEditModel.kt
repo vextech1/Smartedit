@@ -62,6 +62,8 @@ enum class ImageFilter { NONE, GRAYSCALE, BLACK_WHITE, CLEAN_DOCUMENT }
 sealed interface EditOp {
     data class Rotate(val quarterTurns: Int) : EditOp
     data class Crop(val rect: CropRect) : EditOp
+    /** Mirrors the picture as it looks at this point: left to right when [horizontal], otherwise top to bottom. */
+    data class Flip(val horizontal: Boolean) : EditOp
     data class Adjust(val params: AdjustParams) : EditOp
     data class Filter(val filter: ImageFilter) : EditOp
     data object RemoveBackground : EditOp
@@ -94,6 +96,8 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 }
             }
             is EditOp.Crop -> if (op.rect.isFull) return this else done + op
+            // Mirroring the same way twice puts the picture back, so the second flip removes the first.
+            is EditOp.Flip -> if (last == op) done.dropLast(1) else done + op
             is EditOp.Adjust -> {
                 val params = op.params.coerced()
                 when {

@@ -1000,4 +1000,17 @@
     <string name="ie_temperature">Température (de froid à chaud)</string>
     <string name="ie_tint">Teinte (de vert à magenta)</string>
     <string name="ie_filter_document">Document propre</string>
+    <string name="ie_flip">Retourner</string>
+    <string name="ie_flip_horizontal">De gauche à droite</string>
+    <string name="ie_flip_vertical">De haut en bas</string>
+    <string name="ie_flip_hint">Touchez à nouveau pour annuler le retournement. Rien n’est enregistré avant la coche.</string>
+    <string name="ie_rotate_hint">Touchez autant de fois que nécessaire. Rien n’est enregistré avant la coche.</string>
+    <string name="ie_export">Exporter</string>
+    <string name="ie_export_original">Taille d’origine</string>
+    <string name="ie_export_px">%1$d px</string>
+    <string name="ie_export_quality">Qualité %1$d</string>
+    <string name="ie_export_png_note">PNG garde chaque pixel : la qualité ne s’applique pas et les fichiers peuvent être gros.</string>
+    <string name="ie_export_estimate">%1$d × %2$d px · environ %3$s</string>
+    <string name="ie_export_estimating">Calcul de la taille…</string>
+    <string name="ie_export_alpha_note">Cette image a des zones transparentes, le JPG n’est donc pas proposé.</string>
 </resources>

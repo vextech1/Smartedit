@@ -3,6 +3,8 @@ package com.vextech.editpro.feature.imageeditor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoFixHigh
 import androidx.compose.material.icons.rounded.Crop
+import androidx.compose.material.icons.rounded.Flip
+import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,7 +18,7 @@ enum class ImageToolGroup(val label: Int) {
 }
 
 /** Every tool Edit Image can open. A new lane adds its id here, one entry in [imageTools], and one branch in the screen's `openTool`. */
-enum class ImageToolId { ADJUST, CROP, ROTATE, REMOVE_BACKGROUND }
+enum class ImageToolId { ADJUST, CROP, ROTATE, FLIP, EXPORT, REMOVE_BACKGROUND }
 
 data class ImageToolEntry(val id: ImageToolId, val label: Int, val icon: ImageVector, val group: ImageToolGroup)
 
@@ -25,5 +27,7 @@ val imageTools: List<ImageToolEntry> = listOf(
     ImageToolEntry(ImageToolId.ADJUST, R.string.ie_adjust, Icons.Rounded.Tune, ImageToolGroup.EDIT),
     ImageToolEntry(ImageToolId.CROP, R.string.ie_crop, Icons.Rounded.Crop, ImageToolGroup.EDIT),
     ImageToolEntry(ImageToolId.ROTATE, R.string.ie_rotate_title, Icons.Rounded.Rotate90DegreesCw, ImageToolGroup.EDIT),
+    ImageToolEntry(ImageToolId.FLIP, R.string.ie_flip, Icons.Rounded.Flip, ImageToolGroup.EDIT),
     ImageToolEntry(ImageToolId.REMOVE_BACKGROUND, R.string.ie_remove_background, Icons.Rounded.AutoFixHigh, ImageToolGroup.EDIT),
+    ImageToolEntry(ImageToolId.EXPORT, R.string.ie_export, Icons.Rounded.IosShare, ImageToolGroup.OUTPUT),
 )
