@@ -715,7 +715,6 @@
     <string name="ie_aspect_free">Free</string>
     <string name="ie_rotate_title">Rotate</string>
     <string name="ie_adjust">Adjust</string>
-    <string name="ie_apply">Apply</string>
     <string name="ie_brightness">Brightness</string>
     <string name="ie_choose_image">Choose an image</string>
     <string name="ie_choose_image_hint">JPG, PNG or WebP</string>
@@ -730,7 +729,6 @@
     <string name="ie_preview_description">Image preview</string>
     <string name="ie_redo">Redo</string>
     <string name="ie_remove_background">Remove background</string>
-    <string name="ie_reset">Reset</string>
     <string name="ie_rotate_left">Rotate left</string>
     <string name="ie_rotate_right">Rotate right</string>
     <string name="ie_saturation">Saturation</string>
@@ -1030,4 +1028,13 @@
     <string name="extract_all_zip">All pictures (ZIP)</string>
     <string name="extract_page_picture">Picture from page %1$d</string>
     <string name="extract_showing_first">Showing the first %1$d of %2$d. The ZIP has all of them.</string>
+    <string name="ie_group_edit">Edit</string>
+    <string name="ie_group_mark">Mark</string>
+    <string name="ie_group_output">Output</string>
+    <string name="ie_more">More</string>
+    <string name="ie_aspect_original">Original</string>
+    <string name="ie_crop_hint">Drag the corners on the photo, or pick a shape. The tick crops.</string>
+    <string name="ie_temperature">Temperature (cool to warm)</string>
+    <string name="ie_tint">Tint (green to magenta)</string>
+    <string name="ie_filter_document">Clean document</string>
 </resources>

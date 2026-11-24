@@ -38,7 +38,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.vextech.editpro.R
 import com.vextech.editpro.core.ads.ExportInterstitialEffect
 import com.vextech.editpro.core.ads.UnityAdsService
+import com.vextech.editpro.core.image.CropShape
 import com.vextech.editpro.core.library.AdjustParams
+import com.vextech.editpro.core.ui.sheet.SheetChips
+import com.vextech.editpro.core.ui.sheet.SheetHint
+import com.vextech.editpro.core.ui.sheet.SheetSlider
+import com.vextech.editpro.core.ui.sheet.ToolSheet
 import com.vextech.editpro.core.library.ImageFilter
 import com.vextech.editpro.core.sharing.ShareService
 import com.vextech.editpro.core.ui.BottomAction
@@ -52,15 +57,11 @@ import com.vextech.editpro.core.ui.UriThumbnail
 import com.vextech.editpro.core.ui.formatBytes
 import com.vextech.editpro.core.ui.rememberSaveToDevice
 import com.vextech.editpro.core.ui.withAspect
-import kotlin.math.roundToInt
 
 private val imageTypes = arrayOf("image/jpeg", "image/png", "image/webp")
 
 /** The strip shown above the dock: filter previews or the two rotate buttons. */
 private enum class EditorPanel { FILTERS, ROTATE }
-
-/** Crop shapes; [ratio] is width/height of the cropped picture. */
-private enum class CropAspect(val ratio: Float?) { FREE(null), SQUARE(1f), R4_3(4f / 3f), R3_4(3f / 4f), R16_9(16f / 9f) }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +85,8 @@ fun ImageEditorScreen(
 
     var panel by remember { mutableStateOf(EditorPanel.FILTERS) }
     var comparing by remember { mutableStateOf(false) }
-    var aspect by remember(state.tool) { mutableStateOf(CropAspect.FREE) }
+    var aspect by remember(state.tool) { mutableStateOf(CropShape.FREE) }
+    var moreOpen by remember { mutableStateOf(false) }
     BackHandler(enabled = state.tool != EditorTool.NONE) { vm.closeTool() }
 
     val editing = state.source != null
@@ -134,34 +136,50 @@ fun ImageEditorScreen(
                             imageAspect = imageAspect,
                             onCropChange = { vm.setCrop(it.left, it.top, it.right, it.bottom) },
                             modifier = Modifier.fillMaxSize(),
-                            aspectLock = aspect.ratio,
+                            aspectLock = aspect.ratioFor(imageAspect),
                         )
                     } else {
                         CompareButton(Modifier.align(Alignment.BottomEnd)) { comparing = it }
                     }
                 }
                 when (state.tool) {
-                    EditorTool.CROP -> CropPanel(
+                    EditorTool.CROP -> CropSheet(
                         aspect = aspect,
                         onAspect = { next ->
                             aspect = next
-                            next.ratio?.let { ratio ->
+                            next.ratioFor(imageAspect)?.let { ratio ->
                                 val fitted = state.crop.withAspect(ratio / imageAspect)
                                 vm.setCrop(fitted.left, fitted.top, fitted.right, fitted.bottom)
                             }
                         },
                         applyEnabled = !state.crop.isFull,
                         onApply = vm::applyCrop, onCancel = vm::closeTool,
-                        onReset = { aspect = CropAspect.FREE; vm.setCrop(0f, 0f, 1f, 1f) },
+                        onReset = { aspect = CropShape.FREE; vm.setCrop(0f, 0f, 1f, 1f) },
                     )
-                    EditorTool.ADJUST -> AdjustPanel(state.adjust, vm::setAdjust, vm::applyAdjust, vm::closeTool)
+                    EditorTool.ADJUST -> AdjustSheet(state.adjust, vm::setAdjust, vm::applyAdjust, vm::closeTool)
                     EditorTool.NONE -> EditorBottom(
                         state = state, vm = vm, panel = panel, enabled = enabled,
                         onPanel = { panel = it },
+                        onMore = { moreOpen = true },
                     )
                 }
             }
         }
+    }
+
+    if (moreOpen) {
+        MoreToolsSheet(
+            onDismiss = { moreOpen = false },
+            onPick = { id ->
+                moreOpen = false
+                when (id) {
+                    ImageToolId.ADJUST -> vm.openAdjust()
+                    ImageToolId.CROP -> vm.openCrop()
+                    ImageToolId.ROTATE -> panel = EditorPanel.ROTATE
+                    ImageToolId.REMOVE_BACKGROUND -> vm.removeBackground()
+                }
+            },
+        )
     }
 
     state.saved?.let { saved ->
@@ -258,8 +276,11 @@ private fun CompareButton(modifier: Modifier, onHold: (Boolean) -> Unit) {
 private fun filterPreview(filter: ImageFilter): ColorFilter? = when (filter) {
     ImageFilter.NONE -> null
     ImageFilter.GRAYSCALE -> ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-    ImageFilter.BLACK_WHITE -> {
-        val c = 2.2f
+    ImageFilter.CLEAN_DOCUMENT -> contrastGray(2.6f)
+    ImageFilter.BLACK_WHITE -> contrastGray(2.2f)
+}
+
+private fun contrastGray(c: Float): ColorFilter = run {
         val t = (-0.5f * c + 0.5f) * 255f
         ColorFilter.colorMatrix(
             ColorMatrix(
@@ -272,10 +293,9 @@ private fun filterPreview(filter: ImageFilter): ColorFilter? = when (filter) {
             )
         )
     }
-}
 
 @Composable
-private fun EditorBottom(state: ImageEditorUiState, vm: ImageEditorViewModel, panel: EditorPanel, enabled: Boolean, onPanel: (EditorPanel) -> Unit) {
+private fun EditorBottom(state: ImageEditorUiState, vm: ImageEditorViewModel, panel: EditorPanel, enabled: Boolean, onPanel: (EditorPanel) -> Unit, onMore: () -> Unit) {
     Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
         Column(Modifier.navigationBarsPadding()) {
             when (panel) {
@@ -287,6 +307,7 @@ private fun EditorBottom(state: ImageEditorUiState, vm: ImageEditorViewModel, pa
                             ImageFilter.NONE to R.string.ie_filter_original,
                             ImageFilter.GRAYSCALE to R.string.ie_filter_grayscale,
                             ImageFilter.BLACK_WHITE to R.string.ie_filter_bw,
+                            ImageFilter.CLEAN_DOCUMENT to R.string.ie_filter_document,
                         ).forEach { (filter, label) ->
                             val selected = current == filter
                             Column(
@@ -318,12 +339,13 @@ private fun EditorBottom(state: ImageEditorUiState, vm: ImageEditorViewModel, pa
                 }
             }
             HorizontalDivider()
-            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.SpaceAround) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)) {
                 DockItem(Icons.Rounded.PhotoFilter, R.string.ie_filters_title, panel == EditorPanel.FILTERS, enabled) { onPanel(EditorPanel.FILTERS) }
                 DockItem(Icons.Rounded.Tune, R.string.ie_adjust, false, enabled, vm::openAdjust)
                 DockItem(Icons.Rounded.Crop, R.string.ie_crop, false, enabled, vm::openCrop)
                 DockItem(Icons.Rounded.Rotate90DegreesCw, R.string.ie_rotate_title, panel == EditorPanel.ROTATE, enabled) { onPanel(EditorPanel.ROTATE) }
                 DockItem(Icons.Rounded.AutoFixHigh, R.string.ie_remove_background, false, enabled, vm::removeBackground)
+                DockItem(Icons.Rounded.MoreHoriz, R.string.ie_more, false, enabled, onMore)
             }
         }
     }
@@ -348,67 +370,76 @@ private fun DockItem(icon: ImageVector, label: Int, active: Boolean, enabled: Bo
 // ───────────────────────────── Crop and adjust panels ─────────────────────────────
 
 @Composable
-private fun CropPanel(aspect: CropAspect, onAspect: (CropAspect) -> Unit, applyEnabled: Boolean, onApply: () -> Unit, onCancel: () -> Unit, onReset: () -> Unit) {
-    Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
-        Column(Modifier.navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                CropAspect.entries.forEach { option ->
-                    FilterChip(
-                        selected = aspect == option, onClick = { onAspect(option) },
-                        label = {
-                            Text(
-                                when (option) {
-                                    CropAspect.FREE -> stringResource(R.string.ie_aspect_free)
-                                    CropAspect.SQUARE -> "1:1"
-                                    CropAspect.R4_3 -> "4:3"
-                                    CropAspect.R3_4 -> "3:4"
-                                    CropAspect.R16_9 -> "16:9"
+private fun cropShapeLabel(shape: CropShape): String = when (shape) {
+    CropShape.FREE -> stringResource(R.string.ie_aspect_free)
+    CropShape.ORIGINAL -> stringResource(R.string.ie_aspect_original)
+    else -> shape.ratioLabel.orEmpty()
+}
+
+/** Crop as a sheet: shapes on top, Reset, the title and the tick. The box itself is dragged on the picture above. */
+@Composable
+private fun CropSheet(aspect: CropShape, onAspect: (CropShape) -> Unit, applyEnabled: Boolean, onApply: () -> Unit, onCancel: () -> Unit, onReset: () -> Unit) {
+    ToolSheet(
+        title = stringResource(R.string.ie_crop),
+        onCancel = onCancel,
+        onReset = onReset,
+        canReset = aspect != CropShape.FREE || applyEnabled,
+        onApply = onApply,
+        busy = !applyEnabled,
+    ) {
+        SheetChips(CropShape.entries.map { it.name to cropShapeLabel(it) }, aspect.name) { id -> onAspect(CropShape.valueOf(id)) }
+        SheetHint(stringResource(R.string.ie_crop_hint))
+    }
+}
+
+/** Adjust as a sheet: the three original sliders and the site's temperature and tint. */
+@Composable
+private fun AdjustSheet(adjust: AdjustParams, onChange: (AdjustParams) -> Unit, onApply: () -> Unit, onCancel: () -> Unit) {
+    ToolSheet(
+        title = stringResource(R.string.ie_adjust),
+        onCancel = onCancel,
+        onReset = { onChange(AdjustParams()) },
+        canReset = !adjust.isIdentity,
+        onApply = onApply,
+        busy = adjust.isIdentity,
+    ) {
+        SheetSlider(stringResource(R.string.ie_brightness), adjust.brightness, AdjustParams.BRIGHTNESS_RANGE, { onChange(adjust.copy(brightness = it)) })
+        SheetSlider(stringResource(R.string.ie_contrast), adjust.contrast, AdjustParams.CONTRAST_RANGE, { onChange(adjust.copy(contrast = it)) })
+        SheetSlider(stringResource(R.string.ie_saturation), adjust.saturation, AdjustParams.SATURATION_RANGE, { onChange(adjust.copy(saturation = it)) })
+        SheetSlider(stringResource(R.string.ie_temperature), adjust.temperature, AdjustParams.TONE_RANGE, { onChange(adjust.copy(temperature = it)) })
+        SheetSlider(stringResource(R.string.ie_tint), adjust.tint, AdjustParams.TONE_RANGE, { onChange(adjust.copy(tint = it)) })
+    }
+}
+
+/** The More sheet: every registered tool, grouped Edit, Mark and Output. Groups with no tool yet are left out. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MoreToolsSheet(onDismiss: () -> Unit, onPick: (ImageToolId) -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ImageToolGroup.entries.forEach { group ->
+                val tools = imageTools.filter { it.group == group }
+                if (tools.isEmpty()) return@forEach
+                Text(stringResource(group.label), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 8.dp))
+                tools.chunked(3).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        row.forEach { tool ->
+                            Surface(
+                                onClick = { onPick(tool.id) },
+                                shape = RoundedCornerShape(14.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                modifier = Modifier.weight(1f).heightIn(min = 76.dp),
+                            ) {
+                                Column(Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                    Icon(tool.icon, null, tint = MaterialTheme.colorScheme.primary)
+                                    Text(stringResource(tool.label), style = MaterialTheme.typography.labelMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center, maxLines = 2)
                                 }
-                            )
-                        },
-                    )
+                            }
+                        }
+                        repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
-            PanelButtons(onApply, onCancel, onReset, applyEnabled)
         }
-    }
-}
-
-@Composable
-private fun AdjustPanel(adjust: AdjustParams, onChange: (AdjustParams) -> Unit, onApply: () -> Unit, onCancel: () -> Unit) {
-    Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
-        Column(Modifier.navigationBarsPadding().padding(horizontal = 20.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            LabeledSlider(R.string.ie_brightness, adjust.brightness, AdjustParams.BRIGHTNESS_RANGE, shown = signed(adjust.brightness.roundToInt())) { onChange(adjust.copy(brightness = it)) }
-            LabeledSlider(R.string.ie_contrast, adjust.contrast, AdjustParams.CONTRAST_RANGE, shown = signed(((adjust.contrast - 1f) * 100).roundToInt())) { onChange(adjust.copy(contrast = it)) }
-            LabeledSlider(R.string.ie_saturation, adjust.saturation, AdjustParams.SATURATION_RANGE, shown = signed(((adjust.saturation - 1f) * 100).roundToInt())) { onChange(adjust.copy(saturation = it)) }
-            Spacer(Modifier.height(8.dp))
-            PanelButtons(onApply, onCancel, onReset = { onChange(AdjustParams()) }, applyEnabled = true)
-        }
-    }
-}
-
-private fun signed(value: Int): String = when {
-    value > 0 -> "+$value"
-    value < 0 -> "−${-value}"
-    else -> "0"
-}
-
-@Composable
-private fun LabeledSlider(label: Int, value: Float, range: ClosedFloatingPointRange<Float>, shown: String, onChange: (Float) -> Unit) {
-    Column {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(stringResource(label), style = MaterialTheme.typography.bodyMedium)
-            Text(shown, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Slider(value = value.coerceIn(range), onValueChange = onChange, valueRange = range)
-    }
-}
-
-@Composable
-private fun PanelButtons(onApply: () -> Unit, onCancel: () -> Unit, onReset: () -> Unit, applyEnabled: Boolean) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f).height(48.dp)) { Text(stringResource(R.string.cancel)) }
-        FilledTonalButton(onClick = onReset, modifier = Modifier.weight(1f).height(48.dp)) { Text(stringResource(R.string.ie_reset)) }
-        Button(onClick = onApply, enabled = applyEnabled, modifier = Modifier.weight(1f).height(48.dp)) { Text(stringResource(R.string.ie_apply)) }
     }
 }

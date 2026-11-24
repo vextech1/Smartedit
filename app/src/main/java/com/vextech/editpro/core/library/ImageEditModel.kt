@@ -30,23 +30,34 @@ data class CropRect(val left: Float, val top: Float, val right: Float, val botto
     }
 }
 
-data class AdjustParams(val brightness: Float = 0f, val contrast: Float = 1f, val saturation: Float = 1f) {
-    val isIdentity: Boolean get() = brightness == 0f && contrast == 1f && saturation == 1f
+data class AdjustParams(
+    val brightness: Float = 0f,
+    val contrast: Float = 1f,
+    val saturation: Float = 1f,
+    /** Cool (negative) to warm (positive), -100..100, as on the site. */
+    val temperature: Float = 0f,
+    /** Green (negative) to magenta (positive), -100..100, as on the site. */
+    val tint: Float = 0f,
+) {
+    val isIdentity: Boolean get() = brightness == 0f && contrast == 1f && saturation == 1f && temperature == 0f && tint == 0f
 
     fun coerced(): AdjustParams = AdjustParams(
         brightness.coerceIn(BRIGHTNESS_RANGE),
         contrast.coerceIn(CONTRAST_RANGE),
         saturation.coerceIn(SATURATION_RANGE),
+        temperature.coerceIn(TONE_RANGE),
+        tint.coerceIn(TONE_RANGE),
     )
 
     companion object {
         val BRIGHTNESS_RANGE = -100f..100f
         val CONTRAST_RANGE = 0.5f..2f
         val SATURATION_RANGE = 0f..2f
+        val TONE_RANGE = -100f..100f
     }
 }
 
-enum class ImageFilter { NONE, GRAYSCALE, BLACK_WHITE }
+enum class ImageFilter { NONE, GRAYSCALE, BLACK_WHITE, CLEAN_DOCUMENT }
 
 sealed interface EditOp {
     data class Rotate(val quarterTurns: Int) : EditOp

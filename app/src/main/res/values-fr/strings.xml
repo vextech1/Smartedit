@@ -381,7 +381,6 @@
     <string name="compressor_supported_types">PDF, JPG, PNG ou WebP</string>
     <!-- Image editor -->
     <string name="ie_adjust">Ajuster</string>
-    <string name="ie_apply">Appliquer</string>
     <string name="ie_brightness">Luminosité</string>
     <string name="ie_choose_image">Choisir une image</string>
     <string name="ie_choose_image_hint">JPG, PNG ou WebP</string>
@@ -396,7 +395,6 @@
     <string name="ie_preview_description">Aperçu de l’image</string>
     <string name="ie_redo">Rétablir</string>
     <string name="ie_remove_background">Supprimer l’arrière-plan</string>
-    <string name="ie_reset">Réinitialiser</string>
     <string name="ie_rotate_left">Pivoter à gauche</string>
     <string name="ie_rotate_right">Pivoter à droite</string>
     <string name="ie_saturation">Saturation</string>
@@ -993,4 +991,13 @@
     <string name="extract_all_zip">Toutes les images (ZIP)</string>
     <string name="extract_page_picture">Image de la page %1$d</string>
     <string name="extract_showing_first">Affichage des %1$d premières sur %2$d. Le ZIP les contient toutes.</string>
+    <string name="ie_group_edit">Modifier</string>
+    <string name="ie_group_mark">Annoter</string>
+    <string name="ie_group_output">Sortie</string>
+    <string name="ie_more">Plus</string>
+    <string name="ie_aspect_original">Original</string>
+    <string name="ie_crop_hint">Faites glisser les coins sur la photo ou choisissez une forme. La coche rogne.</string>
+    <string name="ie_temperature">Température (de froid à chaud)</string>
+    <string name="ie_tint">Teinte (de vert à magenta)</string>
+    <string name="ie_filter_document">Document propre</string>
 </resources>

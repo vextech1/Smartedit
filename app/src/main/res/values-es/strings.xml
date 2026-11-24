@@ -381,7 +381,6 @@
     <string name="compressor_supported_types">PDF, JPG, PNG o WebP</string>
     <!-- Image editor -->
     <string name="ie_adjust">Ajustar</string>
-    <string name="ie_apply">Aplicar</string>
     <string name="ie_brightness">Brillo</string>
     <string name="ie_choose_image">Elegir una imagen</string>
     <string name="ie_choose_image_hint">JPG, PNG o WebP</string>
@@ -396,7 +395,6 @@
     <string name="ie_preview_description">Vista previa de la imagen</string>
     <string name="ie_redo">Rehacer</string>
     <string name="ie_remove_background">Quitar fondo</string>
-    <string name="ie_reset">Restablecer</string>
     <string name="ie_rotate_left">Girar a la izquierda</string>
     <string name="ie_rotate_right">Girar a la derecha</string>
     <string name="ie_saturation">Saturación</string>
@@ -993,4 +991,13 @@
     <string name="extract_all_zip">Todas las imágenes (ZIP)</string>
     <string name="extract_page_picture">Imagen de la página %1$d</string>
     <string name="extract_showing_first">Se muestran las primeras %1$d de %2$d. El ZIP tiene todas.</string>
+    <string name="ie_group_edit">Editar</string>
+    <string name="ie_group_mark">Marcar</string>
+    <string name="ie_group_output">Salida</string>
+    <string name="ie_more">Más</string>
+    <string name="ie_aspect_original">Original</string>
+    <string name="ie_crop_hint">Arrastra las esquinas en la foto o elige una forma. La marca recorta.</string>
+    <string name="ie_temperature">Temperatura (de frío a cálido)</string>
+    <string name="ie_tint">Tinte (de verde a magenta)</string>
+    <string name="ie_filter_document">Documento limpio</string>
 </resources>

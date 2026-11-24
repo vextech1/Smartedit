@@ -1,6 +1,7 @@
 package com.vextech.editpro.core.processing
 
 import android.graphics.*
+import com.vextech.editpro.core.image.ToneMath
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import javax.inject.Inject
@@ -130,13 +131,15 @@ class ImageProcessor @Inject constructor() {
         return Bitmap.createBitmap(source, l, t, min(source.width - l, r - l), min(source.height - t, b - t))
     }
 
-    fun adjust(source: Bitmap, brightness: Float, contrast: Float, saturation: Float): Bitmap {
+    fun adjust(source: Bitmap, brightness: Float, contrast: Float, saturation: Float, temperature: Float = 0f, tint: Float = 0f): Bitmap {
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
         val saturationMatrix = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 2f)) }
         val c = contrast.coerceIn(.2f, 2f)
         val b = brightness.coerceIn(-255f, 255f)
+        val warm = ToneMath.warmShift(temperature)   // warmer: more red, less blue
+        val green = ToneMath.greenShift(tint)        // more magenta: less green
         val contrastMatrix = ColorMatrix(floatArrayOf(
-            c,0f,0f,0f,b, 0f,c,0f,0f,b, 0f,0f,c,0f,b, 0f,0f,0f,1f,0f
+            c,0f,0f,0f,b + warm, 0f,c,0f,0f,b - green, 0f,0f,c,0f,b - warm, 0f,0f,0f,1f,0f
         ))
         saturationMatrix.postConcat(contrastMatrix)
         Canvas(result).drawBitmap(source, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG).apply { colorFilter = ColorMatrixColorFilter(saturationMatrix) })
@@ -144,6 +147,16 @@ class ImageProcessor @Inject constructor() {
     }
 
     fun grayscale(source: Bitmap): Bitmap = adjust(source, 0f, 1f, 0f)
+
+    /** Paper to white and ink to black, as the site's "Clean document" look (see [ToneMath.cleanDocument]). */
+    fun cleanDocument(source: Bitmap): Bitmap {
+        val out = source.copy(Bitmap.Config.ARGB_8888, true)
+        val pixels = IntArray(out.width * out.height)
+        out.getPixels(pixels, 0, out.width, 0, 0, out.width, out.height)
+        ToneMath.cleanDocument(pixels)
+        out.setPixels(pixels, 0, out.width, 0, 0, out.width, out.height)
+        return out
+    }
 
     fun blackAndWhite(source: Bitmap, threshold: Int = 145): Bitmap {
         val out = source.copy(Bitmap.Config.ARGB_8888, true)

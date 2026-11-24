@@ -380,7 +380,6 @@
     <string name="compressor_supported_types">PDF, JPG, PNG oder WebP</string>
     <!-- Image editor -->
     <string name="ie_adjust">Anpassen</string>
-    <string name="ie_apply">Anwenden</string>
     <string name="ie_brightness">Helligkeit</string>
     <string name="ie_choose_image">Bild auswählen</string>
     <string name="ie_choose_image_hint">JPG, PNG oder WebP</string>
@@ -395,7 +394,6 @@
     <string name="ie_preview_description">Bildvorschau</string>
     <string name="ie_redo">Wiederholen</string>
     <string name="ie_remove_background">Hintergrund entfernen</string>
-    <string name="ie_reset">Zurücksetzen</string>
     <string name="ie_rotate_left">Nach links drehen</string>
     <string name="ie_rotate_right">Nach rechts drehen</string>
     <string name="ie_saturation">Sättigung</string>
@@ -985,4 +983,13 @@
     <string name="extract_all_zip">Alle Bilder (ZIP)</string>
     <string name="extract_page_picture">Bild von Seite %1$d</string>
     <string name="extract_showing_first">Die ersten %1$d von %2$d werden gezeigt. Die ZIP-Datei enthält alle.</string>
+    <string name="ie_group_edit">Bearbeiten</string>
+    <string name="ie_group_mark">Markieren</string>
+    <string name="ie_group_output">Ausgabe</string>
+    <string name="ie_more">Mehr</string>
+    <string name="ie_aspect_original">Original</string>
+    <string name="ie_crop_hint">Ziehe die Ecken auf dem Foto oder wähle eine Form. Der Haken schneidet zu.</string>
+    <string name="ie_temperature">Temperatur (kühl bis warm)</string>
+    <string name="ie_tint">Farbstich (grün bis magenta)</string>
+    <string name="ie_filter_document">Sauberes Dokument</string>
 </resources>

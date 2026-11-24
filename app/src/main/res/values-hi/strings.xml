@@ -380,7 +380,6 @@
     <string name="compressor_supported_types">PDF, JPG, PNG या WebP</string>
     <!-- Image editor -->
     <string name="ie_adjust">समायोजित करें</string>
-    <string name="ie_apply">लागू करें</string>
     <string name="ie_brightness">चमक</string>
     <string name="ie_choose_image">छवि चुनें</string>
     <string name="ie_choose_image_hint">JPG, PNG या WebP</string>
@@ -395,7 +394,6 @@
     <string name="ie_preview_description">छवि का पूर्वावलोकन</string>
     <string name="ie_redo">फिर से करें</string>
     <string name="ie_remove_background">बैकग्राउंड हटाएँ</string>
-    <string name="ie_reset">रीसेट करें</string>
     <string name="ie_rotate_left">बाएँ घुमाएँ</string>
     <string name="ie_rotate_right">दाएँ घुमाएँ</string>
     <string name="ie_saturation">संतृप्ति</string>
@@ -985,4 +983,13 @@
     <string name="extract_all_zip">सभी चित्र (ZIP)</string>
     <string name="extract_page_picture">पृष्ठ %1$d का चित्र</string>
     <string name="extract_showing_first">%2$d में से पहले %1$d दिख रहे हैं। ZIP में सभी हैं।</string>
+    <string name="ie_group_edit">संपादन</string>
+    <string name="ie_group_mark">निशान</string>
+    <string name="ie_group_output">आउटपुट</string>
+    <string name="ie_more">और</string>
+    <string name="ie_aspect_original">मूल</string>
+    <string name="ie_crop_hint">फ़ोटो पर कोने खींचें या कोई आकार चुनें। टिक से क्रॉप होगा।</string>
+    <string name="ie_temperature">तापमान (ठंडा से गर्म)</string>
+    <string name="ie_tint">टिंट (हरा से मैजेंटा)</string>
+    <string name="ie_filter_document">साफ़ दस्तावेज़</string>
 </resources>

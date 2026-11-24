@@ -384,7 +384,6 @@
     <string name="compressor_supported_types">PDF أو JPG أو PNG أو WebP</string>
     <!-- Image editor -->
     <string name="ie_adjust">ضبط</string>
-    <string name="ie_apply">تطبيق</string>
     <string name="ie_brightness">السطوع</string>
     <string name="ie_choose_image">اختيار صورة</string>
     <string name="ie_choose_image_hint">JPG أو PNG أو WebP</string>
@@ -399,7 +398,6 @@
     <string name="ie_preview_description">معاينة الصورة</string>
     <string name="ie_redo">إعادة</string>
     <string name="ie_remove_background">إزالة الخلفية</string>
-    <string name="ie_reset">إعادة ضبط</string>
     <string name="ie_rotate_left">تدوير لليسار</string>
     <string name="ie_rotate_right">تدوير لليمين</string>
     <string name="ie_saturation">التشبع</string>
@@ -1017,4 +1015,13 @@
     <string name="extract_all_zip">كل الصور (ZIP)</string>
     <string name="extract_page_picture">صورة من الصفحة %1$d</string>
     <string name="extract_showing_first">عرض أول %1$d من %2$d. يحتوي ملف ZIP على كلها.</string>
+    <string name="ie_group_edit">تحرير</string>
+    <string name="ie_group_mark">تعليم</string>
+    <string name="ie_group_output">إخراج</string>
+    <string name="ie_more">المزيد</string>
+    <string name="ie_aspect_original">الأصلي</string>
+    <string name="ie_crop_hint">اسحب الزوايا على الصورة أو اختر شكلًا. علامة الصح تقصّ.</string>
+    <string name="ie_temperature">درجة الحرارة (من بارد إلى دافئ)</string>
+    <string name="ie_tint">الصبغة (من أخضر إلى أرجواني)</string>
+    <string name="ie_filter_document">مستند نظيف</string>
 </resources>

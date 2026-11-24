@@ -188,7 +188,7 @@ class ImageEditorViewModel @Inject constructor(
         liveJob?.cancel()
         liveJob = viewModelScope.launch {
             delay(LIVE_PREVIEW_DELAY_MS)
-            val live = withContext(io) { processor.adjust(base, params.brightness, params.contrast, params.saturation) }
+            val live = withContext(io) { processor.adjust(base, params.brightness, params.contrast, params.saturation, params.temperature, params.tint) }
             _state.update { if (it.tool == EditorTool.ADJUST) it.copy(preview = live) else it }
         }
     }
@@ -251,10 +251,11 @@ class ImageEditorViewModel @Inject constructor(
             val next = when (op) {
                 is EditOp.Rotate -> processor.rotate(current, 90f * op.quarterTurns)
                 is EditOp.Crop -> processor.crop(current, op.rect.left, op.rect.top, op.rect.right, op.rect.bottom)
-                is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation)
+                is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {
                     ImageFilter.GRAYSCALE -> processor.grayscale(current)
                     ImageFilter.BLACK_WHITE -> processor.blackAndWhite(current)
+                    ImageFilter.CLEAN_DOCUMENT -> processor.cleanDocument(current)
                     ImageFilter.NONE -> current
                 }
                 EditOp.RemoveBackground -> processor.removePlainBackground(current)
