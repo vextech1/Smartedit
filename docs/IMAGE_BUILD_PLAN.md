@@ -11,6 +11,13 @@ Reference implementation (read-only): the site, repo `vextech1/editpro` (SvelteK
 - Image tools use the same rules as the PDF work: strings in all six languages, pure logic gets unit tests, CI is the compiler, branches from latest `main`, update the status table in the same commit.
 - After the image tools: wide-screen side panel for `ToolSheet`, then a release check (Phase 9).
 
+## Integration rule (decided by the owner): tools live inside the editors, not as separate features
+- **No new Tools-tab tiles.** The Tools tab keeps only the popular entries it has today (Edit PDF, Create PDF, Compress, Edit Image, Convert, Scan Document, Extract Text). Every new image tool (Resize, Round, Draw & Text, Hide, Watermark, Frames, Export, Collage, Colour Picker, Photo sheet) is reached **from inside Edit Image**, in its More sheet grouped Edit, Mark and Output. Searching the Tools tab for "resize" or "watermark" may list them as shortcuts that open Edit Image with that sheet already open (use `ImageEditorRoute(uri, tool = ...)`), never as separate screens.
+- **One set of sheets, used everywhere.** The Adjust, Crop, Rotate/Flip, Resize and Export sheets are written once in `feature/imageeditor/sheets/` and reused by the Scanner's page editor, the Converter's image list and the PDF editor's "add picture" flow, instead of each screen keeping its own copy. The Scanner's own crop-and-filter page editor (`ScanPageEditor.kt`) keeps its perspective corners and scan filters (those are app advantages) but swaps its Adjust, Rotate and Export controls for the shared sheets.
+- **Scanner stays one popular tile, and hands off.** After scanning, each page has "Edit more", which opens that page in Edit Image (all sheets available) and returns the result to the scan. Its three start tiles (Live camera, Import images, Auto) stay as they are; nothing from the image plan adds a fourth. Export from the Scanner uses the same Export sheet (format, quality, size).
+- **Multi-photo tools (Collage) are an editor tool too.** Collage opens from Edit Image > More > Output: it asks for photos inside the sheet flow, and its result lands back in the editor, not on a separate screen of its own. Colour Picker is a sheet over the open photo.
+- **Result handling is shared.** Every tool ends on the editor's saved card (Open, Share, Save, Make PDF, Read text), so there is one place that does it. Do not write a new results screen.
+
 ## What the app already has (keep all of it)
 | Area | App feature | Site equivalent |
 |---|---|---|
@@ -57,7 +64,7 @@ Listed in the site's dock order (Edit, Mark, Output, `core/studio-tools.ts`).
 1. **The editor is non-destructive.** `core/library/ImageEditModel.kt` holds `EditOp` and `EditStack` (done and undone lists, merging of consecutive adjusts and filters). `ImageEditorViewModel.render(source, ops)` replays the ops on a 1600 px preview, and `save()` replays them on a copy up to 4096 px. **Every new tool is a new `EditOp` plus its replay step**, not a bitmap you keep in a field. That keeps undo, redo and hold-to-compare working for free.
 2. Put pure maths in `core/image/*` (new package, no Android imports where possible) and port from the matching site `.ts` file one to one, with unit tests in `app/src/test/java/com/vextech/editpro/core/image/`. Presets, resize maths, shape maths, redaction maths, watermark placement, frame layouts, collage layouts and palette are all pure and must be unit tested against numbers taken from the site's own tests (`src/lib/core/*.test.ts` if present).
 3. **Sheets use `ToolSheet`** (`core/ui/sheet`): `Reset | Title | tick`, max 46 % height, edits unapplied until the tick, two-level undo through `SheetEdits`. A sheet shows a live preview on the picture (as the PDF Watermark and Crop previews do) and only commits an `EditOp` on the tick.
-4. The editor today has its own dock (`EditorDock`: Filters, Adjust, Crop, Rotate, Remove background) and its own crop and adjust panels. Move Adjust and Crop into sheets in Phase 1, keep Filters and Remove background, and add a **More** sheet of tools grouped like the PDF editor (Edit, Mark, Output).
+4. (See the integration rule above.) The editor today has its own dock (`EditorDock`: Filters, Adjust, Crop, Rotate, Remove background) and its own crop and adjust panels. Move Adjust and Crop into sheets in Phase 1, keep Filters and Remove background, and add a **More** sheet of tools grouped like the PDF editor (Edit, Mark, Output).
 5. Memory: 40 megapixels and 8000 px are the site's hard limits (`photo-ops.ts` `withinLimits`). Keep them, and downscale before filters on phones. Recycle intermediate bitmaps.
 6. Hide and Blur must really destroy the pixels in the saved output (draw the box into the bitmap on the full-size replay), not just on the preview.
 
@@ -93,13 +100,13 @@ Update this table in the same commit as your work. Claim a lane by changing the 
 
 **Phase 4, Frames.** Wall and phone frames drawn with `Canvas`, no brand artwork (the site's phone shapes are generic on purpose; keep them generic).
 
-**Phase 5, Collage.** New screen (batch tool, not a single-photo edit); layouts from `collage.ts`; result opens in the editor.
+**Phase 5, Collage.** Opens from Edit Image > More > Output (no separate screen or Tools tile); photo picking and layout controls inside a sheet flow; layouts from `collage.ts`; the result replaces the photo in the editor.
 
 **Phase 6, Colour Picker.** Tap to read colours, palette, copy.
 
 **Phase 7, Auto-crop.** Port `detectContentBox`; offered in Crop as "Auto".
 
-**Phase 8, crossings.** After Resize, Round, Collage, Frames and Export results, offer Make PDF and Read text, like the editor's saved card.
+**Phase 8, scanner and crossings.** Scanner pages get "Edit more" into Edit Image and share the Adjust, Rotate, Crop and Export sheets.  After Resize, Round, Collage, Frames and Export results, offer Make PDF and Read text, like the editor's saved card.
 
 **Phase 9, polish.** Strings in all six languages and `static_checks.py` clean; TalkBack labels on the picture, handles and sliders; reduced motion; large-text check; check on a real phone (nothing has been tried on a device yet); update `docs/features` if it lists image tools.
 
