@@ -964,4 +964,8 @@
     <string name="crop_err_pages_past_end">Une page dépasse la fin. Ce PDF compte %1$d pages.</string>
     <string name="crop_err_too_large">Les marges sont plus grandes qu’une page. Utilisez des valeurs plus petites.</string>
     <string name="crop_err_trim_page">Les marges sont plus grandes que la page %1$d. Utilisez des valeurs plus petites.</string>
+    <string name="compressor_percent_larger">%1$d %% plus grand</string>
+    <string name="compressor_same_size">Même taille</string>
+    <string name="compressor_grayscale_done">Converti en niveaux de gris.</string>
+    <string name="compressor_zip_title">Tous les fichiers compressés (ZIP)</string>
 </resources>

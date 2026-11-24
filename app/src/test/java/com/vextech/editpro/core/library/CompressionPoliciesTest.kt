@@ -105,4 +105,22 @@ class CompressionPoliciesTest {
         assertEquals(true, CompressionPolicies.keepsLargerResult(true))
         assertEquals(false, CompressionPolicies.keepsLargerResult(false))
     }
+
+    @Test fun largerPercent_roundsAndIsZeroWhenNotBigger() {
+        assertEquals(10, CompressionPolicies.largerPercent(1000, 1100))
+        assertEquals(13, CompressionPolicies.largerPercent(1000, 1126))      // 12.6 rounds up, as on the site
+        assertEquals(0, CompressionPolicies.largerPercent(1000, 1000))
+        assertEquals(0, CompressionPolicies.largerPercent(1000, 900))
+        assertEquals(0, CompressionPolicies.largerPercent(1000, 1004))       // 0.4% is "same size"
+        assertEquals(0, CompressionPolicies.largerPercent(0, 500))
+    }
+
+    @Test fun zipEntryNames_keepUniqueNamesAndNumberTheRest() {
+        assertEquals(listOf("a.pdf", "b.pdf"), CompressionPolicies.zipEntryNames(listOf("a.pdf", "b.pdf")))
+        assertEquals(listOf("a.pdf", "a (2).pdf", "a (3).pdf"), CompressionPolicies.zipEntryNames(listOf("a.pdf", "a.pdf", "a.pdf")))
+        // Names differing only by case clash in many unzip tools, so they count as the same.
+        assertEquals(listOf("a.pdf", "A (2).pdf"), CompressionPolicies.zipEntryNames(listOf("a.pdf", "A.pdf")))
+        assertEquals(listOf("scan", "scan (2)"), CompressionPolicies.zipEntryNames(listOf("scan", "scan")))
+        assertEquals(emptyList<String>(), CompressionPolicies.zipEntryNames(emptyList()))
+    }
 }

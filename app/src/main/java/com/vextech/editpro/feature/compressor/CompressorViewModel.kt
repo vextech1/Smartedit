@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.net.URI
 import javax.inject.Inject
 
 data class CompressorFile(val uri: String, val name: String, val mimeType: String, val sizeBytes: Long, val kind: CompressionKind)
@@ -48,7 +50,12 @@ data class CompressorResult(
     val error: UiText?,
     val passwordIssue: PdfPasswordIssue? = null,
     val optimizedImages: Int? = null,
+    /** This PDF was made black and white (every page is now a picture). */
+    val grayscale: Boolean = false,
 )
+
+/** One ZIP of every kept result, offered when two or more files were kept. */
+data class CompressorZip(val uri: String, val name: String, val bytes: Long)
 
 data class CompressorUiState(
     val files: List<CompressorFile> = emptyList(),
@@ -65,6 +72,8 @@ data class CompressorUiState(
     val currentName: String? = null,
     val progress: Float? = null,
     val results: List<CompressorResult> = emptyList(),
+    /** All kept results in one ZIP; null until it is ready, or when fewer than two files were kept. */
+    val zip: CompressorZip? = null,
 ) {
     val hasPdf: Boolean get() = files.any { it.kind == CompressionKind.PDF }
     val finished: Boolean get() = !running && results.isNotEmpty()
@@ -84,6 +93,27 @@ class CompressorViewModel @Inject constructor(
     val uiEvents = events.events
     private var job: Job? = null
     private var initialHandled = false
+    private var zipFile: File? = null
+
+    override fun onCleared() { zipFile?.delete() }
+
+    private fun clearZip() {
+        zipFile?.delete()
+        zipFile = null
+        _state.update { it.copy(zip = null) }
+    }
+
+    /** Rebuilds the ZIP from what is kept now: one for two or more kept files, none otherwise. A failure just leaves out the ZIP. */
+    private fun refreshZip() {
+        viewModelScope.launch {
+            val kept = _state.value.keptResults.mapNotNull { r -> r.outputUri?.let { runCatching { File(URI(it)) }.getOrNull() } }.filter { it.exists() }
+            clearZip()
+            if (kept.size < 2) return@launch
+            val file = runCatching { service.bundle(kept) }.getOrNull() ?: return@launch
+            zipFile = file
+            _state.update { it.copy(zip = CompressorZip(file.toURI().toString(), "compressed-files.zip", file.length())) }
+        }
+    }
 
     fun preselect(uri: Uri) {
         if (initialHandled) return
@@ -104,6 +134,7 @@ class CompressorViewModel @Inject constructor(
             }
             val supported = read.filter { it.kind != CompressionKind.UNSUPPORTED }
             val skipped = uris.size - supported.size
+            clearZip()
             _state.update { current ->
                 val known = current.files.map { it.uri }.toSet()
                 val merged = (current.files + supported.filter { it.uri !in known }).take(MAX_FILES)
@@ -116,19 +147,20 @@ class CompressorViewModel @Inject constructor(
         }
     }
 
-    fun remove(file: CompressorFile) { if (!_state.value.running) _state.update { it.copy(files = it.files - file, results = emptyList()) } }
+    fun remove(file: CompressorFile) { if (!_state.value.running) { clearZip(); _state.update { it.copy(files = it.files - file, results = emptyList()) } } }
     fun setPreset(preset: CompressionPreset) { _state.update { it.copy(preset = preset) } }
     fun setPdfMode(mode: PdfCompressionMode) { _state.update { it.copy(pdfMode = mode) } }
     fun setGrayscale(on: Boolean) { _state.update { it.copy(grayscale = on) } }
 
     /** Starts over with an empty selection after results were shown. */
-    fun reset() { if (!_state.value.running) _state.value = CompressorUiState(preset = _state.value.preset, pdfMode = _state.value.pdfMode, grayscale = _state.value.grayscale) }
+    fun reset() { if (!_state.value.running) { clearZip(); _state.value = CompressorUiState(preset = _state.value.preset, pdfMode = _state.value.pdfMode, grayscale = _state.value.grayscale) } }
 
     fun cancel() { job?.cancel() }
 
     fun start() {
         val snapshot = _state.value
         if (snapshot.running || snapshot.files.isEmpty()) return
+        clearZip()
         job = viewModelScope.launch {
             _state.update { it.copy(running = true, retrying = false, runTotal = snapshot.files.size, results = emptyList(), progress = null, currentIndex = 0) }
             val collected = ArrayList<CompressorResult>()
@@ -142,6 +174,7 @@ class CompressorViewModel @Inject constructor(
                 events.message(UiText.res(R.string.compressor_cancelled))
             } finally {
                 _state.update { it.copy(running = false, currentName = null, progress = null, results = collected.toList()) }
+                refreshZip()
             }
         }
     }
@@ -160,6 +193,7 @@ class CompressorViewModel @Inject constructor(
                 events.message(UiText.res(R.string.compressor_cancelled))
             } finally {
                 _state.update { it.copy(running = false, retrying = false, currentName = null, progress = null) }
+                refreshZip()
             }
         }
     }
@@ -173,6 +207,7 @@ class CompressorViewModel @Inject constructor(
             originalBytes = result.originalBytes, compressedBytes = result.compressedBytes, verdict = result.verdict,
             outputName = result.output?.name, outputUri = result.output?.toURI()?.toString(), outputMime = result.outputMimeType, error = null,
             optimizedImages = result.optimizedImages,
+            grayscale = snapshot.grayscale && file.kind == CompressionKind.PDF && result.output != null,
         )
     } catch (cancelled: CancellationException) {
         throw cancelled

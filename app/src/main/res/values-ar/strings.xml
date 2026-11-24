@@ -988,4 +988,8 @@
     <string name="crop_err_pages_past_end">إحدى الصفحات بعد النهاية. هذا الملف فيه %1$d صفحة.</string>
     <string name="crop_err_too_large">الهوامش أكبر من الصفحة. استخدم قيمًا أصغر.</string>
     <string name="crop_err_trim_page">الهوامش أكبر من الصفحة %1$d. استخدم قيمًا أصغر.</string>
+    <string name="compressor_percent_larger">أكبر بنسبة %1$d%%</string>
+    <string name="compressor_same_size">الحجم نفسه</string>
+    <string name="compressor_grayscale_done">تم التحويل إلى تدرج الرمادي.</string>
+    <string name="compressor_zip_title">كل الملفات المضغوطة (ZIP)</string>
 </resources>

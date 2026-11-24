@@ -956,4 +956,8 @@
     <string name="crop_err_pages_past_end">एक पेज अंत से आगे है। इस PDF में %1$d पेज हैं।</string>
     <string name="crop_err_too_large">हाशिए पेज से बड़े हैं। छोटे मान इस्तेमाल करें।</string>
     <string name="crop_err_trim_page">मार्जिन पेज %1$d से बड़े हैं। छोटे मान इस्तेमाल करें।</string>
+    <string name="compressor_percent_larger">%1$d%% बड़ा</string>
+    <string name="compressor_same_size">समान आकार</string>
+    <string name="compressor_grayscale_done">ग्रेस्केल में बदला गया।</string>
+    <string name="compressor_zip_title">सभी संपीड़ित फ़ाइलें (ZIP)</string>
 </resources>

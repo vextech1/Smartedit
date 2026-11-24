@@ -1001,4 +1001,8 @@
     <string name="crop_err_pages_past_end">A page is past the end. This PDF has %1$d pages.</string>
     <string name="crop_err_too_large">The margins are larger than a page. Use smaller values.</string>
     <string name="crop_err_trim_page">The margins are larger than page %1$d. Use smaller values.</string>
+    <string name="compressor_percent_larger">%1$d%% larger</string>
+    <string name="compressor_same_size">Same size</string>
+    <string name="compressor_grayscale_done">Converted to grayscale.</string>
+    <string name="compressor_zip_title">All compressed files (ZIP)</string>
 </resources>

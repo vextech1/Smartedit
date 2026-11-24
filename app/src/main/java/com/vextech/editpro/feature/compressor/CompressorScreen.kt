@@ -280,8 +280,32 @@ private fun ResultsContent(
             }
         }
     }
+    state.zip?.let { zip -> ZipBlock(zip, share, saveToDevice, events) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         state.results.forEach { result -> ResultBlock(result, share, saveToDevice, events, onEnterPassword, canRetry = !state.running) }
+    }
+}
+
+/** The "everything in one ZIP" card, shown when two or more files were kept. */
+@Composable
+private fun ZipBlock(zip: CompressorZip, share: ShareService, saveToDevice: SaveToDeviceAction, events: UiEventChannel) {
+    val mime = "application/zip"
+    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(stringResource(R.string.compressor_zip_title), style = MaterialTheme.typography.titleSmall)
+                Text(formatBytes(zip.bytes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(
+                    onClick = { runCatching { share.shareManaged(zip.uri, mime) }.onFailure { events.message(UiText.res(R.string.common_share_failed)) } },
+                    modifier = Modifier.weight(1f),
+                ) { Icon(Icons.Rounded.Share, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.compressor_share)) }
+                FilledTonalButton(onClick = { saveToDevice.save(zip.uri, zip.name, mime) }, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Rounded.Download, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.compressor_save))
+                }
+            }
+        }
     }
 }
 
@@ -297,6 +321,8 @@ private fun ResultBlock(
     val kept = result.outputUri != null
     val failed = result.error != null
     val barely = kept && result.verdict == CompressionVerdict.UNCHANGED
+    val larger = kept && result.verdict == CompressionVerdict.LARGER      // only a grayscale copy is kept when it grew
+    val largerPercent = if (larger) CompressionPolicies.largerPercent(result.originalBytes, result.compressedBytes) else 0
     val percent = if (kept) CompressionPolicies.percentSaved(result.originalBytes, result.compressedBytes) else 0
     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -318,10 +344,12 @@ private fun ResultBlock(
                     text = when {
                         failed -> stringResource(R.string.compressor_chip_failed)
                         !kept -> stringResource(R.string.compressor_chip_skipped)
+                        larger && largerPercent > 0 -> stringResource(R.string.compressor_percent_larger, largerPercent)
+                        larger -> stringResource(R.string.compressor_same_size)
                         else -> stringResource(R.string.compressor_percent_saved, percent)
                     },
-                    container = when { failed -> MaterialTheme.colorScheme.errorContainer; barely || !kept -> MaterialTheme.colorScheme.tertiaryContainer; else -> MaterialTheme.colorScheme.secondaryContainer },
-                    content = when { failed -> MaterialTheme.colorScheme.onErrorContainer; barely || !kept -> MaterialTheme.colorScheme.onTertiaryContainer; else -> MaterialTheme.colorScheme.onSecondaryContainer },
+                    container = when { failed -> MaterialTheme.colorScheme.errorContainer; barely || larger || !kept -> MaterialTheme.colorScheme.tertiaryContainer; else -> MaterialTheme.colorScheme.secondaryContainer },
+                    content = when { failed -> MaterialTheme.colorScheme.onErrorContainer; barely || larger || !kept -> MaterialTheme.colorScheme.onTertiaryContainer; else -> MaterialTheme.colorScheme.onSecondaryContainer },
                 )
             }
             if (failed && result.passwordIssue != null) {
@@ -336,6 +364,7 @@ private fun ResultBlock(
                 result.optimizedImages?.takeIf { it > 0 }?.let { count ->
                     Text(pluralStringResource(R.plurals.compressor_images_shrunk, count, count), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                if (result.grayscale) Text(stringResource(R.string.compressor_grayscale_done), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (barely) Text(stringResource(R.string.compressor_barely_smaller, percent), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(

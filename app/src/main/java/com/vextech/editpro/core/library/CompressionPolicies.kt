@@ -115,4 +115,31 @@ object CompressionPolicies {
     /** Pictures with transparency masks, tiny pictures and already small streams are left alone. */
     fun shouldSkipEmbeddedImage(width: Int, height: Int, originalBytes: Long, hasSoftMask: Boolean, isStencil: Boolean): Boolean =
         hasSoftMask || isStencil || width.toLong() * height < MIN_EMBEDDED_PIXELS || originalBytes < MIN_EMBEDDED_BYTES
+
+    /**
+     * How much bigger a result is than the original, as a whole percent (rounded, as the site does). Zero when it is not bigger or
+     * the growth rounds to nothing, so the screen says "same size" rather than "0% larger".
+     */
+    fun largerPercent(original: Long, compressed: Long): Int {
+        if (original <= 0L || compressed <= original) return 0
+        return Math.round((compressed - original) * 100.0 / original).toInt().coerceIn(0, 999)
+    }
+
+    /**
+     * File names for the entries of one ZIP: any name already used (ignoring case) gets " (2)", " (3)" and so on before its extension,
+     * so two files called the same do not overwrite each other. The order is kept.
+     */
+    fun zipEntryNames(names: List<String>): List<String> {
+        val used = HashSet<String>()
+        return names.map { name ->
+            var candidate = name
+            var n = 2
+            while (!used.add(candidate.lowercase())) {
+                val dot = name.lastIndexOf('.')
+                candidate = if (dot > 0) "${name.substring(0, dot)} ($n)${name.substring(dot)}" else "$name ($n)"
+                n++
+            }
+            candidate
+        }
+    }
 }

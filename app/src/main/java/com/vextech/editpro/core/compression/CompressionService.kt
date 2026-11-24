@@ -28,6 +28,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -122,6 +124,29 @@ class CompressionService @Inject constructor(
             throw failure
         } finally {
             staged?.delete()
+        }
+    }
+
+    /**
+     * Puts the kept results into one ZIP, so many files can be saved or shared at once. Entry names are made unique.
+     * The ZIP lives next to the results; the caller removes it when it is no longer needed. A partial file is removed on failure.
+     */
+    suspend fun bundle(outputs: List<File>): File = withContext(io) {
+        val zip = store.uniqueFile(store.compressedDir, "compressed-files.zip")
+        try {
+            val names = CompressionPolicies.zipEntryNames(outputs.map { it.name })
+            ZipOutputStream(zip.outputStream().buffered()).use { out ->
+                outputs.forEachIndexed { index, file ->
+                    ensureActive()
+                    out.putNextEntry(ZipEntry(names[index]))
+                    file.inputStream().buffered().use { it.copyTo(out) }
+                    out.closeEntry()
+                }
+            }
+            zip
+        } catch (error: Throwable) {
+            zip.delete()
+            throw error
         }
     }
 
