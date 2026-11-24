@@ -24,7 +24,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Built: text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
 | Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Built: six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
 | Phase 2 lane I: Crop (trim margins, fit to paper, sheet) | stage-one session | Merged | `pdf/phase2-crop` |
-| Phase 3: Extract images | open, for another agent | Not started | |
+| Phase 3: Extract images | Claude session (Andrew) | Claimed, in progress | `pdf/phase3-extract-images` |
 | Phase 4: Compress summary | open, for another agent | Not started | |
 | Phase 5: Reading mode | open, for another agent | Not started | |
 | Phase 6: Polish and release check | whoever finishes last | Not started | |
