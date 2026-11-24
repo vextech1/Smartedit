@@ -18,6 +18,9 @@ import com.vextech.editpro.core.ui.sheet.SheetTextField
 import com.vextech.editpro.core.ui.sheet.SheetWarning
 import com.vextech.editpro.core.ui.sheet.ToolSheet
 
+private const val MODE_EVERY = "every"
+private const val MODE_RANGES = "ranges"
+
 /** The message for a mistake in typed page ranges. */
 @StringRes
 internal fun rangeProblemMessage(problem: PageRangeProblem): Int = when (problem) {
