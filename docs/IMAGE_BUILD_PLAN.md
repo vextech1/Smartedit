@@ -77,7 +77,7 @@ Update this table in the same commit as your work. Claim a lane by changing the 
 | Phase 1 lane A: Rotate and Flip sheet (E3) | stage-one session | Merged (CI green): Rotate and Flip are ToolSheets with a live picture, mirror-on-screen is right after a quarter turn (`core/image/Turn.kt`), new `EditOp.Flip`; Flip added to the dock and More | `img/phase1-turn-export` |
 | Phase 1 lane B: Export sheet with size estimate (O1) | stage-one session | Merged (CI green): Save opens the Export sheet: JPG, PNG, WebP, quality, longest side (original, 2048, 1280, 800), live size and about-how-large estimate; JPG not offered when the picture has see-through pixels; works on an unedited photo too (`core/image/ExportMath.kt`) | `img/phase1-turn-export` |
 | Phase 2 lane C: Resize with presets (E4), logic and tests first | stage-one session | Merged (CI green): Resize sheet in More > Edit: 31 sizes in four groups (ID and passport, forms and exams, print, social), Custom with px, mm, cm, in and % plus dpi and keep shape, Crop to fill (zoom, drag to pan), Show whole photo (colour), Stretch; form sizes keep the file under their KB limit (JPG, best quality that fits); official sizes need the "checked" tick; 16 px to 8000 px and 40 MP limits; enlarge warning. Pure logic in `core/image/` (SizePresets, ResizeFit, ResizeForm) with tests. One generic note replaces the site's per-country notes | `img/phase2-resize` |
-| Phase 2 lane D: Round corners (E6) | open | Not started | |
+| Phase 2 lane D: Round corners (E6) | stage-one session | Claimed, in progress | `img/phase2-round` |
 | Phase 2 lane E: Photo sheet for prints (E5) | open | Not started | |
 | Phase 3 lane F: Draw & Text (M1) | open | Not started | |
 | Phase 3 lane G: Blur or Hide (M2) | open | Not started | |
