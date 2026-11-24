@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -48,6 +49,8 @@ import com.vextech.editpro.core.ads.UnityAdsService
 import com.vextech.editpro.core.sharing.ShareService
 import com.vextech.editpro.core.ui.FeatureScaffold
 import com.vextech.editpro.core.ui.sheet.LocalSheetHistoryRegistry
+import com.vextech.editpro.core.ui.sheet.LocalSheetPanel
+import com.vextech.editpro.core.ui.sheet.SheetPanel
 import com.vextech.editpro.core.ui.sheet.SheetHistoryRegistry
 import androidx.compose.runtime.CompositionLocalProvider
 import com.vextech.editpro.feature.pdf.domain.*
@@ -228,7 +231,13 @@ fun PdfToolsScreen(
             },
         ) { padding ->
             CompositionLocalProvider(LocalSheetHistoryRegistry provides sheetRegistry) {
-            Column(Modifier.fillMaxSize().padding(padding)) {
+            val config = LocalConfiguration.current
+            val metadataToEdit = state.metadata
+            val sheetOpen = (dialog == PdfDialog.METADATA && metadataToEdit != null) || dialog == PdfDialog.WATERMARK ||
+                dialog == PdfDialog.PAGE_NUMBERS || dialog == PdfDialog.EXTRACT_IMAGES || dialog == PdfDialog.CROP_SHEET
+            // On tablets and landscape screens an open sheet becomes a panel beside the page instead of covering its bottom.
+            val sidePanel = sheetOpen && SheetPanel.useSidePanel(config.screenWidthDp, config.screenHeightDp)
+            val pageArea: @Composable ColumnScope.() -> Unit = {
                 if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                 PageStrip(state, vm, Modifier.fillMaxWidth().height(104.dp))
                 if (state.pages.isNotEmpty()) {
@@ -262,8 +271,8 @@ fun PdfToolsScreen(
                         onInk = { points -> vm.ink(points); tool = PdfCanvasTool.NONE },
                     )
                 } else Spacer(Modifier.weight(1f))
-
-                val metadataToEdit = state.metadata
+            }
+            val bottomArea: @Composable () -> Unit = {
                 if (dialog == PdfDialog.METADATA && metadataToEdit != null) {
                     MetadataSheet(metadataToEdit, onCancel = { dialog = null }) { value -> vm.updateMetadata(value); dialog = null }
                 } else if (dialog == PdfDialog.WATERMARK) {
@@ -297,6 +306,16 @@ fun PdfToolsScreen(
                     onProtect = { tool = PdfCanvasTool.NONE; panel = null; mode = EditorMode.PROTECT },
                     onMore = { moreOpen = true },
                 )
+            }
+            if (sidePanel) {
+                Row(Modifier.fillMaxSize().padding(padding)) {
+                    Column(Modifier.weight(1f).fillMaxHeight()) { pageArea() }
+                    Box(Modifier.width(SheetPanel.panelWidthDp(config.screenWidthDp).dp).fillMaxHeight()) {
+                        CompositionLocalProvider(LocalSheetPanel provides true) { bottomArea() }
+                    }
+                }
+            } else {
+                Column(Modifier.fillMaxSize().padding(padding)) { pageArea(); bottomArea() }
             }
             }
         }

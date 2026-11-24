@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
@@ -62,10 +63,11 @@ fun ToolSheet(
 ) {
     BackHandler(onBack = onCancel)
     if (history != null) RegisterSheetHistory(history)
+    val panel = LocalSheetPanel.current
     val maxHeight = (LocalConfiguration.current.screenHeightDp * SHEET_MAX_HEIGHT_FRACTION).dp
     Surface(
-        modifier = modifier.fillMaxWidth().heightIn(max = maxHeight),
-        shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+        modifier = if (panel) modifier.fillMaxSize() else modifier.fillMaxWidth().heightIn(max = maxHeight),
+        shape = if (panel) RoundedCornerShape(topStart = 22.dp, bottomStart = 22.dp) else RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 3.dp,
         shadowElevation = 6.dp,
