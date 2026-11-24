@@ -25,6 +25,15 @@ class ShareService @Inject constructor(
         val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(Intent.createChooser(intent, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
+    /** A content address another screen of this app can open, for a file in the app's own folders. */
+    fun uriFor(file: File): String = contentUri(file).toString()
+
+    /** Opens the phone's mail app with a ready message, as the site's Report link does. */
+    fun compose(email: String, subject: String, body: String) {
+        val uri = Uri.parse("mailto:$email?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SENDTO, uri), null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
     fun share(file: File, mime: String) {
         val uri = contentUri(file)
         val intent = Intent(Intent.ACTION_SEND).setType(mime).putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

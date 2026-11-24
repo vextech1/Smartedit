@@ -972,4 +972,9 @@
     <string name="reading_exit">Salir</string>
     <string name="reading_page_of">Página %1$d de %2$d</string>
     <string name="reading_page_description">Página %1$d de %2$d</string>
+    <string name="library_open">Abrir</string>
+    <string name="library_report">Denunciar</string>
+    <string name="library_saved">Guardado en tu carpeta de Descargas.</string>
+    <string name="library_report_subject">Denunciar un documento de la biblioteca: %1$s</string>
+    <string name="library_report_body">Denuncio este documento de la biblioteca de EditPro.\nTítulo: %1$s\nID del archivo: %2$s\n\nMotivo (por ejemplo: copia mi trabajo, y aquí está quién soy y dónde está el original):\n\n</string>
 </resources>

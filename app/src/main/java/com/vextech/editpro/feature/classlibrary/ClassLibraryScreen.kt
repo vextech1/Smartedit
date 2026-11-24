@@ -21,7 +21,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.AlertDialog
@@ -73,7 +75,7 @@ private data class Choice(val key: String, val text: String, val selected: Boole
 
 /** The Library tab: the same sections, classes, subjects and categories as the site, with search, download and share. */
 @Composable
-fun ClassLibraryScreen(onUpload: () -> Unit = {}, vm: ClassLibraryViewModel = hiltViewModel()) {
+fun ClassLibraryScreen(onUpload: () -> Unit = {}, onOpenPdf: (String) -> Unit = {}, vm: ClassLibraryViewModel = hiltViewModel()) {
     val ui by vm.ui.collectAsState()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -99,7 +101,17 @@ fun ClassLibraryScreen(onUpload: () -> Unit = {}, vm: ClassLibraryViewModel = hi
         }
     }
 
-    ui.selected?.let { file -> FileSheet(file, ui.progress, onDownload = { vm.download(file) }, onShare = { vm.share(file) }, onDismiss = vm::dismissDetails) }
+    LaunchedEffect(ui.openPdf) {
+        ui.openPdf?.let { uri -> vm.clearOpenPdf(); onOpenPdf(uri) }
+    }
+
+    ui.selected?.let { file ->
+        FileSheet(
+            file, ui.progress,
+            onOpen = { vm.openFile(file) }, onReport = { vm.report(file) }, onDownload = { vm.download(file) }, onShare = { vm.share(file) },
+            onDismiss = vm::dismissDetails,
+        )
+    }
 
     ui.gate?.let { gate ->
         val signIn = gate.access == AccessPolicies.Access.SIGN_IN
@@ -111,7 +123,7 @@ fun ClassLibraryScreen(onUpload: () -> Unit = {}, vm: ClassLibraryViewModel = hi
                 TextButton(onClick = {
                     if (signIn) {
                         vm.dismissGate()
-                        vm.signInAndRetry(context, gate.file)
+                        vm.signInAndRetry(context, gate.file, gate.mode)
                     } else {
                         vm.dismissGate()
                         onUpload()
@@ -226,7 +238,7 @@ private fun ExtBadge(ext: String) {
 }
 
 @Composable
-private fun FileSheet(file: CloudFile, progress: DownloadProgress?, onDownload: () -> Unit, onShare: () -> Unit, onDismiss: () -> Unit) {
+private fun FileSheet(file: CloudFile, progress: DownloadProgress?, onOpen: () -> Unit, onReport: () -> Unit, onDownload: () -> Unit, onShare: () -> Unit, onDismiss: () -> Unit) {
     val mine = progress?.takeIf { it.fileId == file.id }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -236,7 +248,12 @@ private fun FileSheet(file: CloudFile, progress: DownloadProgress?, onDownload: 
                 LinearProgressIndicator(progress = { if (mine.total == 0) 0f else mine.done.toFloat() / mine.total }, modifier = Modifier.fillMaxWidth())
                 Text(stringResource(R.string.library_downloading, mine.done, mine.total), style = MaterialTheme.typography.bodySmall)
             } else {
-                Button(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null)
+                    Spacer(Modifier.size(8.dp))
+                    Text(stringResource(R.string.library_open))
+                }
+                OutlinedButton(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Rounded.Download, contentDescription = null)
                     Spacer(Modifier.size(8.dp))
                     Text(stringResource(R.string.library_download))
@@ -246,6 +263,13 @@ private fun FileSheet(file: CloudFile, progress: DownloadProgress?, onDownload: 
                 Icon(Icons.Rounded.Share, contentDescription = null)
                 Spacer(Modifier.size(8.dp))
                 Text(stringResource(R.string.library_share))
+            }
+            if (file.student) {
+                TextButton(onClick = onReport, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Rounded.Flag, contentDescription = null)
+                    Spacer(Modifier.size(8.dp))
+                    Text(stringResource(R.string.library_report))
+                }
             }
         }
     }

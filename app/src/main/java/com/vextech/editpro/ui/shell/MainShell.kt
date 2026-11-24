@@ -166,7 +166,7 @@ fun MainShell(
                         onTool = { action, uri -> push(action.routeFor(uri)) },
                     )
                 }
-                entry<LibraryRoute> { ClassLibraryScreen(onUpload = { push(LibraryUploadRoute()) }) }
+                entry<LibraryRoute> { ClassLibraryScreen(onUpload = { push(LibraryUploadRoute()) }, onOpenPdf = { uri -> push(PdfToolsRoute(uri)) }) }
                 entry<ActivityRoute> { HistoryScreen(onBack = ::back, share = shareService) }
                 entry<ProfileRoute> { ProfileScreen(onOpen = ::push, onBack = ::back) }
 

@@ -964,4 +964,9 @@
     <string name="reading_exit">Beenden</string>
     <string name="reading_page_of">Seite %1$d von %2$d</string>
     <string name="reading_page_description">Seite %1$d von %2$d</string>
+    <string name="library_open">Öffnen</string>
+    <string name="library_report">Melden</string>
+    <string name="library_saved">In deinem Download-Ordner gespeichert.</string>
+    <string name="library_report_subject">Dokument der Bibliothek melden: %1$s</string>
+    <string name="library_report_body">Ich melde dieses Dokument in der EditPro-Bibliothek.\nTitel: %1$s\nDatei-ID: %2$s\n\nGrund (zum Beispiel: Es kopiert meine Arbeit, und hier steht, wer ich bin und wo das Original ist):\n\n</string>
 </resources>

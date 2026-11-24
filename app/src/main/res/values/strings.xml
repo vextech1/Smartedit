@@ -1009,4 +1009,9 @@
     <string name="reading_exit">Exit</string>
     <string name="reading_page_of">Page %1$d of %2$d</string>
     <string name="reading_page_description">Page %1$d of %2$d</string>
+    <string name="library_open">Open</string>
+    <string name="library_report">Report</string>
+    <string name="library_saved">Saved to your Downloads folder.</string>
+    <string name="library_report_subject">Report a Library document: %1$s</string>
+    <string name="library_report_body">I am reporting this document in the EditPro Library.\nTitle: %1$s\nFile ID: %2$s\n\nWhy (for example: it copies my work, and here is who I am and where the original is):\n\n</string>
 </resources>

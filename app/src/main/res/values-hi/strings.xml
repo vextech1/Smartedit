@@ -964,4 +964,9 @@
     <string name="reading_exit">बाहर निकलें</string>
     <string name="reading_page_of">पेज %1$d / %2$d</string>
     <string name="reading_page_description">पेज %1$d / %2$d</string>
+    <string name="library_open">खोलें</string>
+    <string name="library_report">रिपोर्ट करें</string>
+    <string name="library_saved">आपके डाउनलोड फ़ोल्डर में सहेजा गया।</string>
+    <string name="library_report_subject">लाइब्रेरी दस्तावेज़ की रिपोर्ट करें: %1$s</string>
+    <string name="library_report_body">मैं EditPro लाइब्रेरी में इस दस्तावेज़ की रिपोर्ट कर रहा/रही हूँ।\nशीर्षक: %1$s\nफ़ाइल ID: %2$s\n\nकारण (जैसे: यह मेरा काम कॉपी करता है, और मैं कौन हूँ व मूल कहाँ है):\n\n</string>
 </resources>

@@ -4,6 +4,9 @@ package com.vextech.editpro.core.classlibrary
 object ClassLibraryLinks {
     const val ORIGIN = "https://editpro.site"
 
+    /** Where reports about a Library document go, the same address the site uses. */
+    const val CONTACT_EMAIL = "info@editpro.site"
+
     /** The Library page of the site. */
     const val LIBRARY_URL = "$ORIGIN/class-library"
 

@@ -35,7 +35,9 @@ import kotlinx.coroutines.withContext
 data class DownloadProgress(val fileId: String, val done: Int, val total: Int)
 
 /** Why a download was not allowed, and for which file, so the screen can explain it and retry after the person signs in. */
-data class LibraryGate(val access: AccessPolicies.Access, val file: CloudFile)
+enum class FetchMode { SAVE, OPEN }
+
+data class LibraryGate(val access: AccessPolicies.Access, val file: CloudFile, val mode: FetchMode = FetchMode.SAVE)
 
 data class ClassLibraryUiState(
     val loading: Boolean = true,
@@ -53,6 +55,8 @@ data class ClassLibraryUiState(
     val gate: LibraryGate? = null,
     val progress: DownloadProgress? = null,
     val message: UiText? = null,
+    /** A PDF fetched with Open, waiting for the screen to open it in the PDF tools. */
+    val openPdf: String? = null,
 ) {
     val section: LibrarySection? get() = sections.firstOrNull { it.id == sectionId }
     val scoped: List<CloudFile> get() = ClassLibraryFilters.inScope(files, sectionId, classId, subjectId)
@@ -131,8 +135,25 @@ class ClassLibraryViewModel @Inject constructor(
         share.shareText(text, file.title)
     }
 
-    /** Checks whether this person may download [file], records it, downloads the pieces, then opens the file. */
-    fun download(file: CloudFile) {
+    fun clearOpenPdf() = _ui.update { it.copy(openPdf = null) }
+
+    /** Opens the phone's mail app with a report to the site's contact address, for a student's file. */
+    fun report(file: CloudFile) {
+        share.compose(
+            ClassLibraryLinks.CONTACT_EMAIL,
+            context.getString(R.string.library_report_subject, file.title).take(150),
+            context.getString(R.string.library_report_body, file.title, file.id),
+        )
+    }
+
+    /** Saves [file] into the phone's Downloads folder. */
+    fun download(file: CloudFile) = fetch(file, FetchMode.SAVE)
+
+    /** Fetches [file] and shows it: a PDF opens in this app's PDF tools, anything else in a viewer app. */
+    fun openFile(file: CloudFile) = fetch(file, FetchMode.OPEN)
+
+    /** Checks whether this person may download [file], records it, downloads the pieces, then saves or opens the file. */
+    private fun fetch(file: CloudFile, mode: FetchMode) {
         if (_ui.value.progress != null) return
         _ui.update { it.copy(progress = DownloadProgress(file.id, 0, file.parts), gate = null) }
         viewModelScope.launch {
@@ -146,7 +167,7 @@ class ClassLibraryViewModel @Inject constructor(
                     ),
                 )
                 if (!AccessPolicies.isAllowed(decision.access)) {
-                    _ui.update { it.copy(progress = null, gate = LibraryGate(decision.access, file)) }
+                    _ui.update { it.copy(progress = null, gate = LibraryGate(decision.access, file, mode)) }
                     return@launch
                 }
                 when (decision.access) {
@@ -160,8 +181,20 @@ class ClassLibraryViewModel @Inject constructor(
                 val saved = withContext(io) {
                     File(File(context.cacheDir, "class-library").apply { mkdirs() }, "${file.id}-${file.name}").also { it.writeBytes(bytes) }
                 }
-                _ui.update { it.copy(progress = null, selected = null) }
-                share.open(saved, ClassLibraryParser.mimeOf(file.ext))
+                val mime = ClassLibraryParser.mimeOf(file.ext)
+                if (mode == FetchMode.OPEN) {
+                    if (file.ext.equals("pdf", ignoreCase = true)) {
+                        _ui.update { it.copy(progress = null, selected = null, openPdf = share.uriFor(saved)) }
+                    } else {
+                        _ui.update { it.copy(progress = null, selected = null) }
+                        share.open(saved, mime)
+                    }
+                } else if (withContext(io) { saveToDownloads(saved, file.name, mime) }) {
+                    _ui.update { it.copy(progress = null, selected = null, message = UiText.res(R.string.library_saved)) }
+                } else {
+                    _ui.update { it.copy(progress = null, selected = null) }
+                    share.open(saved, mime)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -171,10 +204,10 @@ class ClassLibraryViewModel @Inject constructor(
     }
 
     /** The gate's "sign in" button: after a successful sign-in the download is tried again for the same file. */
-    fun signInAndRetry(activityContext: Context, file: CloudFile) {
+    fun signInAndRetry(activityContext: Context, file: CloudFile, mode: FetchMode = FetchMode.SAVE) {
         viewModelScope.launch {
             when (val result = auth.signIn(activityContext)) {
-                is AuthResult.Success -> download(file)
+                is AuthResult.Success -> fetch(file, mode)
                 is AuthResult.Failure -> {
                     if (result.reason != AuthFailure.CANCELLED) {
                         val text = if (result.reason == AuthFailure.DISABLED) R.string.account_unavailable else R.string.account_signin_failed
@@ -183,5 +216,22 @@ class ClassLibraryViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /** Copies [from] into the Downloads folder (Android 10 and later); returns false where that is not possible so the caller can fall back. */
+    private fun saveToDownloads(from: File, name: String, mime: String): Boolean {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) return false
+        return runCatching {
+            val resolver = context.contentResolver
+            val values = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.Downloads.DISPLAY_NAME, name)
+                put(android.provider.MediaStore.Downloads.MIME_TYPE, mime)
+                put(android.provider.MediaStore.Downloads.IS_PENDING, 1)
+            }
+            val uri = requireNotNull(resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values))
+            resolver.openOutputStream(uri)!!.use { out -> from.inputStream().use { it.copyTo(out) } }
+            resolver.update(uri, android.content.ContentValues().apply { put(android.provider.MediaStore.Downloads.IS_PENDING, 0) }, null, null)
+            true
+        }.getOrDefault(false)
     }
 }
