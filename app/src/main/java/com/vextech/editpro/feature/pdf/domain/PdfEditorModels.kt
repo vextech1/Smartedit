@@ -105,6 +105,7 @@ enum class PdfEditorMessageKey {
     RANGE_INVALID,
     RANGE_PAST_END,
     MERGE_FILE_UNREADABLE,
+    CROP_TOO_LARGE,
 }
 
 data class PdfEditorSession(

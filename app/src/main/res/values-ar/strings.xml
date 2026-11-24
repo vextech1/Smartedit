@@ -964,4 +964,27 @@
     <string name="pn_err_bates_start">يجب أن يكون رقم بداية بيتس عددًا صحيحًا 0 أو أكثر.</string>
     <string name="pn_err_no_text">اكتب نصًا في مكان واحد على الأقل.</string>
     <string name="pn_err_char">لا يمكن طباعة «%1$s» بهذا الخط. استخدم حروفًا وأرقامًا وعلامات ترقيم من الأبجديات الغربية.</string>
+    <string name="crop_title">اقتصاص وتغيير الحجم</string>
+    <string name="crop_menu">قصّ الصفحات أو تغيير حجمها</string>
+    <string name="crop_mode_trim">قصّ الهوامش</string>
+    <string name="crop_mode_resize">ملاءمة الورق</string>
+    <string name="crop_top">أعلى (مم)</string>
+    <string name="crop_bottom">أسفل (مم)</string>
+    <string name="crop_left">يسار (مم)</string>
+    <string name="crop_right">يمين (مم)</string>
+    <string name="crop_trim_note">القصّ يخفي المنطقة المقصوصة لكنها لا تُمحى من الملف، فلا تستخدمه لإخفاء معلومات خاصة. لإزالة المحتوى نهائيًا استخدم الحجب.</string>
+    <string name="crop_resize_note">تُغيَّر مقاييس الصفحات لتناسب الورق. تُزال الروابط والملاحظات من الصفحات المعدَّلة.</string>
+    <string name="crop_orient_auto">مطابقة كل صفحة</string>
+    <string name="crop_orient_portrait">عمودي</string>
+    <string name="crop_orient_landscape">أفقي</string>
+    <string name="crop_margin">الهامش (مم)</string>
+    <string name="crop_paper_letter">Letter</string>
+    <string name="crop_paper_legal">Legal</string>
+    <string name="crop_pages">الصفحات (فارغ = الكل)</string>
+    <string name="crop_err_margin">يجب أن تكون الهوامش أرقامًا، صفر أو أكثر.</string>
+    <string name="crop_err_paper_margin">الهامش كبير جدًا لهذا الحجم من الورق.</string>
+    <string name="crop_err_pages">\"%1$s\" ليست صفحة أو نطاقًا. جرّب مثل 1-3، 5.</string>
+    <string name="crop_err_pages_invalid">\"%1$s\" ليس نطاقًا صالحًا.</string>
+    <string name="crop_err_pages_past_end">إحدى الصفحات بعد النهاية. هذا الملف فيه %1$d صفحة.</string>
+    <string name="crop_err_too_large">الهوامش أكبر من الصفحة. استخدم قيمًا أصغر.</string>
 </resources>

@@ -940,4 +940,27 @@
     <string name="pn_err_bates_start">El número inicial Bates debe ser un entero de 0 o más.</string>
     <string name="pn_err_no_text">Escribe texto en al menos un lugar.</string>
     <string name="pn_err_char">“%1$s” no se puede imprimir con esta fuente. Usa letras, números y signos de alfabetos occidentales.</string>
+    <string name="crop_title">Recortar y cambiar tamaño</string>
+    <string name="crop_menu">Recortar o cambiar tamaño de páginas</string>
+    <string name="crop_mode_trim">Recortar márgenes</string>
+    <string name="crop_mode_resize">Ajustar al papel</string>
+    <string name="crop_top">Superior (mm)</string>
+    <string name="crop_bottom">Inferior (mm)</string>
+    <string name="crop_left">Izquierda (mm)</string>
+    <string name="crop_right">Derecha (mm)</string>
+    <string name="crop_trim_note">Recortar oculta la zona recortada, pero no se borra del archivo; no lo uses para ocultar información privada. Para quitar contenido de forma definitiva, usa Tachar.</string>
+    <string name="crop_resize_note">Las páginas se escalan para ajustarse al papel. Se quitan los enlaces y notas de las páginas modificadas.</string>
+    <string name="crop_orient_auto">Igualar cada página</string>
+    <string name="crop_orient_portrait">Vertical</string>
+    <string name="crop_orient_landscape">Horizontal</string>
+    <string name="crop_margin">Margen (mm)</string>
+    <string name="crop_paper_letter">Carta</string>
+    <string name="crop_paper_legal">Legal</string>
+    <string name="crop_pages">Páginas (vacío = todas)</string>
+    <string name="crop_err_margin">Los márgenes deben ser números, cero o más.</string>
+    <string name="crop_err_paper_margin">El margen es demasiado grande para este tamaño de papel.</string>
+    <string name="crop_err_pages">«%1$s» no es una página ni un rango. Prueba algo como 1-3, 5.</string>
+    <string name="crop_err_pages_invalid">«%1$s» no es un rango válido.</string>
+    <string name="crop_err_pages_past_end">Una página está más allá del final. Este PDF tiene %1$d páginas.</string>
+    <string name="crop_err_too_large">Los márgenes son mayores que la página. Usa valores menores.</string>
 </resources>

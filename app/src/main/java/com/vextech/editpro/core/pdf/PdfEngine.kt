@@ -92,6 +92,11 @@ interface PdfEngine {
     fun rotatePages(input: File, pages: List<Int>, degrees: Int, output: File, password: String? = null)
     fun cropPages(input: File, pages: List<Int>, rect: PdfRect, output: File, password: String? = null)
     /**
+     * Trims or fits whole pages as set in [options] (the site's Crop PDF). Trimming hides the margin; it is not erased from the file.
+     * Returns how many pages changed. Throws [CropTooLargeException] when a margin leaves nothing of a page.
+     */
+    fun cropOrResize(input: File, options: CropOptions, output: File, password: String? = null): Int
+    /**
      * Stamps a text or picture watermark on [pages] (0-based; null means every page) and returns how many pages were marked.
      * [logo] is the picture for a [WatermarkKind.LOGO] draft. Placement follows the page as it looks on screen, so rotated pages stay upright.
      */
@@ -331,6 +336,72 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             }
             doc.save(output)
         }
+    }
+
+    override fun cropOrResize(input: File, options: CropOptions, output: File, password: String?): Int {
+        var changed = 0
+        load(input, password).use { doc ->
+            val chosen = (options.pages ?: (0 until doc.numberOfPages).toList()).filter { it in 0 until doc.numberOfPages }.toSet()
+            when (options) {
+                is CropOptions.Trim -> {
+                    // Check every page first so a refusal never leaves a half-trimmed file.
+                    for (index in chosen.sorted()) {
+                        val page = doc.getPage(index)
+                        val cur = page.cropBox
+                        val box = PageBox(cur.lowerLeftX.toDouble(), cur.lowerLeftY.toDouble(), cur.width.toDouble(), cur.height.toDouble())
+                        if (!CropMath.leavesRoom(box, page.rotation, options.margins)) throw CropTooLargeException(index)
+                    }
+                    for (index in chosen.sorted()) {
+                        val page = doc.getPage(index)
+                        val cur = page.cropBox
+                        val b = CropMath.cropBoxFor(PageBox(cur.lowerLeftX.toDouble(), cur.lowerLeftY.toDouble(), cur.width.toDouble(), cur.height.toDouble()), page.rotation, options.margins)
+                        val rect = PDRectangle(b.x.toFloat(), b.y.toFloat(), b.width.toFloat(), b.height.toFloat())
+                        page.cropBox = rect
+                        page.mediaBox = rect   // viewers that ignore the crop box then agree with the ones that do not
+                        changed++
+                    }
+                }
+                is CropOptions.Resize -> for (index in chosen.sorted()) {
+                    resizePageOntoPaper(doc, doc.getPage(index), options)
+                    changed++
+                }
+            }
+            output.parentFile?.mkdirs()
+            doc.save(output)
+        }
+        return changed
+    }
+
+    /**
+     * Scales one page to fit the chosen paper inside the margin. The page keeps its own rotation, so the sheet is built in the page's
+     * unrotated space: the old content is wrapped in "save, move and scale, clip to the old box" and "restore", and the boxes become the sheet.
+     * Links and notes are removed because they would no longer sit on what they point at (the site's version does the same).
+     */
+    private fun resizePageOntoPaper(doc: PDDocument, page: PDPage, options: CropOptions.Resize) {
+        val cur = page.cropBox
+        val rotation = PdfEditorPolicies.normalizeRotation(page.rotation)
+        val old = PageBox(cur.lowerLeftX.toDouble(), cur.lowerLeftY.toDouble(), cur.width.toDouble(), cur.height.toDouble())
+        val (vw, vh) = CropMath.visualSize(old, rotation)
+        val (sheetW, sheetH) = CropMath.sheetSize(options.paper, options.orientation, vw, vh)
+        val fit = CropMath.fitOnSheet(vw, vh, sheetW, sheetH, options.marginPoints)
+        // The page's own space is the visual sheet turned back by the rotation, and centring is the same in both.
+        val (boxW, boxH) = if (rotation % 180 == 90) sheetH to sheetW else sheetW to sheetH
+        val drawW = old.width * fit.scale
+        val drawH = old.height * fit.scale
+        val tx = (boxW - drawW) / 2.0 - old.x * fit.scale
+        val ty = (boxH - drawH) / 2.0 - old.y * fit.scale
+        PDPageContentStream(doc, page, PDPageContentStream.AppendMode.PREPEND, true, false).use { s ->
+            s.saveGraphicsState()
+            s.transform(PdfBoxMatrix(fit.scale.toFloat(), 0f, 0f, fit.scale.toFloat(), tx.toFloat(), ty.toFloat()))
+            s.addRect(old.x.toFloat(), old.y.toFloat(), old.width.toFloat(), old.height.toFloat())
+            s.clip()
+        }
+        PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, false).use { s -> s.restoreGraphicsState() }
+        val sheet = PDRectangle(0f, 0f, boxW.toFloat(), boxH.toFloat())
+        page.mediaBox = sheet
+        page.cropBox = sheet
+        listOf(COSName.TRIM_BOX, COSName.BLEED_BOX, COSName.ART_BOX).forEach { page.cosObject.removeItem(it) }
+        page.annotations = emptyList()
     }
 
     override fun watermark(input: File, draft: WatermarkDraft, logo: Bitmap?, pages: Set<Int>?, output: File, password: String?): Int {

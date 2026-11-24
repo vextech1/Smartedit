@@ -24,6 +24,7 @@ interface PdfEditorRepository {
     suspend fun insertBlankPage(sessionId: String, insertAt: Int, widthPoints: Float, heightPoints: Float): PdfEditorSession
     suspend fun rotatePages(sessionId: String, pages: List<Int>, degrees: Int): PdfEditorSession
     suspend fun cropPages(sessionId: String, pages: List<Int>, rect: PdfRect): PdfEditorSession
+    suspend fun cropOrResize(sessionId: String, options: com.vextech.editpro.core.pdf.CropOptions): PdfEditorSession
     suspend fun watermark(sessionId: String, draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?): PdfEditorSession
     suspend fun addStamp(sessionId: String, options: StampOptions): PdfEditorSession
     suspend fun addText(sessionId: String, page: Int, rect: PdfRect, text: String, fontSize: Float): PdfEditorSession

@@ -77,7 +77,7 @@ import com.vextech.editpro.core.ui.UiText
 import java.io.File
 
 enum class PdfCanvasTool { NONE, CROP, HIGHLIGHT, UNDERLINE, STRIKEOUT, TEXT, NOTE, LINK, RECTANGLE, INK, SIGNATURE, REDACT }
-private enum class PdfDialog { SAVE_AS, WATERMARK, PAGE_NUMBERS, SEARCH, TEXT, NOTE, LINK, REDACT_CONFIRM, FORMS, METADATA, BOOKMARKS, ANNOTATIONS, EXTRACTED_TEXT }
+private enum class PdfDialog { SAVE_AS, WATERMARK, PAGE_NUMBERS, CROP_SHEET, SEARCH, TEXT, NOTE, LINK, REDACT_CONFIRM, FORMS, METADATA, BOOKMARKS, ANNOTATIONS, EXTRACTED_TEXT }
 
 /** Which row of canvas tools is open above the dock. */
 private enum class ToolPanel { ANNOTATE, SIGN }
@@ -258,6 +258,8 @@ fun PdfToolsScreen(
                         date = java.time.LocalDate.now().toString(),
                         onCancel = { dialog = null },
                     ) { options -> vm.addStamp(options); dialog = null }
+                } else if (dialog == PdfDialog.CROP_SHEET) {
+                    CropSheet(pageCount = state.pages.size, onCancel = { dialog = null }) { options -> vm.cropOrResize(options); dialog = null }
                 } else EditorDock(
                     panel = panel,
                     tool = tool,
@@ -295,6 +297,7 @@ fun PdfToolsScreen(
                         MoreAction(Icons.AutoMirrored.Rounded.NoteAdd, R.string.pdf_insert_pages) { insertPicker.launch(arrayOf("application/pdf")) },
                         MoreAction(Icons.Rounded.PostAdd, R.string.pdf_insert_blank_page) { vm.insertBlankPage() },
                         MoreAction(Icons.Rounded.Tag, R.string.pdf_page_numbers) { dialog = PdfDialog.PAGE_NUMBERS },
+                        MoreAction(Icons.Rounded.Crop, R.string.crop_menu) { dialog = PdfDialog.CROP_SHEET },
                         MoreAction(Icons.Rounded.WaterDrop, R.string.pdf_watermark) { dialog = PdfDialog.WATERMARK },
                     ),
                     ::pick,
@@ -334,6 +337,7 @@ fun PdfToolsScreen(
         PdfDialog.SAVE_AS -> TextInputDialog(stringResource(R.string.pdf_save_as), stringResource(R.string.pdf_filename), onDismiss = { dialog = null }) { vm.save(it); dialog = null }
         PdfDialog.WATERMARK -> Unit   // shown as a sheet above the dock
         PdfDialog.PAGE_NUMBERS -> Unit   // shown as a sheet above the dock
+        PdfDialog.CROP_SHEET -> Unit   // shown as a sheet above the dock
         PdfDialog.SEARCH -> SearchDialog(state.searchQuery, state.searchHits, { dialog = null }, vm::search) { page -> vm.selectPage(page); dialog = null }
         PdfDialog.TEXT -> TextInputDialog(stringResource(R.string.pdf_add_text), stringResource(R.string.pdf_text), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.addText(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.NOTE -> TextInputDialog(stringResource(R.string.pdf_add_note), stringResource(R.string.pdf_note), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.note(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
@@ -1011,4 +1015,5 @@ private fun pdfMessage(key: PdfEditorMessageKey): String = when (key) {
     PdfEditorMessageKey.RANGE_INVALID -> stringResource(R.string.pdf_range_invalid)
     PdfEditorMessageKey.RANGE_PAST_END -> stringResource(R.string.pdf_range_past_end)
     PdfEditorMessageKey.MERGE_FILE_UNREADABLE -> stringResource(R.string.pdf_merge_unreadable)
+    PdfEditorMessageKey.CROP_TOO_LARGE -> stringResource(R.string.crop_err_too_large)
 }

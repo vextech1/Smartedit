@@ -176,6 +176,22 @@ class PdfEditorViewModel @Inject constructor(
 
     fun cropSelected(rect: PdfRect) = selectedMutation { id, pages -> repository.cropPages(id, pages, rect) }
     fun watermark(draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?) = mutate { id -> repository.watermark(id, draft, logo, pages) }
+    /** Trim margins or fit pages to paper. A margin that leaves nothing of a page is reported, not applied. */
+    fun cropOrResize(options: com.vextech.editpro.core.pdf.CropOptions) = viewModelScope.launch {
+        val id = _state.value.session?.id ?: return@launch
+        _state.update { it.copy(busy = true, message = null, detail = null) }
+        try {
+            refreshAfterMutation(repository.cropOrResize(id, options))
+        } catch (_: com.vextech.editpro.core.pdf.CropTooLargeException) {
+            _state.update { it.copy(message = PdfEditorMessageKey.CROP_TOO_LARGE, detail = null) }
+        } catch (error: Exception) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            _state.update { it.copy(message = PdfEditorMessageKey.OPERATION_FAILED, detail = error.message) }
+        } finally {
+            _state.update { it.copy(busy = false) }
+        }
+    }
+
     fun addStamp(options: StampOptions) = mutate { id -> repository.addStamp(id, options) }
 
     fun insertBlankPage() {

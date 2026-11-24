@@ -168,6 +168,7 @@ class AndroidPdfEditorRepository @Inject constructor(
 
     override suspend fun rotatePages(sessionId: String, pages: List<Int>, degrees: Int) = mutate(sessionId, EditPermission.ASSEMBLE) { h, out -> engine.rotatePages(h.working, pages, degrees, out, h.password) }
     override suspend fun cropPages(sessionId: String, pages: List<Int>, rect: PdfRect) = mutate(sessionId) { h, out -> engine.cropPages(h.working, pages, rect, out, h.password) }
+    override suspend fun cropOrResize(sessionId: String, options: com.vextech.editpro.core.pdf.CropOptions) = mutate(sessionId) { h, out -> engine.cropOrResize(h.working, options, out, h.password) }
     override suspend fun watermark(sessionId: String, draft: WatermarkDraft, logo: Uri?, pages: Set<Int>?): PdfEditorSession = withContext(io) {
         if (logo == null) return@withContext mutateOnIo(sessionId) { h, out -> engine.watermark(h.working, draft, null, pages, out, h.password) }
         val staged = store.stageContent(logo, ".img")

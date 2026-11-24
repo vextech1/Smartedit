@@ -940,4 +940,27 @@
     <string name="pn_err_bates_start">Le numéro de départ Bates doit être un entier de 0 ou plus.</string>
     <string name="pn_err_no_text">Saisissez du texte à au moins un endroit.</string>
     <string name="pn_err_char">« %1$s » ne peut pas être imprimé avec cette police. Utilisez des lettres, chiffres et signes de ponctuation des alphabets occidentaux.</string>
+    <string name="crop_title">Rogner et redimensionner</string>
+    <string name="crop_menu">Rogner ou redimensionner les pages</string>
+    <string name="crop_mode_trim">Rogner les marges</string>
+    <string name="crop_mode_resize">Ajuster au papier</string>
+    <string name="crop_top">Haut (mm)</string>
+    <string name="crop_bottom">Bas (mm)</string>
+    <string name="crop_left">Gauche (mm)</string>
+    <string name="crop_right">Droite (mm)</string>
+    <string name="crop_trim_note">Le rognage masque la zone rognée mais ne l’efface pas du fichier ; ne l’utilisez pas pour cacher des informations privées. Pour supprimer du contenu définitivement, utilisez Masquer.</string>
+    <string name="crop_resize_note">Les pages sont mises à l’échelle du papier. Les liens et notes des pages redimensionnées sont supprimés.</string>
+    <string name="crop_orient_auto">Suivre chaque page</string>
+    <string name="crop_orient_portrait">Portrait</string>
+    <string name="crop_orient_landscape">Paysage</string>
+    <string name="crop_margin">Marge (mm)</string>
+    <string name="crop_paper_letter">Letter</string>
+    <string name="crop_paper_legal">Legal</string>
+    <string name="crop_pages">Pages (vide = toutes)</string>
+    <string name="crop_err_margin">Les marges doivent être des nombres, zéro ou plus.</string>
+    <string name="crop_err_paper_margin">La marge est trop grande pour ce format de papier.</string>
+    <string name="crop_err_pages">« %1$s » n’est pas une page ni une plage. Essayez par exemple 1-3, 5.</string>
+    <string name="crop_err_pages_invalid">« %1$s » n’est pas une plage valide.</string>
+    <string name="crop_err_pages_past_end">Une page dépasse la fin. Ce PDF compte %1$d pages.</string>
+    <string name="crop_err_too_large">Les marges sont plus grandes qu’une page. Utilisez des valeurs plus petites.</string>
 </resources>

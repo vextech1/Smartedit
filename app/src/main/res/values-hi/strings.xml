@@ -932,4 +932,27 @@
     <string name="pn_err_bates_start">बेट्स शुरुआती नंबर 0 या उससे ज़्यादा पूर्ण संख्या होना चाहिए।</string>
     <string name="pn_err_no_text">कम से कम एक जगह टेक्स्ट लिखें।</string>
     <string name="pn_err_char">“%1$s” इस फ़ॉन्ट से प्रिंट नहीं हो सकता। पश्चिमी लिपियों के अक्षर, अंक और विराम चिह्न इस्तेमाल करें।</string>
+    <string name="crop_title">क्रॉप और आकार बदलें</string>
+    <string name="crop_menu">पेज ट्रिम या रीसाइज़ करें</string>
+    <string name="crop_mode_trim">हाशिए ट्रिम करें</string>
+    <string name="crop_mode_resize">कागज़ के अनुसार करें</string>
+    <string name="crop_top">ऊपर (मिमी)</string>
+    <string name="crop_bottom">नीचे (मिमी)</string>
+    <string name="crop_left">बायाँ (मिमी)</string>
+    <string name="crop_right">दायाँ (मिमी)</string>
+    <string name="crop_trim_note">ट्रिम करने से कटा हुआ हिस्सा छिप जाता है, फ़ाइल से मिटता नहीं; निजी जानकारी छिपाने के लिए इसका उपयोग न करें। सामग्री हमेशा के लिए हटाने के लिए Redact का उपयोग करें।</string>
+    <string name="crop_resize_note">पेज कागज़ के अनुसार स्केल किए जाते हैं। रीसाइज़ किए पेजों के लिंक और नोट हटा दिए जाते हैं।</string>
+    <string name="crop_orient_auto">हर पेज के अनुसार</string>
+    <string name="crop_orient_portrait">पोर्ट्रेट</string>
+    <string name="crop_orient_landscape">लैंडस्केप</string>
+    <string name="crop_margin">हाशिया (मिमी)</string>
+    <string name="crop_paper_letter">Letter</string>
+    <string name="crop_paper_legal">Legal</string>
+    <string name="crop_pages">पेज (खाली = सभी)</string>
+    <string name="crop_err_margin">हाशिए संख्याएँ होनी चाहिए, शून्य या अधिक।</string>
+    <string name="crop_err_paper_margin">इस कागज़ के आकार के लिए हाशिया बहुत बड़ा है।</string>
+    <string name="crop_err_pages">\"%1$s\" कोई पेज या रेंज नहीं है। 1-3, 5 जैसा कुछ आज़माएँ।</string>
+    <string name="crop_err_pages_invalid">\"%1$s\" मान्य रेंज नहीं है।</string>
+    <string name="crop_err_pages_past_end">एक पेज अंत से आगे है। इस PDF में %1$d पेज हैं।</string>
+    <string name="crop_err_too_large">हाशिए पेज से बड़े हैं। छोटे मान इस्तेमाल करें।</string>
 </resources>

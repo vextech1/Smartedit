@@ -932,4 +932,27 @@
     <string name="pn_err_bates_start">Die Bates-Startnummer muss eine ganze Zahl ab 0 sein.</string>
     <string name="pn_err_no_text">Gib an mindestens einer Stelle einen Text ein.</string>
     <string name="pn_err_char">„%1$s“ kann mit dieser Schrift nicht gedruckt werden. Verwende Buchstaben, Ziffern und Satzzeichen westlicher Alphabete.</string>
+    <string name="crop_title">Zuschneiden und Größe ändern</string>
+    <string name="crop_menu">Seiten zuschneiden oder anpassen</string>
+    <string name="crop_mode_trim">Ränder abschneiden</string>
+    <string name="crop_mode_resize">An Papier anpassen</string>
+    <string name="crop_top">Oben (mm)</string>
+    <string name="crop_bottom">Unten (mm)</string>
+    <string name="crop_left">Links (mm)</string>
+    <string name="crop_right">Rechts (mm)</string>
+    <string name="crop_trim_note">Beim Zuschneiden wird der Bereich nur ausgeblendet, nicht aus der Datei gelöscht. Nutze es nicht, um private Informationen zu verbergen. Zum endgültigen Entfernen verwende Schwärzen.</string>
+    <string name="crop_resize_note">Die Seiten werden auf das Papier skaliert. Links und Notizen auf angepassten Seiten werden entfernt.</string>
+    <string name="crop_orient_auto">Jede Seite beibehalten</string>
+    <string name="crop_orient_portrait">Hochformat</string>
+    <string name="crop_orient_landscape">Querformat</string>
+    <string name="crop_margin">Rand (mm)</string>
+    <string name="crop_paper_letter">Letter</string>
+    <string name="crop_paper_legal">Legal</string>
+    <string name="crop_pages">Seiten (leer = alle)</string>
+    <string name="crop_err_margin">Ränder müssen Zahlen sein, null oder mehr.</string>
+    <string name="crop_err_paper_margin">Der Rand ist für dieses Papierformat zu groß.</string>
+    <string name="crop_err_pages">„%1$s“ ist keine Seite und kein Bereich. Versuche etwa 1-3, 5.</string>
+    <string name="crop_err_pages_invalid">„%1$s“ ist kein gültiger Bereich.</string>
+    <string name="crop_err_pages_past_end">Eine Seite liegt hinter dem Ende. Dieses PDF hat %1$d Seiten.</string>
+    <string name="crop_err_too_large">Die Ränder sind größer als eine Seite. Nutze kleinere Werte.</string>
 </resources>
