@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -387,7 +388,7 @@ private fun CropSheet(aspect: CropShape, onAspect: (CropShape) -> Unit, applyEna
         onApply = onApply,
         busy = !applyEnabled,
     ) {
-        SheetChips(CropShape.entries.map { it.name to cropShapeLabel(it) }, aspect.name) { id -> onAspect(CropShape.valueOf(id)) }
+        SheetChips(CropShape.entries.map { it.name to cropShapeLabel(it) }, aspect.name, onPick = { id -> onAspect(CropShape.valueOf(id)) })
         SheetHint(stringResource(R.string.ie_crop_hint))
     }
 }
