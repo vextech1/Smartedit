@@ -76,7 +76,7 @@ Update this table in the same commit as your work. Claim a lane by changing the 
 | Phase 0: image sheet host, `EditOp` extension points, Adjust and Crop moved into sheets (E1 crop shapes, E2 adjust extras) | stage-one session | Merged (CI green): Crop and Adjust are ToolSheets; crop shapes Original, 4:5, 3:2, 9:16 added beside the app's; Adjust has temperature and tint; filter Clean document; More sheet reads the registry `feature/imageeditor/ImageTools.kt` (add an `ImageToolId`, one `imageTools` entry and one branch in the screen's More handler). Pure logic in `core/image/` with tests. Auto-crop (E1) and Rotate/Flip sheet are still their own lanes | `img/phase0-sheet-host` |
 | Phase 1 lane A: Rotate and Flip sheet (E3) | stage-one session | Merged (CI green): Rotate and Flip are ToolSheets with a live picture, mirror-on-screen is right after a quarter turn (`core/image/Turn.kt`), new `EditOp.Flip`; Flip added to the dock and More | `img/phase1-turn-export` |
 | Phase 1 lane B: Export sheet with size estimate (O1) | stage-one session | Merged (CI green): Save opens the Export sheet: JPG, PNG, WebP, quality, longest side (original, 2048, 1280, 800), live size and about-how-large estimate; JPG not offered when the picture has see-through pixels; works on an unedited photo too (`core/image/ExportMath.kt`) | `img/phase1-turn-export` |
-| Phase 2 lane C: Resize with presets (E4), logic and tests first | open | Not started | |
+| Phase 2 lane C: Resize with presets (E4), logic and tests first | stage-one session | Claimed, in progress | `img/phase2-resize` |
 | Phase 2 lane D: Round corners (E6) | open | Not started | |
 | Phase 2 lane E: Photo sheet for prints (E5) | open | Not started | |
 | Phase 3 lane F: Draw & Text (M1) | open | Not started | |
