@@ -968,4 +968,8 @@
     <string name="compressor_same_size">Mismo tamaño</string>
     <string name="compressor_grayscale_done">Convertido a escala de grises.</string>
     <string name="compressor_zip_title">Todos los archivos comprimidos (ZIP)</string>
+    <string name="reading_menu">Modo lectura</string>
+    <string name="reading_exit">Salir</string>
+    <string name="reading_page_of">Página %1$d de %2$d</string>
+    <string name="reading_page_description">Página %1$d de %2$d</string>
 </resources>

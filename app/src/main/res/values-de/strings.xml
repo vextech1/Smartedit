@@ -960,4 +960,8 @@
     <string name="compressor_same_size">Gleiche Größe</string>
     <string name="compressor_grayscale_done">In Graustufen umgewandelt.</string>
     <string name="compressor_zip_title">Alle komprimierten Dateien (ZIP)</string>
+    <string name="reading_menu">Lesemodus</string>
+    <string name="reading_exit">Beenden</string>
+    <string name="reading_page_of">Seite %1$d von %2$d</string>
+    <string name="reading_page_description">Seite %1$d von %2$d</string>
 </resources>

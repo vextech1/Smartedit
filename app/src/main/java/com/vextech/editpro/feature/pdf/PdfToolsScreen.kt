@@ -48,6 +48,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.vextech.editpro.feature.pdf.domain.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.CallSplit
 import androidx.compose.material.icons.automirrored.rounded.StickyNote2
@@ -84,7 +85,7 @@ private enum class PdfDialog { SAVE_AS, WATERMARK, PAGE_NUMBERS, CROP_SHEET, SEA
 private enum class ToolPanel { ANNOTATE, SIGN }
 
 /** The full screens inside an open document. */
-private enum class EditorMode { EDIT, PAGES, PROTECT }
+private enum class EditorMode { EDIT, PAGES, PROTECT, READING }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -189,6 +190,13 @@ fun PdfToolsScreen(
     }
 
     when (mode) {
+        EditorMode.READING -> ReadingScreen(
+            state = state,
+            startPage = currentPage,
+            onPageChanged = { vm.selectPage(it) },
+            loadPage = { vm.loadPreview(it) },
+            onExit = { mode = EditorMode.EDIT },
+        )
         EditorMode.PAGES -> PdfPagesScreen(state, vm, onBack = { mode = EditorMode.EDIT }, snackbarHostState = snackbarHostState)
         EditorMode.PROTECT -> PdfProtectScreen(
             state = state.security,
@@ -287,6 +295,7 @@ fun PdfToolsScreen(
                 MoreGroup(
                     stringResource(R.string.pdf_group_find),
                     listOf(
+                        MoreAction(Icons.AutoMirrored.Rounded.MenuBook, R.string.reading_menu) { mode = EditorMode.READING },
                         MoreAction(Icons.Rounded.Search, R.string.search) { dialog = PdfDialog.SEARCH },
                         MoreAction(Icons.AutoMirrored.Rounded.TextSnippet, R.string.pdf_extract_text) { vm.extractText(); dialog = PdfDialog.EXTRACTED_TEXT },
                         MoreAction(Icons.Rounded.Bookmarks, R.string.pdf_bookmarks) { dialog = PdfDialog.BOOKMARKS },
@@ -865,7 +874,7 @@ private fun PdfPageCanvas(
 }
 
 @Composable
-private fun PdfPreviewImage(path: String?, modifier: Modifier) {
+internal fun PdfPreviewImage(path: String?, modifier: Modifier) {
     val image by produceState<ImageBitmap?>(initialValue = null, path) {
         value = withContext(Dispatchers.IO) { path?.let { BitmapFactory.decodeFile(it)?.asImageBitmap() } }
     }
