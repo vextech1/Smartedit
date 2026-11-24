@@ -73,7 +73,7 @@ Update this table in the same commit as your work. Claim a lane by changing the 
 
 | Item | Owner | Status | Branch / PR |
 |---|---|---|---|
-| Phase 0: image sheet host, `EditOp` extension points, Adjust and Crop moved into sheets (E1 crop shapes, E2 adjust extras) | open | Not started | |
+| Phase 0: image sheet host, `EditOp` extension points, Adjust and Crop moved into sheets (E1 crop shapes, E2 adjust extras) | stage-one session | Claimed, in progress | `img/phase0-sheet-host` |
 | Phase 1 lane A: Rotate and Flip sheet (E3) | open | Not started | |
 | Phase 1 lane B: Export sheet with size estimate (O1) | open | Not started | |
 | Phase 2 lane C: Resize with presets (E4), logic and tests first | open | Not started | |
