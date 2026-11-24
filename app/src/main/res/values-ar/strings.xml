@@ -1024,4 +1024,17 @@
     <string name="ie_temperature">درجة الحرارة (من بارد إلى دافئ)</string>
     <string name="ie_tint">الصبغة (من أخضر إلى أرجواني)</string>
     <string name="ie_filter_document">مستند نظيف</string>
+    <string name="ie_flip">قلب</string>
+    <string name="ie_flip_horizontal">من اليسار إلى اليمين</string>
+    <string name="ie_flip_vertical">من الأعلى إلى الأسفل</string>
+    <string name="ie_flip_hint">اضغط مرة أخرى للتراجع عن القلب. لن يُحفظ شيء حتى تضغط علامة الصح.</string>
+    <string name="ie_rotate_hint">اضغط بقدر ما تحتاج. لن يُحفظ شيء حتى تضغط علامة الصح.</string>
+    <string name="ie_export">تصدير</string>
+    <string name="ie_export_original">الحجم الأصلي</string>
+    <string name="ie_export_px">%1$d بكسل</string>
+    <string name="ie_export_quality">الجودة %1$d</string>
+    <string name="ie_export_png_note">يحتفظ PNG بكل بكسل، لذا لا تنطبق الجودة وقد تكون الملفات كبيرة.</string>
+    <string name="ie_export_estimate">%1$d × %2$d بكسل · حوالي %3$s</string>
+    <string name="ie_export_estimating">جارٍ حساب الحجم…</string>
+    <string name="ie_export_alpha_note">في هذه الصورة مناطق شفافة، لذا لا يتوفر JPG.</string>
 </resources>

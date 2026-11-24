@@ -992,4 +992,17 @@
     <string name="ie_temperature">तापमान (ठंडा से गर्म)</string>
     <string name="ie_tint">टिंट (हरा से मैजेंटा)</string>
     <string name="ie_filter_document">साफ़ दस्तावेज़</string>
+    <string name="ie_flip">पलटें</string>
+    <string name="ie_flip_horizontal">बाएँ से दाएँ</string>
+    <string name="ie_flip_vertical">ऊपर से नीचे</string>
+    <string name="ie_flip_hint">पलटना वापस करने के लिए फिर टैप करें। टिक दबाने तक कुछ सहेजा नहीं जाता।</string>
+    <string name="ie_rotate_hint">जितनी बार चाहें टैप करें। टिक दबाने तक कुछ सहेजा नहीं जाता।</string>
+    <string name="ie_export">एक्सपोर्ट</string>
+    <string name="ie_export_original">मूल आकार</string>
+    <string name="ie_export_px">%1$d px</string>
+    <string name="ie_export_quality">गुणवत्ता %1$d</string>
+    <string name="ie_export_png_note">PNG हर पिक्सेल रखता है, इसलिए गुणवत्ता लागू नहीं होती और फ़ाइलें बड़ी हो सकती हैं।</string>
+    <string name="ie_export_estimate">%1$d × %2$d px · लगभग %3$s</string>
+    <string name="ie_export_estimating">आकार निकाला जा रहा है…</string>
+    <string name="ie_export_alpha_note">इस तस्वीर में पारदर्शी हिस्से हैं, इसलिए JPG नहीं दिया गया।</string>
 </resources>
