@@ -572,14 +572,13 @@ private fun MoreGroup(title: String, actions: List<MoreAction>, pick: (() -> Uni
 
 // ───────────────────────────── Pages (organize) ─────────────────────────────
 
+private enum class PagesSheet { SPLIT, ARRANGE }
+
 @Composable
 private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBack: () -> Unit, snackbarHostState: SnackbarHostState) {
     val selected = state.selectedPages
     val enabled = selected.isNotEmpty() && !state.busy
-    var arrangeOpen by remember { mutableStateOf(false) }
-    var splitOpen by remember { mutableStateOf(false) }
-    if (splitOpen) SplitDialog(state.pages.size, onSplit = { vm.split(it) }, onDismiss = { splitOpen = false })
-    if (arrangeOpen) ArrangeDialog(vm, onDismiss = { arrangeOpen = false })
+    var sheet by remember { mutableStateOf<PagesSheet?>(null) }
     FeatureScaffold(
         title = stringResource(R.string.pdf_pages_title),
         onBack = onBack,
@@ -609,67 +608,30 @@ private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBa
                     )
                 }
             }
-            Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
+            when (sheet) {
+                PagesSheet.SPLIT -> SplitSheet(state.pages.size, state.busy, onCancel = { sheet = null }, onSplit = { vm.split(it) })
+                PagesSheet.ARRANGE -> ArrangeSheet(state.pages.size, state.busy, onCancel = { sheet = null }) { op ->
+                    when (op) {
+                        ArrangeOp.REVERSE -> vm.reverseAll()
+                        ArrangeOp.ROTATE_RIGHT -> vm.rotateAll(90)
+                        ArrangeOp.ROTATE_LEFT -> vm.rotateAll(270)
+                        ArrangeOp.DOUBLE_SIDED_REVERSED -> vm.fixDoubleSided(true)
+                        ArrangeOp.DOUBLE_SIDED_IN_ORDER -> vm.fixDoubleSided(false)
+                    }
+                }
+                null -> Surface(shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp), color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 3.dp) {
                 Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.SpaceAround) {
                     PagesAction(Icons.AutoMirrored.Rounded.RotateRight, R.string.pdf_rotate_pages, enabled) { vm.rotateSelected(90) }
                     PagesAction(Icons.Rounded.ContentCopy, R.string.pdf_duplicate_pages, enabled) { vm.duplicateSelected() }
                     PagesAction(Icons.Rounded.IosShare, R.string.pdf_extract_pages, enabled) { vm.extractSelected() }
-                    PagesAction(Icons.AutoMirrored.Rounded.CallSplit, R.string.pdf_split, !state.busy) { splitOpen = true }
-                    PagesAction(Icons.Rounded.SwapVert, R.string.pdf_arrange, !state.busy && state.pages.isNotEmpty()) { arrangeOpen = true }
+                    PagesAction(Icons.AutoMirrored.Rounded.CallSplit, R.string.pdf_split, !state.busy) { sheet = PagesSheet.SPLIT }
+                    PagesAction(Icons.Rounded.SwapVert, R.string.pdf_arrange, !state.busy && state.pages.isNotEmpty()) { sheet = PagesSheet.ARRANGE }
                     PagesAction(Icons.Rounded.Delete, R.string.pdf_delete_pages, enabled, MaterialTheme.colorScheme.error) { vm.deleteSelected() }
+                }
                 }
             }
         }
     }
-}
-
-/** Split into one PDF per page, or one per typed range (`1-3, 5, 7-9`). Several parts also come as one ZIP. */
-@Composable
-private fun SplitDialog(pages: Int, onSplit: (String?) -> Unit, onDismiss: () -> Unit) {
-    var byRanges by remember { mutableStateOf(false) }
-    var ranges by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_split)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.pdf_split_summary, pages), style = MaterialTheme.typography.bodyMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(!byRanges, { byRanges = false }, { Text(stringResource(R.string.pdf_split_every)) })
-                    FilterChip(byRanges, { byRanges = true }, { Text(stringResource(R.string.pdf_split_ranges)) })
-                }
-                if (byRanges) {
-                    OutlinedTextField(
-                        value = ranges, onValueChange = { ranges = it }, singleLine = true,
-                        label = { Text(stringResource(R.string.pdf_split_pages_hint)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    )
-                }
-            }
-        },
-        confirmButton = { TextButton({ onSplit(if (byRanges) ranges else null); onDismiss() }) { Text(stringResource(R.string.pdf_split)) } },
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
-}
-
-/** Whole-document page order and rotation: reverse, rotate all, fix a two-pass double-sided scan. */
-@Composable
-private fun ArrangeDialog(vm: PdfEditorViewModel, onDismiss: () -> Unit) {
-    fun run(block: () -> Unit): () -> Unit = { block(); onDismiss() }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_arrange)) },
-        text = {
-            Column {
-                TextButton(run { vm.reverseAll() }) { Text(stringResource(R.string.pdf_reverse_order)) }
-                TextButton(run { vm.rotateAll(90) }) { Text(stringResource(R.string.pdf_rotate_all_right)) }
-                TextButton(run { vm.rotateAll(270) }) { Text(stringResource(R.string.pdf_rotate_all_left)) }
-                TextButton(run { vm.fixDoubleSided(true) }) { Text(stringResource(R.string.pdf_double_sided_reversed)) }
-                TextButton(run { vm.fixDoubleSided(false) }) { Text(stringResource(R.string.pdf_double_sided_normal)) }
-            }
-        },
-        confirmButton = { TextButton(onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
 }
 
 /** The page order after moving the page at [from] to [to]: each entry is an old page index, as `vm.reorder` expects. */

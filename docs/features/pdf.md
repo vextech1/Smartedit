@@ -9,7 +9,7 @@ EditPro's PDF feature is a native working-copy editor rather than a collection o
 - Open password-protected or unprotected PDFs.
 - Thumbnail/page strip with multi-page selection.
 - Merge documents.
-- Split every page to separate managed PDFs.
+- Split every page, or by typed ranges such as `1-3, 5, 7-9`, to separate managed PDFs, with a ZIP when there are two or more parts.
 - Extract selected pages.
 - Reorder pages using a strict full permutation; reordering never silently drops pages.
 - Delete selected pages.
@@ -34,7 +34,7 @@ Tools with settings open as a bottom sheet over the page (`ToolSheet`): a handle
 - **Crop and resize:** Trim margins in millimetres (top, bottom, left, right, as the page looks) or Fit to paper (A3, A4, A5, Letter, Legal; match each page, portrait or landscape; margin), for every page or a page range. In Trim mode the page behind the sheet shades what would be hidden. A trim that would leave a chosen page under 12 points is refused in the sheet and names the first such page. Cropped content is hidden, not erased; use Redact to remove it for good.
 - **Extract pictures:** pictures are saved from the PDF (JPEG copied byte for byte, others rebuilt as PNG, tiny ones skipped) and offered as a ZIP.
 - **Properties:** title, author and other fields, a "remove all metadata" tick, and the Created with and PDF producer fields.
-- **Organize and Split:** arrange pages (reverse, rotate all, double-sided scan fix); split every page or by ranges, with a ZIP when there are two or more parts.
+- **Organize and Split:** both are sheets that replace the Pages screen's action bar while open. *Arrange* is a drop-down of whole-document actions (reverse order, rotate all left or right, double-sided scan fix with backs reversed or in order); the double-sided fix warns when the page count is odd. *Split* offers every page or typed ranges, checks the ranges as they are typed (the tick does nothing until they are valid, so typed text is never lost), and gives a ZIP when there are two or more parts.
 - **Reading mode:** a full-screen page reader with one Exit button. System Back also exits, the system bars are hidden, and the document is left untouched.
 
 ### Accessibility of sheets
