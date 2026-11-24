@@ -39,7 +39,7 @@ Tools with settings open as a bottom sheet over the page (`ToolSheet`): a handle
 
 ### Accessibility of sheets
 
-The sheet handle is a button that says which sheet it closes; the tick says which tool it applies; the title is a heading. Chips and colour swatches are selectable groups that speak the choice and whether it is selected. Swatches have 48 dp touch targets. Each slider speaks its label with the current value, and validation errors are announced when they appear. Sheets and the page previews do not animate, so there is nothing to reduce for reduced-motion settings. A person still needs to check the sheets with TalkBack on a phone.
+The sheet handle is a button that says which sheet it closes; the tick says which tool it applies; the title is a heading. Chips and colour swatches are selectable groups that speak the choice and whether it is selected. Swatches have 48 dp touch targets. Each slider speaks its label with the current value, and validation errors are announced when they appear. Sheets and the page previews do not animate, so there is nothing to reduce for reduced-motion settings. Outside the sheets: page thumbnails in the strip and the grid say "Page N" and whether they are selected; a grid tile is a checkbox; the annotate and sign tool options are a radio group; dock items are buttons with a selected state. A person still needs to check the sheets and the dock with TalkBack on a phone. The page canvas itself (dragging boxes, ink) is a visual surface with no spoken alternative.
 
 ## Annotation and content tools
 

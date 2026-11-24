@@ -27,7 +27,7 @@ Update this table in the same commit as your work.
 | 3: Extract pictures | Sheet; JPEG copied byte for byte, others rebuilt as PNG; tiny pictures skipped; ZIP | Merged |
 | 4: Compress summary | The app already had per-file before/after, saved %, 20 files and the notes. Added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | Merged |
 | 5: Reading mode | Full-screen reader, one Exit button, Back also exits, system bars hidden. Opens from More > Reading mode | Merged |
-| 6: Polish and release check | Strings in six languages and static checks clean; TalkBack semantics for the shared sheet parts; `docs/features/pdf.md` and `tools.md` updated; More menu reviewed (no duplicates); full CI run on `main` green | Partly done, see below |
+| 6: Polish and release check | Strings in six languages and static checks clean; TalkBack semantics for the shared sheet parts; page thumbnails, grid tiles, annotate/sign options and dock items announce their role and state; Split and Arrange are sheets; `docs/features/pdf.md`, `tools.md`, `converter.md` and `ui-kit.md` updated; More menu reviewed (no duplicates); on wide screens a sheet is a side panel (`SheetPanel`); the old fixed page-number engine method removed; full CI run on `main` green | Partly done, see below |
 
 ## Open items
 1. **A person checks everything on a phone.** CI only compiles and runs unit tests. Look at: each sheet with TalkBack, watermark and trim previews, a watermark with a see-through logo, page numbers and watermark on a rotated page, compressing 2 or 3 files (including one grayscale run) and the ZIP card, Reading mode exit.

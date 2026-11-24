@@ -1,7 +1,7 @@
 # Image tools: build plan (bring the EditPro site's photo tools and editing sheets into the app)
 
 Audience: any engineer or AI agent helping build this. Read "Rules", "Architecture you must respect" and your phase, then work only inside your lane.
-This is the follow-on to `docs/PDF_BUILD_PLAN.md`. The sheet framework built there (`core/ui/sheet/*`: `ToolSheet`, `SheetParts`, `SheetEdits`, `Timeline`) is finished and merged, so image sheets reuse it as it is.
+This is the follow-on to `docs/PDF_BUILD_PLAN.md`. The sheet framework built there (`core/ui/sheet/*`: `ToolSheet`, `SheetParts`, `SheetEdits`, `SheetPanel`, `Timeline`) is finished and merged, so image sheets reuse it as it is.
 Reference implementation (read-only): the site, repo `vextech1/editpro` (SvelteKit). Everything the app must match is in
 `src/lib/tools.ts` (tool list and wording), `src/lib/core/studio-tools.ts` (groups), `src/lib/components/editor/PhotoEditor.svelte` and `editor/sheets/*.svelte` (the sheets),
 `src/lib/core/photo-ops.ts`, `presets.ts`, `shape.ts`, `annotate.ts`, `redact.ts`, `watermark.ts`, `frames.ts`, `collage.ts`, `palette.ts`, `print-sheet.ts`, `auto-crop.ts`, `image-edit.ts` (pure logic), and the older panels `ResizeImage`, `RoundImage`, `AnnotateImage`, `RedactImage`, `WatermarkImage`, `FrameImage`, `CollageImages`, `ImageTool` (compress and convert).
@@ -9,7 +9,7 @@ Reference implementation (read-only): the site, repo `vextech1/editpro` (SvelteK
 ## Reminders
 - **The app is ahead of the site in several image features. Never remove or weaken them** (list below). Bring the site's missing options in next to them.
 - Image tools use the same rules as the PDF work: strings in all six languages, pure logic gets unit tests, CI is the compiler, branches from latest `main`, update the status table in the same commit.
-- After the image tools: wide-screen side panel for `ToolSheet`, then a release check (Phase 9).
+- After the image tools: let the image editor use the wide-screen side panel for `ToolSheet` (the rule, `SheetPanel.useSidePanel`, and the layout already exist in the PDF editor; see `PdfToolsScreen.kt`), then a release check (Phase 9).
 
 ## Integration rule (decided by the owner): tools live inside the editors, not as separate features
 - **No new Tools-tab tiles.** The Tools tab keeps only the popular entries it has today (Edit PDF, Create PDF, Compress, Edit Image, Convert, Scan Document, Extract Text). Every new image tool (Resize, Round, Draw & Text, Hide, Watermark, Frames, Export, Collage, Colour Picker, Photo sheet) is reached **from inside Edit Image**, in its More sheet grouped Edit, Mark and Output. Searching the Tools tab for "resize" or "watermark" may list them as shortcuts that open Edit Image with that sheet already open (use `ImageEditorRoute(uri, tool = ...)`), never as separate screens.
@@ -63,7 +63,7 @@ Listed in the site's dock order (Edit, Mark, Output, `core/studio-tools.ts`).
 ## Architecture you must respect
 1. **The editor is non-destructive.** `core/library/ImageEditModel.kt` holds `EditOp` and `EditStack` (done and undone lists, merging of consecutive adjusts and filters). `ImageEditorViewModel.render(source, ops)` replays the ops on a 1600 px preview, and `save()` replays them on a copy up to 4096 px. **Every new tool is a new `EditOp` plus its replay step**, not a bitmap you keep in a field. That keeps undo, redo and hold-to-compare working for free.
 2. Put pure maths in `core/image/*` (new package, no Android imports where possible) and port from the matching site `.ts` file one to one, with unit tests in `app/src/test/java/com/vextech/editpro/core/image/`. Presets, resize maths, shape maths, redaction maths, watermark placement, frame layouts, collage layouts and palette are all pure and must be unit tested against numbers taken from the site's own tests (`src/lib/core/*.test.ts` if present).
-3. **Sheets use `ToolSheet`** (`core/ui/sheet`): `Reset | Title | tick`, max 46 % height, edits unapplied until the tick, two-level undo through `SheetEdits`. A sheet shows a live preview on the picture (as the PDF Watermark and Crop previews do) and only commits an `EditOp` on the tick.
+3. **Sheets use `ToolSheet`** (`core/ui/sheet`): `Reset | Title | tick`, max 46 % height on phones (a side panel on wide screens once the image editor adopts `SheetPanel`), edits unapplied until the tick, two-level undo through `SheetEdits`. A sheet shows a live preview on the picture (as the PDF Watermark and Crop previews do) and only commits an `EditOp` on the tick.
 4. (See the integration rule above.) The editor today has its own dock (`EditorDock`: Filters, Adjust, Crop, Rotate, Remove background) and its own crop and adjust panels. Move Adjust and Crop into sheets in Phase 1, keep Filters and Remove background, and add a **More** sheet of tools grouped like the PDF editor (Edit, Mark, Output).
 5. Memory: 40 megapixels and 8000 px are the site's hard limits (`photo-ops.ts` `withinLimits`). Keep them, and downscale before filters on phones. Recycle intermediate bitmaps.
 6. Hide and Blur must really destroy the pixels in the saved output (draw the box into the bitmap on the full-size replay), not just on the preview.
