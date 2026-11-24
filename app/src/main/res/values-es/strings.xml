@@ -977,4 +977,20 @@
     <string name="library_saved">Guardado en tu carpeta de Descargas.</string>
     <string name="library_report_subject">Denunciar un documento de la biblioteca: %1$s</string>
     <string name="library_report_body">Denuncio este documento de la biblioteca de EditPro.\nTítulo: %1$s\nID del archivo: %2$s\n\nMotivo (por ejemplo: copia mi trabajo, y aquí está quién soy y dónde está el original):\n\n</string>
+    <string name="extract_menu">Extraer imágenes</string>
+    <string name="extract_title">Imágenes</string>
+    <string name="extract_hint">Guarda las imágenes incluidas en este PDF. Las imágenes JPEG salen exactamente como están. Para guardar páginas completas como imágenes, usa PDF a imágenes.</string>
+    <string name="extract_skip_small">Omitir imágenes diminutas (menos de 50 píxeles), como iconos y líneas</string>
+    <string name="extract_none">No se encontraron imágenes extraíbles en este PDF.</string>
+    <string name="extract_none_hint">Si las páginas parecen fotos, pueden ser escaneos en un formato que no se puede extraer. Usa PDF a imágenes para guardar las páginas.</string>
+    <string name="extract_found">Imágenes encontradas: %1$d, en %2$d páginas.</string>
+    <string name="extract_skipped_tiny">Imágenes diminutas omitidas (iconos o líneas): %1$d</string>
+    <string name="extract_skipped_masks">Máscaras de plantilla omitidas: %1$d</string>
+    <string name="extract_skipped_unsupported">Imágenes en un formato que no se puede extraer: %1$d</string>
+    <string name="extract_truncated">Se detuvo en las primeras %1$d imágenes.</string>
+    <string name="extract_note_cmyk">Imágenes JPEG CMYK: %1$d. Los colores pueden verse invertidos en algunos visores.</string>
+    <string name="extract_note_alpha">Imágenes guardadas sin transparencia: %1$d. No se pudo leer la transparencia.</string>
+    <string name="extract_all_zip">Todas las imágenes (ZIP)</string>
+    <string name="extract_page_picture">Imagen de la página %1$d</string>
+    <string name="extract_showing_first">Se muestran las primeras %1$d de %2$d. El ZIP tiene todas.</string>
 </resources>

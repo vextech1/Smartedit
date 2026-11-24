@@ -1014,4 +1014,20 @@
     <string name="library_saved">Saved to your Downloads folder.</string>
     <string name="library_report_subject">Report a Library document: %1$s</string>
     <string name="library_report_body">I am reporting this document in the EditPro Library.\nTitle: %1$s\nFile ID: %2$s\n\nWhy (for example: it copies my work, and here is who I am and where the original is):\n\n</string>
+    <string name="extract_menu">Extract pictures</string>
+    <string name="extract_title">Pictures</string>
+    <string name="extract_hint">Save the pictures stored inside this PDF. JPEG pictures come out exactly as they are. To save whole pages as pictures, use PDF to images.</string>
+    <string name="extract_skip_small">Skip tiny images (under 50 pixels), such as icons and lines</string>
+    <string name="extract_none">No extractable pictures were found in this PDF.</string>
+    <string name="extract_none_hint">If the pages look like photos, they may be scans stored in a format that can’t be extracted. Use PDF to images to save the pages instead.</string>
+    <string name="extract_found">Pictures found: %1$d, on %2$d pages.</string>
+    <string name="extract_skipped_tiny">Tiny images skipped (icons or lines): %1$d</string>
+    <string name="extract_skipped_masks">Stencil masks skipped: %1$d</string>
+    <string name="extract_skipped_unsupported">Pictures in a format that can’t be extracted: %1$d</string>
+    <string name="extract_truncated">Stopped at the first %1$d pictures.</string>
+    <string name="extract_note_cmyk">CMYK JPEG pictures: %1$d. Colours may look inverted in some viewers.</string>
+    <string name="extract_note_alpha">Pictures saved without transparency: %1$d. The transparency could not be read.</string>
+    <string name="extract_all_zip">All pictures (ZIP)</string>
+    <string name="extract_page_picture">Picture from page %1$d</string>
+    <string name="extract_showing_first">Showing the first %1$d of %2$d. The ZIP has all of them.</string>
 </resources>

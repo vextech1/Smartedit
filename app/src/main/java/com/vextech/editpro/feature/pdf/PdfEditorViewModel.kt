@@ -41,6 +41,8 @@ data class PdfEditorUiState(
     val bookmarks: List<PdfBookmark> = emptyList(),
     val annotations: List<PdfAnnotationInfo> = emptyList(),
     val security: PdfSecurityState? = null,
+    /** The last "Pictures" run on this PDF; null before one has run. */
+    val imageExtraction: com.vextech.editpro.core.pdf.ImageExtraction? = null,
 )
 
 @HiltViewModel
@@ -211,6 +213,20 @@ class PdfEditorViewModel @Inject constructor(
             val out = repository.extractToManaged(id, pages)
             _state.update { it.copy(exportedFiles = listOf(out)) }
         }
+    }
+
+    /** Save the pictures inside this PDF. The document is not changed; the result is in [PdfEditorUiState.imageExtraction]. */
+    fun extractImages(skipSmall: Boolean) = viewModelScope.launch {
+        val id = _state.value.session?.id ?: return@launch
+        _state.update { it.copy(imageExtraction = null) }
+        busyRun(PdfEditorMessageKey.OPERATION_FAILED) {
+            val result = repository.extractImagesToManaged(id, if (skipSmall) 50 else 0)
+            _state.update { it.copy(imageExtraction = result) }
+        }
+    }
+
+    fun clearImageExtraction() {
+        _state.update { it.copy(imageExtraction = null) }
     }
 
     /** [ranges] is null for "every page", otherwise text like `1-3, 5, 7-9`; each part becomes its own PDF. */
