@@ -1037,4 +1037,17 @@
     <string name="ie_temperature">Temperature (cool to warm)</string>
     <string name="ie_tint">Tint (green to magenta)</string>
     <string name="ie_filter_document">Clean document</string>
+    <string name="ie_flip">Flip</string>
+    <string name="ie_flip_horizontal">Left to right</string>
+    <string name="ie_flip_vertical">Top to bottom</string>
+    <string name="ie_flip_hint">Tap again to undo a flip. Nothing is saved until you tap the tick.</string>
+    <string name="ie_rotate_hint">Tap as many times as you need. Nothing is saved until you tap the tick.</string>
+    <string name="ie_export">Export</string>
+    <string name="ie_export_original">Original size</string>
+    <string name="ie_export_px">%1$d px</string>
+    <string name="ie_export_quality">Quality %1$d</string>
+    <string name="ie_export_png_note">PNG keeps every pixel, so quality does not apply and files can be large.</string>
+    <string name="ie_export_estimate">%1$d × %2$d px · about %3$s</string>
+    <string name="ie_export_estimating">Working out the size…</string>
+    <string name="ie_export_alpha_note">This picture has see-through areas, so JPG is not offered.</string>
 </resources>

@@ -40,6 +40,13 @@ import com.vextech.editpro.R
 import com.vextech.editpro.core.ads.ExportInterstitialEffect
 import com.vextech.editpro.core.ads.UnityAdsService
 import com.vextech.editpro.core.image.CropShape
+import com.vextech.editpro.core.image.ExportEstimate
+import com.vextech.editpro.core.image.ExportFormat
+import com.vextech.editpro.core.image.ExportMath
+import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.Turn
+import androidx.compose.ui.draw.rotate
+import kotlin.math.roundToInt
 import com.vextech.editpro.core.library.AdjustParams
 import com.vextech.editpro.core.ui.sheet.SheetChips
 import com.vextech.editpro.core.ui.sheet.SheetHint
@@ -62,7 +69,7 @@ import com.vextech.editpro.core.ui.withAspect
 private val imageTypes = arrayOf("image/jpeg", "image/png", "image/webp")
 
 /** The strip shown above the dock: filter previews or the two rotate buttons. */
-private enum class EditorPanel { FILTERS, ROTATE }
+private enum class EditorPanel { FILTERS }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +105,9 @@ fun ImageEditorScreen(
         title = when (state.tool) {
             EditorTool.CROP -> stringResource(R.string.ie_crop)
             EditorTool.ADJUST -> stringResource(R.string.ie_adjust)
+            EditorTool.ROTATE -> stringResource(R.string.ie_rotate_title)
+            EditorTool.FLIP -> stringResource(R.string.ie_flip)
+            EditorTool.EXPORT -> stringResource(R.string.ie_export)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -109,7 +119,7 @@ fun ImageEditorScreen(
                 IconButton(onClick = vm::redo, enabled = state.stack.canRedo && !state.saving) {
                     Icon(Icons.AutoMirrored.Rounded.Redo, contentDescription = stringResource(R.string.ie_redo))
                 }
-                Button(onClick = vm::save, enabled = !state.stack.isEmpty && !state.saving, modifier = Modifier.padding(end = 8.dp)) {
+                Button(onClick = vm::openExport, enabled = !state.saving, modifier = Modifier.padding(end = 8.dp)) {
                     Text(stringResource(R.string.ie_save))
                 }
             }
@@ -158,6 +168,14 @@ fun ImageEditorScreen(
                         onReset = { aspect = CropShape.FREE; vm.setCrop(0f, 0f, 1f, 1f) },
                     )
                     EditorTool.ADJUST -> AdjustSheet(state.adjust, vm::setAdjust, vm::applyAdjust, vm::closeTool)
+                    EditorTool.ROTATE, EditorTool.FLIP -> TurnSheet(
+                        flip = state.tool == EditorTool.FLIP, turn = state.turn,
+                        onTurn = vm::setTurn, onApply = vm::applyTurn, onCancel = vm::closeTool,
+                    )
+                    EditorTool.EXPORT -> ExportSheet(
+                        hasAlpha = state.hasAlpha, estimate = state.export,
+                        onChange = vm::estimateExport, onApply = vm::save, onCancel = vm::closeTool,
+                    )
                     EditorTool.NONE -> EditorBottom(
                         state = state, vm = vm, panel = panel, enabled = enabled,
                         onPanel = { panel = it },
@@ -176,7 +194,9 @@ fun ImageEditorScreen(
                 when (id) {
                     ImageToolId.ADJUST -> vm.openAdjust()
                     ImageToolId.CROP -> vm.openCrop()
-                    ImageToolId.ROTATE -> panel = EditorPanel.ROTATE
+                    ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
+                    ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
+                    ImageToolId.EXPORT -> vm.openExport()
                     ImageToolId.REMOVE_BACKGROUND -> vm.removeBackground()
                 }
             },
@@ -330,21 +350,14 @@ private fun EditorBottom(state: ImageEditorUiState, vm: ImageEditorViewModel, pa
                         }
                     }
                 }
-                EditorPanel.ROTATE -> Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    FilledTonalButton(onClick = vm::rotateLeft, enabled = enabled, modifier = Modifier.weight(1f).height(52.dp)) {
-                        Icon(Icons.AutoMirrored.Rounded.RotateLeft, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_rotate_left))
-                    }
-                    FilledTonalButton(onClick = vm::rotateRight, enabled = enabled, modifier = Modifier.weight(1f).height(52.dp)) {
-                        Icon(Icons.AutoMirrored.Rounded.RotateRight, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_rotate_right))
-                    }
-                }
             }
             HorizontalDivider()
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp, vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)) {
                 DockItem(Icons.Rounded.PhotoFilter, R.string.ie_filters_title, panel == EditorPanel.FILTERS, enabled) { onPanel(EditorPanel.FILTERS) }
                 DockItem(Icons.Rounded.Tune, R.string.ie_adjust, false, enabled, vm::openAdjust)
                 DockItem(Icons.Rounded.Crop, R.string.ie_crop, false, enabled, vm::openCrop)
-                DockItem(Icons.Rounded.Rotate90DegreesCw, R.string.ie_rotate_title, panel == EditorPanel.ROTATE, enabled) { onPanel(EditorPanel.ROTATE) }
+                DockItem(Icons.Rounded.Rotate90DegreesCw, R.string.ie_rotate_title, false, enabled) { vm.openTurn(EditorTool.ROTATE) }
+                DockItem(Icons.Rounded.Flip, R.string.ie_flip, false, enabled) { vm.openTurn(EditorTool.FLIP) }
                 DockItem(Icons.Rounded.AutoFixHigh, R.string.ie_remove_background, false, enabled, vm::removeBackground)
                 DockItem(Icons.Rounded.MoreHoriz, R.string.ie_more, false, enabled, onMore)
             }
@@ -409,6 +422,72 @@ private fun AdjustSheet(adjust: AdjustParams, onChange: (AdjustParams) -> Unit, 
         SheetSlider(stringResource(R.string.ie_saturation), adjust.saturation, AdjustParams.SATURATION_RANGE, { onChange(adjust.copy(saturation = it)) })
         SheetSlider(stringResource(R.string.ie_temperature), adjust.temperature, AdjustParams.TONE_RANGE, { onChange(adjust.copy(temperature = it)) })
         SheetSlider(stringResource(R.string.ie_tint), adjust.tint, AdjustParams.TONE_RANGE, { onChange(adjust.copy(tint = it)) })
+    }
+}
+
+/** Rotate or Flip as a sheet, as on the site: tap as often as you like, the picture shows it at once, and nothing is saved until the tick. */
+@Composable
+private fun TurnSheet(flip: Boolean, turn: Turn, onTurn: (Turn) -> Unit, onApply: () -> Unit, onCancel: () -> Unit) {
+    ToolSheet(
+        title = stringResource(if (flip) R.string.ie_flip else R.string.ie_rotate_title),
+        onCancel = onCancel,
+        onReset = { onTurn(Turn.NONE) },
+        canReset = turn.isTurned,
+        onApply = onApply,
+        busy = !turn.isTurned,
+    ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (flip) {
+                FilledTonalButton(onClick = { onTurn(turn.flipOnScreen(horizontal = true)) }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(Icons.Rounded.Flip, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_flip_horizontal))
+                }
+                FilledTonalButton(onClick = { onTurn(turn.flipOnScreen(horizontal = false)) }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(Icons.Rounded.Flip, null, Modifier.rotate(90f)); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_flip_vertical))
+                }
+            } else {
+                FilledTonalButton(onClick = { onTurn(turn.turnBy(-1)) }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(Icons.AutoMirrored.Rounded.RotateLeft, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_rotate_left))
+                }
+                FilledTonalButton(onClick = { onTurn(turn.turnBy(1)) }, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Icon(Icons.AutoMirrored.Rounded.RotateRight, null); Spacer(Modifier.width(8.dp)); Text(stringResource(R.string.ie_rotate_right))
+                }
+            }
+        }
+        SheetHint(stringResource(if (flip) R.string.ie_flip_hint else R.string.ie_rotate_hint))
+    }
+}
+
+@Composable
+private fun sideLabel(side: Int): String = if (side == 0) stringResource(R.string.ie_export_original) else stringResource(R.string.ie_export_px, side)
+
+/** Export as a sheet: format, quality, longest side, and the size and about how large the file will be. The tick saves. */
+@Composable
+private fun ExportSheet(hasAlpha: Boolean, estimate: ExportEstimate?, onChange: (ExportRequest) -> Unit, onApply: (ExportRequest) -> Unit, onCancel: () -> Unit) {
+    val start = remember(hasAlpha) { ExportRequest(ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0) }
+    var request by remember(start) { mutableStateOf(start) }
+    fun update(next: ExportRequest) { request = next; onChange(next) }
+    ToolSheet(
+        title = stringResource(R.string.ie_export),
+        onCancel = onCancel,
+        onReset = { update(start) },
+        canReset = request != start,
+        onApply = { onApply(request) },
+    ) {
+        SheetChips(
+            ExportMath.formatsFor(hasAlpha).map { it.name to when (it) { ExportFormat.JPEG -> "JPG"; ExportFormat.PNG -> "PNG"; ExportFormat.WEBP -> "WebP" } },
+            request.format.name,
+            onPick = { id -> update(request.copy(format = ExportFormat.valueOf(id))) },
+        )
+        if (request.format.lossy) {
+            SheetSlider(stringResource(R.string.ie_export_quality, request.quality), request.quality.toFloat(), ExportMath.MIN_QUALITY.toFloat()..100f, { update(request.copy(quality = it.roundToInt())) })
+        } else {
+            SheetHint(stringResource(R.string.ie_export_png_note))
+        }
+        SheetChips(ExportMath.SIDES.map { it.toString() to sideLabel(it) }, request.longestSide.toString(), onPick = { id -> update(request.copy(longestSide = id.toInt())) })
+        SheetHint(
+            estimate?.let { stringResource(R.string.ie_export_estimate, it.width, it.height, formatBytes(it.bytes)) } ?: stringResource(R.string.ie_export_estimating),
+        )
+        if (hasAlpha) SheetHint(stringResource(R.string.ie_export_alpha_note))
     }
 }
 

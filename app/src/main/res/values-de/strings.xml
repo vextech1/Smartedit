@@ -992,4 +992,17 @@
     <string name="ie_temperature">Temperatur (kühl bis warm)</string>
     <string name="ie_tint">Farbstich (grün bis magenta)</string>
     <string name="ie_filter_document">Sauberes Dokument</string>
+    <string name="ie_flip">Spiegeln</string>
+    <string name="ie_flip_horizontal">Links nach rechts</string>
+    <string name="ie_flip_vertical">Oben nach unten</string>
+    <string name="ie_flip_hint">Tippe erneut, um das Spiegeln rückgängig zu machen. Nichts wird gespeichert, bis du den Haken tippst.</string>
+    <string name="ie_rotate_hint">Tippe so oft du brauchst. Nichts wird gespeichert, bis du den Haken tippst.</string>
+    <string name="ie_export">Exportieren</string>
+    <string name="ie_export_original">Originalgröße</string>
+    <string name="ie_export_px">%1$d px</string>
+    <string name="ie_export_quality">Qualität %1$d</string>
+    <string name="ie_export_png_note">PNG behält jedes Pixel, daher gilt die Qualität nicht und Dateien können groß sein.</string>
+    <string name="ie_export_estimate">%1$d × %2$d px · etwa %3$s</string>
+    <string name="ie_export_estimating">Größe wird berechnet…</string>
+    <string name="ie_export_alpha_note">Dieses Bild hat durchsichtige Bereiche, daher gibt es kein JPG.</string>
 </resources>

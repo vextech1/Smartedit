@@ -27,6 +27,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import com.vextech.editpro.core.image.ExportEstimate
+import com.vextech.editpro.core.image.ExportFormat
+import com.vextech.editpro.core.image.ExportMath
+import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.Turn
+import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,7 +41,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -49,6 +55,12 @@ data class ImageEditorUiState(
     val tool: EditorTool = EditorTool.NONE,
     val crop: CropRect = CropRect.FULL,
     val adjust: AdjustParams = AdjustParams(),
+    /** The unapplied turn and flip of the Rotate and Flip sheets. */
+    val turn: Turn = Turn.NONE,
+    /** Size and file size the Export sheet expects for its current choices, or null while working it out. */
+    val export: ExportEstimate? = null,
+    /** True when the picture has see-through pixels, so JPG is not offered. */
+    val hasAlpha: Boolean = false,
     val busy: Boolean = false,
     val saving: Boolean = false,
     val saved: SavedImage? = null,
@@ -78,6 +90,8 @@ class ImageEditorViewModel @Inject constructor(
     private var adjustBase: Bitmap? = null
     private var renderJob: Job? = null
     private var liveJob: Job? = null
+    private var estimateJob: Job? = null
+    private var sourceLongSide = 0
     private var initialHandled = false
 
     fun preselect(uri: Uri) {
@@ -101,6 +115,11 @@ class ImageEditorViewModel @Inject constructor(
                 original = bitmap
                 committed = bitmap
                 sourceHasAlpha = bitmap.hasAlpha()
+                sourceLongSide = withContext(io) {
+                    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    android.graphics.BitmapFactory.decodeFile(file.absolutePath, bounds)
+                    maxOf(bounds.outWidth, bounds.outHeight)
+                }
                 _state.value = ImageEditorUiState(source = EditorSource(uri.toString(), name), preview = bitmap)
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -126,7 +145,8 @@ class ImageEditorViewModel @Inject constructor(
     private fun replaceStack(next: EditStack) {
         if (_state.value.source == null || next === _state.value.stack) return
         liveJob?.cancel()
-        _state.update { it.copy(stack = next, tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), saved = null) }
+        estimateJob?.cancel()
+        _state.update { it.copy(stack = next, tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, saved = null) }
         scheduleRender()
     }
 
@@ -195,40 +215,117 @@ class ImageEditorViewModel @Inject constructor(
 
     fun applyAdjust() = commit(EditOp.Adjust(_state.value.adjust))
 
+    // ---- rotate and flip sheets
+
+    fun openTurn(tool: EditorTool) {
+        require(tool == EditorTool.ROTATE || tool == EditorTool.FLIP)
+        _state.update { it.copy(tool = tool, turn = Turn.NONE) }
+    }
+
+    /** Shows [turn] on the picture at once; nothing is recorded until [applyTurn]. */
+    fun setTurn(turn: Turn) {
+        _state.update { it.copy(turn = turn) }
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            val shown = withContext(io) { processor.turn(base, turn) }
+            _state.update { if (it.tool == EditorTool.ROTATE || it.tool == EditorTool.FLIP) it.copy(preview = shown) else it }
+        }
+    }
+
+    /** Records the pending turn: mirrors first, then the quarter turns, as one undo step per edit. */
+    fun applyTurn() {
+        val turn = _state.value.turn
+        var next = _state.value.stack
+        if (turn.flipH) next = next.push(EditOp.Flip(horizontal = true))
+        if (turn.flipV) next = next.push(EditOp.Flip(horizontal = false))
+        next = next.push(EditOp.Rotate(turn.turns))
+        replaceStack(next)
+    }
+
+    // ---- export sheet
+
+    fun openExport() {
+        if (_state.value.source == null || _state.value.saving) return
+        val hasAlpha = sourceHasAlpha || _state.value.stack.done.any { it == EditOp.RemoveBackground }
+        _state.update { it.copy(tool = EditorTool.EXPORT, hasAlpha = hasAlpha, export = null) }
+        estimateExport(ExportRequest(ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0))
+    }
+
+    /** Works out the size and about how large the file will be for [request], a moment after the last change. */
+    fun estimateExport(request: ExportRequest) {
+        val base = committed ?: return
+        estimateJob?.cancel()
+        estimateJob = viewModelScope.launch {
+            delay(150)
+            val estimate = withContext(io) { estimate(base, request) }
+            _state.update { if (it.tool == EditorTool.EXPORT) it.copy(export = estimate) else it }
+        }
+    }
+
+    private fun estimate(base: Bitmap, request: ExportRequest): ExportEstimate {
+        val k = if (sourceLongSide > 0) minOf(SAVE_MAX_DIMENSION, sourceLongSide).toDouble() / minOf(PREVIEW_MAX_DIMENSION, sourceLongSide) else 1.0
+        val (fullW, fullH) = (base.width * k).roundToInt().coerceAtLeast(1) to (base.height * k).roundToInt().coerceAtLeast(1)
+        val (finalW, finalH) = ExportMath.limitSide(fullW, fullH, request.longestSide)
+        val (sampleW, sampleH) = ExportMath.sampleSize(finalW, finalH, PREVIEW_MAX_DIMENSION)
+        val sample = if (sampleW == base.width && sampleH == base.height) base else Bitmap.createScaledBitmap(base, sampleW, sampleH, true)
+        val bytes = try {
+            val out = java.io.ByteArrayOutputStream()
+            sample.compress(compressFormat(request.format), request.quality.coerceIn(ExportMath.MIN_QUALITY, 100), out)
+            out.size().toLong()
+        } finally {
+            if (sample !== base) sample.recycle()
+        }
+        return ExportEstimate(finalW, finalH, ExportMath.scaleBytes(bytes, sampleW.toLong() * sampleH, finalW.toLong() * finalH))
+    }
+
+    @Suppress("DEPRECATION")
+    private fun compressFormat(format: ExportFormat): Bitmap.CompressFormat = when (format) {
+        ExportFormat.JPEG -> Bitmap.CompressFormat.JPEG
+        ExportFormat.PNG -> Bitmap.CompressFormat.PNG
+        ExportFormat.WEBP -> if (android.os.Build.VERSION.SDK_INT >= 30) Bitmap.CompressFormat.WEBP_LOSSY else Bitmap.CompressFormat.WEBP
+    }
+
     fun closeTool() {
         liveJob?.cancel()
+        estimateJob?.cancel()
         adjustBase = null
-        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), preview = committed ?: it.preview) }
+        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, preview = committed ?: it.preview) }
     }
 
     // ---- saving
 
-    fun save() {
+    /** Saves the edited picture in the format, quality and size chosen in the Export sheet. */
+    fun save(request: ExportRequest) {
         val current = _state.value
         val file = staged ?: return
         val source = current.source ?: return
-        if (current.stack.isEmpty || current.saving) return
+        if (current.saving) return
+        estimateJob?.cancel()
         viewModelScope.launch {
-            _state.update { it.copy(saving = true) }
+            _state.update { it.copy(saving = true, tool = EditorTool.NONE, export = null) }
             try {
                 val ops = current.stack.done
-                val output = EditPolicies.outputFormat(sourceHasAlpha, ops)
                 val saved = withContext(io) {
                     val full = processor.decodeOriented(file, SAVE_MAX_DIMENSION)
                     val rendered = render(full, ops)
+                    val (w, h) = ExportMath.limitSide(rendered.width, rendered.height, request.longestSide)
+                    val sized = if (w != rendered.width || h != rendered.height) Bitmap.createScaledBitmap(rendered, w, h, true) else rendered
                     try {
                         store.writeBitmap(
-                            rendered, store.editedDir, EditPolicies.outputName(source.name, output),
-                            if (output == ImageOutput.PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG, JPEG_QUALITY,
+                            sized, store.editedDir, ExportMath.fileName(source.name, request.format),
+                            compressFormat(request.format), if (request.format == ExportFormat.PNG) 100 else request.quality.coerceIn(ExportMath.MIN_QUALITY, 100),
                         )
                     } finally {
+                        if (sized !== rendered) sized.recycle()
                         if (rendered !== full) rendered.recycle()
                         full.recycle()
                     }
                 }
-                val entity = repository.registerFile(saved, ResourceType.IMAGE, output.mimeType)
+                val mime = request.format.mimeType
+                val entity = repository.registerFile(saved, ResourceType.IMAGE, mime)
                 repository.recordHistory(HistoryAction.EDITED, "Edited ${saved.name}", ResourceType.IMAGE, entity.id, saved.toURI().toString(), saved.name)
-                _state.update { it.copy(saved = SavedImage(saved.name, saved.toURI().toString(), output.mimeType, saved.length())) }
+                _state.update { it.copy(saved = SavedImage(saved.name, saved.toURI().toString(), mime, saved.length())) }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -251,6 +348,7 @@ class ImageEditorViewModel @Inject constructor(
             val next = when (op) {
                 is EditOp.Rotate -> processor.rotate(current, 90f * op.quarterTurns)
                 is EditOp.Crop -> processor.crop(current, op.rect.left, op.rect.top, op.rect.right, op.rect.bottom)
+                is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {
                     ImageFilter.GRAYSCALE -> processor.grayscale(current)
