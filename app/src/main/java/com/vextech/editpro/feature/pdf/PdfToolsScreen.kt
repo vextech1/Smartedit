@@ -1,5 +1,10 @@
 package com.vextech.editpro.feature.pdf
 
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -417,10 +422,13 @@ private fun PageStrip(state: PdfEditorUiState, vm: PdfEditorViewModel, modifier:
         itemsIndexed(state.pages, key = { _, page -> page.index }) { index, page ->
             LaunchedEffect(state.session?.id, index) { vm.loadPreview(index) }
             val selected = index in state.selectedPages
+            val pageLabel = stringResource(R.string.pdf_page_number, index + 1)
             Surface(
                 onClick = { vm.selectPage(index) },
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.width(64.dp).fillMaxHeight().border(if (selected) 3.dp else 0.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
+                modifier = Modifier.width(64.dp).fillMaxHeight()
+                    .border(if (selected) 3.dp else 0.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                    .semantics { contentDescription = pageLabel; this.selected = selected },
             ) {
                 Box {
                     PdfPreviewImage(state.previews[index], Modifier.fillMaxSize().padding(3.dp))
@@ -489,13 +497,13 @@ private fun EditorDock(
         Column(Modifier.navigationBarsPadding().padding(horizontal = 8.dp, vertical = 6.dp)) {
             if (panel != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    LazyRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LazyRow(Modifier.weight(1f).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         items(if (panel == ToolPanel.ANNOTATE) annotateTools else signTools) { option ->
                             val selected = tool == option
                             Column(
                                 Modifier.clip(RoundedCornerShape(14.dp))
                                     .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
-                                    .clickable { onTool(option) }
+                                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onTool(option) })
                                     .defaultMinSize(minWidth = 64.dp, minHeight = 56.dp)
                                     .padding(horizontal = 6.dp, vertical = 8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -524,7 +532,7 @@ private fun EditorDock(
 private fun DockItem(icon: ImageVector, label: Int, active: Boolean, onClick: () -> Unit) {
     val tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
     Column(
-        Modifier.clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).defaultMinSize(minWidth = 64.dp, minHeight = 56.dp).padding(4.dp),
+        Modifier.clip(RoundedCornerShape(12.dp)).clickable(role = Role.Button, onClick = onClick).semantics { selected = active }.defaultMinSize(minWidth = 64.dp, minHeight = 56.dp).padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -674,10 +682,12 @@ private fun PageGridTile(
     onToggle: () -> Unit, onLeft: () -> Unit, onRight: () -> Unit,
 ) {
     val shape = RoundedCornerShape(10.dp)
+    val pageLabel = stringResource(R.string.pdf_page_number, number)
     Box(
         Modifier.fillMaxWidth().aspectRatio(3f / 4f).clip(shape)
             .then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, shape) else Modifier)
-            .clickable(onClick = onToggle),
+            .semantics { contentDescription = pageLabel }
+            .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onToggle() }),
     ) {
         PdfPreviewImage(previewPath, Modifier.fillMaxSize())
         Surface(Modifier.align(Alignment.TopStart).padding(6.dp).size(24.dp), shape = CircleShape, color = if (selected) MaterialTheme.colorScheme.primary else com.vextech.editpro.core.ui.ImageScrim) {

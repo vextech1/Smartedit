@@ -11,8 +11,8 @@ Supported conversions:
 - PDF → JPEG page images in a ZIP archive.
 - PDF → PNG page images in a ZIP archive.
 - PDF → WebP page images in a ZIP archive.
-- PDF → editable text-flow DOCX.
-- PDF → plain UTF-8 text.
+- PDF → DOCX. Headings, bullets, bold and italic, centred lines, indents and page breaks are rebuilt from the PDF's text layer. Pages with no text (scans) are kept as one picture each, which a switch can turn off (on by default).
+- PDF → Markdown (`.md`, the default) or plain text (`.txt`), UTF-8, with optional page markers. A PDF with no text layer reports that it is probably scanned pictures instead of writing an empty file.
 
 ## User controls
 
@@ -20,7 +20,9 @@ Supported conversions:
 - PDF selection using Storage Access Framework.
 - Persistable read permissions where the provider allows them.
 - JPEG/WebP/PDF image quality.
-- PDF page-image DPI from 72–300 DPI.
+- PDF page-image resolution presets: Screen (100 dpi), Standard (150 dpi, the default) and High (220 dpi). The request still accepts 72–300 dpi.
+- PDF to text: Markdown or plain text, and a switch for page markers.
+- PDF to Word: a switch to keep pages without text as pictures (108 dpi JPEG, scaled to fit the margins).
 - Page selection expressions (`all`, `1-3,5`, etc.).
 - Password for protected PDFs.
 - Foreground progress and cancellation.
@@ -38,14 +40,17 @@ Supported conversions:
 - PNG pages are rendered directly from PDF without a JPEG intermediate.
 - WebP pages use a lossless PNG render intermediate before WebP encoding.
 - Page ranges are 1-based to the user and validated before rendering.
-- DOCX conversion is deliberately text-flow conversion; it does not claim layout fidelity for arbitrary PDFs.
+- DOCX, Markdown and text share one layout analysis (`PdfTextLayout`, a port of the EditPro site's), so all three agree on what is a heading, a bullet or a paragraph. It does not claim layout fidelity: columns, tables and exact positions are not preserved. Headings come from text size relative to the body size, or from a short all-bold line.
+- Text is read with position, size and bold/italic through a `PDFTextStripper` subclass (`PdfEngine.textPages`); it is only as good as the PDF's text layer.
+- There is no page cap on text conversion (the site caps at 500 pages), so very long PDFs use more memory.
 
 ## Tests
 
 Pure JVM/verifier coverage:
 
 - Page-range parser, sorting, de-duplication, invalid ranges, quality/DPI clamping and request validation.
-- DOCX package structure and XML escaping.
+- `DocxWriterTest`: package parts, every XML part well-formed, headings, bullets, emphasis, centring, page breaks, picture embedding and scaling, XML escaping.
+- `PdfTextLayoutTest`: line order and spacing, wrapped lines, de-hyphenation, heading and bullet detection, page numbers dropped, Markdown escaping, page markers.
 - Resource parity across English, French, Spanish, German, Arabic and Hindi.
 - Repository/DI/cancellation/render-path structural invariants.
 

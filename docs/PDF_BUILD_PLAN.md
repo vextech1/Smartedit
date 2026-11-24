@@ -33,9 +33,9 @@ Update this table in the same commit as your work.
 1. **A person checks everything on a phone.** CI only compiles and runs unit tests. Look at: each sheet with TalkBack, watermark and trim previews, a watermark with a see-through logo, page numbers and watermark on a rotated page, compressing 2 or 3 files (including one grayscale run) and the ZIP card, Reading mode exit.
 2. **Wide-screen side panel for `ToolSheet`** (about 360 dp, on tablets and landscape). Not done; sheets are bottom sheets only.
 3. **Move the remaining tools into sheets.** Split, Arrange and a few others still use dialogs or panels.
-4. **Accessibility audit of the page canvas and the dock.** Only the shared sheet parts were done; focus order in sheets was not changed or tested.
-5. **`docs/features/converter.md`** has not been compared with what lane C built (image presets, Markdown text, Word with headings and bullets).
-6. A second session claimed Phase 6 on branch `pdf/phase6-polish`; no such branch was ever pushed. Anyone taking an item above should add their branch here.
+4. **Accessibility audit of the page canvas and the dock.** Partly done on `pdf/phase6-a11y-converter-docs`: page thumbnails (strip and grid) now announce "Page N" and whether they are selected; the grid tile is a checkbox; the annotate/sign tool options are a radio group; dock items have a button role and a selected state. Not done: the page canvas itself, and focus order in sheets (not changed or tested).
+5. ~~`docs/features/converter.md`~~ Done on `pdf/phase6-a11y-converter-docs`: compared with lane C and updated (text as Markdown, page markers, dpi presets, Word with structure and scan pictures, tests, the 500-page cap difference).
+6. Branch `pdf/phase6-a11y-converter-docs` (items 4 and 5 above). The earlier claim on `pdf/phase6-polish` was never used; its work was merged by another session as `pdf/phase6-a11y-docs`.
 
 ## Notes from the build
 - PdfBox limits: grayscale compression goes through the raster path (text cannot be selected afterwards, and the screen says so); JPEG pictures are copied byte for byte when extracted.
