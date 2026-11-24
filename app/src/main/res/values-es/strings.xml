@@ -963,4 +963,5 @@
     <string name="crop_err_pages_invalid">«%1$s» no es un rango válido.</string>
     <string name="crop_err_pages_past_end">Una página está más allá del final. Este PDF tiene %1$d páginas.</string>
     <string name="crop_err_too_large">Los márgenes son mayores que la página. Usa valores menores.</string>
+    <string name="crop_err_trim_page">Los márgenes son mayores que la página %1$d. Usa valores más pequeños.</string>
 </resources>

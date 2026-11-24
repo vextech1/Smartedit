@@ -963,4 +963,5 @@
     <string name="crop_err_pages_invalid">« %1$s » n’est pas une plage valide.</string>
     <string name="crop_err_pages_past_end">Une page dépasse la fin. Ce PDF compte %1$d pages.</string>
     <string name="crop_err_too_large">Les marges sont plus grandes qu’une page. Utilisez des valeurs plus petites.</string>
+    <string name="crop_err_trim_page">Les marges sont plus grandes que la page %1$d. Utilisez des valeurs plus petites.</string>
 </resources>

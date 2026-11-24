@@ -987,4 +987,5 @@
     <string name="crop_err_pages_invalid">\"%1$s\" ليس نطاقًا صالحًا.</string>
     <string name="crop_err_pages_past_end">إحدى الصفحات بعد النهاية. هذا الملف فيه %1$d صفحة.</string>
     <string name="crop_err_too_large">الهوامش أكبر من الصفحة. استخدم قيمًا أصغر.</string>
+    <string name="crop_err_trim_page">الهوامش أكبر من الصفحة %1$d. استخدم قيمًا أصغر.</string>
 </resources>

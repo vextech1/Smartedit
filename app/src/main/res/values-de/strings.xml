@@ -955,4 +955,5 @@
     <string name="crop_err_pages_invalid">„%1$s“ ist kein gültiger Bereich.</string>
     <string name="crop_err_pages_past_end">Eine Seite liegt hinter dem Ende. Dieses PDF hat %1$d Seiten.</string>
     <string name="crop_err_too_large">Die Ränder sind größer als eine Seite. Nutze kleinere Werte.</string>
+    <string name="crop_err_trim_page">Die Ränder sind größer als Seite %1$d. Verwende kleinere Werte.</string>
 </resources>

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vextech.editpro.R
+import com.vextech.editpro.core.pdf.CropForm
 import com.vextech.editpro.core.ads.ExportInterstitialEffect
 import com.vextech.editpro.core.ads.UnityAdsService
 import com.vextech.editpro.core.sharing.ShareService
@@ -103,6 +104,7 @@ fun PdfToolsScreen(
     var moreOpen by remember { mutableStateOf(false) }
     var dialog by remember { mutableStateOf<PdfDialog?>(null) }
     var watermarkPreview by remember { mutableStateOf<WatermarkSheetState?>(null) }
+    var cropPreview by remember { mutableStateOf<CropForm?>(null) }
     var pendingRect by remember { mutableStateOf<PdfRect?>(null) }
     var confirmExit by remember { mutableStateOf(false) }
 
@@ -224,6 +226,8 @@ fun PdfToolsScreen(
                         pageIndex = currentPage,
                         pageCount = state.pages.size,
                         watermark = watermarkPreview,
+                        crop = cropPreview,
+                        pages = state.pages,
                         tool = tool,
                         modifier = Modifier.weight(1f).fillMaxWidth().padding(12.dp),
                         onRect = { rect ->
@@ -259,7 +263,7 @@ fun PdfToolsScreen(
                         onCancel = { dialog = null },
                     ) { options -> vm.addStamp(options); dialog = null }
                 } else if (dialog == PdfDialog.CROP_SHEET) {
-                    CropSheet(pageCount = state.pages.size, onCancel = { dialog = null }) { options -> vm.cropOrResize(options); dialog = null }
+                    CropSheet(state.pages, onPreview = { cropPreview = it }, onCancel = { dialog = null }) { options -> vm.cropOrResize(options); dialog = null }
                 } else EditorDock(
                     panel = panel,
                     tool = tool,
@@ -786,6 +790,8 @@ private fun PdfPageCanvas(
     pageIndex: Int,
     pageCount: Int,
     watermark: WatermarkSheetState?,
+    crop: CropForm?,
+    pages: List<PdfPageInfo>,
     tool: PdfCanvasTool,
     modifier: Modifier,
     onRect: (PdfRect) -> Unit,
@@ -833,6 +839,7 @@ private fun PdfPageCanvas(
         ) {
             PdfPreviewImage(previewPath, Modifier.fillMaxSize())
             if (watermark != null) WatermarkPreviewLayer(watermark, pageIndex, pageCount, pageInfo, Modifier.fillMaxSize())
+            if (crop != null) CropPreviewLayer(crop, pageIndex, pageCount, pages, Modifier.fillMaxSize())
             androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
                 val a = start; val b = end
                 if (a != null && b != null && tool != PdfCanvasTool.INK) {

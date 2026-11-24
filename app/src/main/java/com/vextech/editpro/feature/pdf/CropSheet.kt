@@ -1,6 +1,8 @@
 package com.vextech.editpro.feature.pdf
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.vextech.editpro.R
 import com.vextech.editpro.core.pdf.CropForm
@@ -16,16 +18,24 @@ import com.vextech.editpro.core.ui.sheet.SheetTextField
 import com.vextech.editpro.core.ui.sheet.SheetWarning
 import com.vextech.editpro.core.ui.sheet.ToolSheet
 import com.vextech.editpro.core.ui.sheet.rememberSheetEdits
+import com.vextech.editpro.feature.pdf.domain.PdfPageInfo
 
 /**
  * The site's Crop PDF as a sheet: trim margins (millimetres, as the page looks) or fit pages to A3, A4, A5, Letter or Legal,
  * for every page or the pages typed like `1-3, 5`. Edits stay unapplied until the tick; Reset puts the start values back.
  */
 @Composable
-fun CropSheet(pageCount: Int, onCancel: () -> Unit, onApply: (CropOptions) -> Unit) {
+fun CropSheet(
+    pages: List<PdfPageInfo>,
+    onPreview: (CropForm?) -> Unit,
+    onCancel: () -> Unit,
+    onApply: (CropOptions) -> Unit,
+) {
     val edits = rememberSheetEdits(CropForm())
     val form = edits.value
-    val parsed = form.parse(pageCount)
+    val parsed = form.parse(pages.size, pages)
+    LaunchedEffect(form) { onPreview(form) }          // the page behind the sheet shades what Trim would hide
+    DisposableEffect(Unit) { onDispose { onPreview(null) } }
     val error = parsed as? CropParse.Error
 
     ToolSheet(
@@ -88,4 +98,5 @@ private fun problemMessage(e: CropParse.Error): String = when (e.problem) {
     CropProblem.PAGES_NOT_A_RANGE -> stringResource(R.string.crop_err_pages, e.text)
     CropProblem.PAGES_INVALID -> stringResource(R.string.crop_err_pages_invalid, e.text)
     CropProblem.PAGES_PAST_END -> stringResource(R.string.crop_err_pages_past_end, e.total)
+    CropProblem.TRIM_TOO_LARGE_FOR_PAGE -> stringResource(R.string.crop_err_trim_page, e.page)
 }

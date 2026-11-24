@@ -105,4 +105,37 @@ class CropLayoutTest {
     @Test fun resizeIgnoresTrimBoxesEvenIfInvalid() {
         assertTrue(CropForm(mode = CropMode.RESIZE, top = "abc").parse(2) is CropParse.Ok)
     }
+
+    private fun info(w: Float, h: Float, rot: Int = 0) = com.vextech.editpro.feature.pdf.domain.PdfPageInfo(0, w, h, rot)
+
+    @Test fun trimNamesTheFirstChosenPageThatWouldBeTooSmall() {
+        // 40 mm each side is about 227 pt: fine for a 600 x 800 page, too much for a 100 x 100 one.
+        val pages = listOf(info(600f, 800f), info(100f, 100f), info(50f, 50f))
+        val e = CropForm(left = "40", right = "40").parse(3, pages) as CropParse.Error
+        assertEquals(CropProblem.TRIM_TOO_LARGE_FOR_PAGE, e.problem)
+        assertEquals(2, e.page)
+    }
+
+    @Test fun trimIgnoresPagesOutsideTheRange() {
+        val pages = listOf(info(600f, 800f), info(100f, 100f))
+        assertTrue(CropForm(left = "40", right = "40", pages = "1").parse(2, pages) is CropParse.Ok)
+        assertEquals(2, (CropForm(left = "40", right = "40", pages = "2").parse(2, pages) as CropParse.Error).page)
+    }
+
+    @Test fun trimChecksTheShapeAsTheRotatedPageLooks() {
+        // 700 wide x 300 high, turned 90: it looks 300 wide x 700 high. Top and bottom 120 mm (340 pt each) trim the unrotated width
+        // to 20 and still fit; the same margins as left and right would leave nothing of the looks-300-wide page.
+        val turned = listOf(info(700f, 300f, rot = 90))
+        assertTrue(CropForm(top = "120", bottom = "120").parse(1, turned) is CropParse.Ok)
+        assertEquals(1, (CropForm(left = "60", right = "60").parse(1, turned) as CropParse.Error).page)
+    }
+
+    @Test fun resizeNeverChecksPageSizesAgainstTrimMargins() {
+        val pages = listOf(info(100f, 100f))
+        assertTrue(CropForm(mode = CropMode.RESIZE, left = "400", right = "400").parse(1, pages) is CropParse.Ok)
+    }
+
+    @Test fun parseWithoutSizesStillWorksAsBefore() {
+        assertTrue(CropForm(left = "400", right = "400").parse(1) is CropParse.Ok)
+    }
 }

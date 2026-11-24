@@ -955,4 +955,5 @@
     <string name="crop_err_pages_invalid">\"%1$s\" मान्य रेंज नहीं है।</string>
     <string name="crop_err_pages_past_end">एक पेज अंत से आगे है। इस PDF में %1$d पेज हैं।</string>
     <string name="crop_err_too_large">हाशिए पेज से बड़े हैं। छोटे मान इस्तेमाल करें।</string>
+    <string name="crop_err_trim_page">मार्जिन पेज %1$d से बड़े हैं। छोटे मान इस्तेमाल करें।</string>
 </resources>

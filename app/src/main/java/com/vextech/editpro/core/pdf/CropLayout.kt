@@ -1,5 +1,7 @@
 package com.vextech.editpro.core.pdf
 
+import com.vextech.editpro.feature.pdf.domain.PdfPageInfo
+
 /** A box in a page's own (unrotated) space, in points. */
 data class PageBox(val x: Double, val y: Double, val width: Double, val height: Double)
 
@@ -82,11 +84,12 @@ object CropMath {
     fun marginFitsPaper(paper: Paper, marginPoints: Double): Boolean = marginPoints * 2 < minOf(paper.width, paper.height) - MIN_SIDE
 }
 
-enum class CropProblem { MARGIN_NUMBER, PAPER_MARGIN_NUMBER, PAPER_MARGIN_TOO_LARGE, PAGES_NOT_A_RANGE, PAGES_INVALID, PAGES_PAST_END }
+enum class CropProblem { MARGIN_NUMBER, PAPER_MARGIN_NUMBER, PAPER_MARGIN_TOO_LARGE, PAGES_NOT_A_RANGE, PAGES_INVALID, PAGES_PAST_END, TRIM_TOO_LARGE_FOR_PAGE }
 
 sealed interface CropParse {
     data class Ok(val options: CropOptions) : CropParse
-    data class Error(val problem: CropProblem, val text: String = "", val total: Int = 0) : CropParse
+    /** [page] is the 1-based page that is too small for the margins (only for [CropProblem.TRIM_TOO_LARGE_FOR_PAGE]). */
+    data class Error(val problem: CropProblem, val text: String = "", val total: Int = 0, val page: Int = 0) : CropParse
 }
 
 /** What the Crop sheet shows: every box is text, so half-typed numbers stay as they are. Margins are in millimetres. */
@@ -102,7 +105,11 @@ data class CropForm(
     /** Pages as typed, like `1-3, 5`. Blank means every page. */
     val pages: String = "",
 ) {
-    fun parse(pageCount: Int): CropParse {
+    /**
+     * [sizes] are the PDF's pages. When given, a trim that would leave a chosen page smaller than [CropMath.MIN_SIDE] is refused
+     * here, naming the first such page, instead of failing after the tick.
+     */
+    fun parse(pageCount: Int, sizes: List<PdfPageInfo> = emptyList()): CropParse {
         val selection = when (val r = PageRanges.parse(pages, pageCount)) {
             is PageRangeResult.Error -> return CropParse.Error(
                 when (r.problem) {
@@ -120,7 +127,13 @@ data class CropForm(
                 val r = mm(right) ?: return CropParse.Error(CropProblem.MARGIN_NUMBER, right)
                 val b = mm(bottom) ?: return CropParse.Error(CropProblem.MARGIN_NUMBER, bottom)
                 val l = mm(left) ?: return CropParse.Error(CropProblem.MARGIN_NUMBER, left)
-                CropParse.Ok(CropOptions.Trim(Margins(t, r, b, l), selection))
+                val margins = Margins(t, r, b, l)
+                val tooSmall = sizes.withIndex().firstOrNull { (i, p) ->
+                    (selection == null || i in selection) &&
+                        !CropMath.leavesRoom(PageBox(0.0, 0.0, p.widthPoints.toDouble(), p.heightPoints.toDouble()), p.rotation, margins)
+                }
+                if (tooSmall != null) return CropParse.Error(CropProblem.TRIM_TOO_LARGE_FOR_PAGE, page = tooSmall.index + 1)
+                CropParse.Ok(CropOptions.Trim(margins, selection))
             }
             CropMode.RESIZE -> {
                 val m = mm(margin) ?: return CropParse.Error(CropProblem.PAPER_MARGIN_NUMBER, margin)
