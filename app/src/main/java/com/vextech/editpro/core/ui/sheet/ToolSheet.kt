@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -71,7 +73,7 @@ fun ToolSheet(
         Column(Modifier.navigationBarsPadding().padding(horizontal = 20.dp)) {
             val closeLabel = stringResource(R.string.sheet_close_without_applying, title)
             Box(
-                Modifier.fillMaxWidth().height(44.dp).clickable(onClick = onCancel).semantics { contentDescription = closeLabel },
+                Modifier.fillMaxWidth().height(44.dp).clickable(role = Role.Button, onClick = onCancel).semantics { contentDescription = closeLabel },
                 contentAlignment = Alignment.Center,
             ) {
                 Box(Modifier.width(44.dp).height(5.dp).clip(CircleShape).background(MaterialTheme.colorScheme.outlineVariant))
@@ -80,7 +82,7 @@ fun ToolSheet(
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     if (onReset != null) TextButton(onClick = onReset, enabled = canReset) { Text(stringResource(R.string.sheet_reset)) }
                 }
-                Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                Text(title, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                     val applyLabel = stringResource(R.string.sheet_apply, title)
                     IconButton(onClick = { (onApply ?: onCancel)() }, enabled = !busy) {

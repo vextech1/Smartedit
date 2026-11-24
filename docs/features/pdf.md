@@ -17,11 +17,29 @@ EditPro's PDF feature is a native working-copy editor rather than a collection o
 - Insert selected pages from another PDF.
 - Insert a blank page using the current page size.
 - Rotate selected pages in 90-degree increments.
-- Crop selected pages using normalized visual coordinates that also account for page rotation.
-- Add a text watermark.
-- Add page numbers.
+- Crop selected pages using normalized visual coordinates that also account for page rotation (drawn on the page), or trim margins in millimetres and fit pages to paper from the Crop sheet (see "Tool sheets").
+- Add a text or logo watermark (Watermark sheet).
+- Add page numbers, headers, footers and Bates numbers (Page numbers sheet).
+- Extract the pictures from a PDF (Extract pictures sheet).
+- Read in a full-screen reading mode.
 - Render page previews.
 - Save, Save As, share the unsaved working copy, and print the unsaved working copy.
+
+## Tool sheets
+
+Tools with settings open as a bottom sheet over the page (`ToolSheet`): a handle, then `Reset | Title | tick`. The tick applies the tool; the handle or system Back closes it without applying. Edits inside a sheet stay unapplied until the tick, and the top bar's Undo and Redo step through them first. On phones a sheet covers at most 46% of the screen so the page stays visible. Page-range boxes read `1-3, 5` (blank means every page).
+
+- **Watermark:** text (colour swatches) or a logo picture; nine spots or a repeat; size, how visible, turn, and edge distance or spacing; optional page range. The mark is drawn live on the page while the sheet is open, using the same layout code as the file writer, so the preview shows where it will land. Rotated pages stay upright. A repeat of marks too small to fit on the page shows a warning and the tick stays off. Text uses the standard Helvetica font (Western letters); other alphabets need a logo. A watermark can be edited or removed by anyone with PDF software.
+- **Page numbers:** header and footer, each with left, centre and right text, from six ready-made styles or custom text. Tokens: `{n}`, `{total}`, `{date}`, `{file}`, `{bates}`. Options: first and last page, first number, font (sans, serif, typewriter), size, margin in millimetres, gray text, Bates prefix, start and digits. Western letters only.
+- **Crop and resize:** Trim margins in millimetres (top, bottom, left, right, as the page looks) or Fit to paper (A3, A4, A5, Letter, Legal; match each page, portrait or landscape; margin), for every page or a page range. In Trim mode the page behind the sheet shades what would be hidden. A trim that would leave a chosen page under 12 points is refused in the sheet and names the first such page. Cropped content is hidden, not erased; use Redact to remove it for good.
+- **Extract pictures:** pictures are saved from the PDF (JPEG copied byte for byte, others rebuilt as PNG, tiny ones skipped) and offered as a ZIP.
+- **Properties:** title, author and other fields, a "remove all metadata" tick, and the Created with and PDF producer fields.
+- **Organize and Split:** arrange pages (reverse, rotate all, double-sided scan fix); split every page or by ranges, with a ZIP when there are two or more parts.
+- **Reading mode:** a full-screen page reader with one Exit button. System Back also exits, the system bars are hidden, and the document is left untouched.
+
+### Accessibility of sheets
+
+The sheet handle is a button that says which sheet it closes; the tick says which tool it applies; the title is a heading. Chips and colour swatches are selectable groups that speak the choice and whether it is selected. Swatches have 48 dp touch targets. Each slider speaks its label with the current value, and validation errors are announced when they appear. Sheets and the page previews do not animate, so there is nothing to reduce for reduced-motion settings. A person still needs to check the sheets with TalkBack on a phone.
 
 ## Annotation and content tools
 
@@ -59,7 +77,7 @@ Dynamic XFA form authoring/editing is not implemented; PDFBox itself does not fl
 
 - Extract document text.
 - Search text page-by-page with page-indexed snippets.
-- Read/update title, author, subject, keywords, creator, and producer metadata.
+- Read/update title, author, subject, keywords, creator, and producer metadata, or remove all metadata.
 - Read bookmarks/outlines with destination pages.
 - Add bookmarks.
 - Remove bookmarks without relying on nonexistent PDFBox convenience APIs.

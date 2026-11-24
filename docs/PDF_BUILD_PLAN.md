@@ -27,7 +27,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 3: Extract images | Claude session | Merged (PR #2, CI green): Extract pictures sheet, JPEG copied byte for byte, PNG rebuild, skip tiny, ZIP | `pdf/phase3-extract-images` |
 | Phase 4: Compress summary | Claude session (Andrew) | Merged (CI green): the app already had per-file before/after, saved %, 20 files and the notes; added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | `pdf/phase4-compress-summary` |
 | Phase 5: Reading mode | stage-one session | Merged (CI green): full-screen reader with one Exit button, Back also exits, system bars hidden, page stays selected. Opens from More > Reading mode | `pdf/phase5-reading-mode` |
-| Phase 6: Polish and release check | Claude session | Claimed, in progress | `pdf/phase6-polish` |
+| Phase 6: Polish and release check | Claude session; Claude session (Andrew) is doing sheet accessibility and the PDF/tools docs | In progress. Done by Andrew's session: TalkBack semantics for sheet parts (selectable swatches and chips, labelled sliders, announced errors, headings), docs for the new sheets. More menu reviewed: every entry that moved into a sheet now opens that sheet, none is a duplicate. Still open: full CI run on main after the last merge; a person checks the sheets with TalkBack on a phone | `pdf/phase6-polish`, `pdf/phase6-a11y-docs` |
 
 **Summary (as of 2026-11-24)**
 - Merged to main: Phase 0; Phase 1 A–F; Phase 2 G (Watermark), H (Page numbers), I (Crop); Phase 4 (Compress summary); Phase 5 (Reading mode).

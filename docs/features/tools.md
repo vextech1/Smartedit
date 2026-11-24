@@ -15,7 +15,7 @@ Each action opens its tool with the file already chosen (`PdfToolsRoute(uri)`, `
 - Presets: High quality, Balanced, Smaller file.
 - PDF methods: **Keep text** (default): shrinks pictures inside the PDF with PDFBox, text stays selectable. **Maximum**: renders every page as an image; the screen warns that text can no longer be selected or searched.
 - Images: scaled to a preset limit, re-encoded as JPEG; images with transparency stay PNG.
-- A compressed copy that is not smaller is deleted and the original is kept ("already optimized"). Savings under 2% are labelled "barely smaller".
+- A compressed copy that is not smaller is deleted and the original is kept ("already optimized"). Savings under 2% are labelled "barely smaller". A grayscale copy is kept even when it is larger and is then labelled "N% larger" (or "Same size") instead of a saving; it also says "Converted to grayscale.". When two or more files are kept they are also offered as one ZIP (Share or Save); a repeated name becomes "name (2).pdf", and the ZIP is removed when the screen closes.
 - PDF pictures with masks or transparency, tiny pictures and already small streams are left alone. A picture shared by several pages is processed once so the file never grows from duplicates.
 - Results: open, share, Save to device, percent saved, total saved. Partial files are removed on failure or cancel. Password-protected PDFs get a clear message.
 
