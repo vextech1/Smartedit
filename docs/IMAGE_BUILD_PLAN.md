@@ -73,7 +73,7 @@ Update this table in the same commit as your work. Claim a lane by changing the 
 
 | Item | Owner | Status | Branch / PR |
 |---|---|---|---|
-| Phase 0: image sheet host, `EditOp` extension points, Adjust and Crop moved into sheets (E1 crop shapes, E2 adjust extras) | stage-one session | Claimed, in progress | `img/phase0-sheet-host` |
+| Phase 0: image sheet host, `EditOp` extension points, Adjust and Crop moved into sheets (E1 crop shapes, E2 adjust extras) | stage-one session | Merged (CI green): Crop and Adjust are ToolSheets; crop shapes Original, 4:5, 3:2, 9:16 added beside the app's; Adjust has temperature and tint; filter Clean document; More sheet reads the registry `feature/imageeditor/ImageTools.kt` (add an `ImageToolId`, one `imageTools` entry and one branch in the screen's More handler). Pure logic in `core/image/` with tests. Auto-crop (E1) and Rotate/Flip sheet are still their own lanes | `img/phase0-sheet-host` |
 | Phase 1 lane A: Rotate and Flip sheet (E3) | open | Not started | |
 | Phase 1 lane B: Export sheet with size estimate (O1) | open | Not started | |
 | Phase 2 lane C: Resize with presets (E4), logic and tests first | open | Not started | |
