@@ -23,7 +23,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Merged (CI green): margin none/small/large for A4 and Letter, clear error when a PDF to merge is protected or damaged | |
 | Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Built: text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
 | Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Built: six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
-| Phase 2 lane I: Crop (logic + tests first) | open, for another agent | Not started | |
+| Phase 2 lane I: Crop (logic + tests first) | stage-one session | In progress | `pdf/phase2-crop` |
 | Phase 3: Extract images | open, for another agent | Not started | |
 | Phase 4: Compress summary | open, for another agent | Not started | |
 | Phase 5: Reading mode | open, for another agent | Not started | |
