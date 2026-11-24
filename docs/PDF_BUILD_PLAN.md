@@ -24,7 +24,7 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Merged (CI green): text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
 | Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Merged (CI green): six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
 | Phase 2 lane I: Crop (trim margins, fit to paper, sheet) | stage-one session | Merged; live trim preview on the page and a per-page "margins too large" check added on top (Claude session, Andrew) | `pdf/phase2-crop`, `pdf/phase2-crop-preview` |
-| Phase 3: Extract images | Claude session (Andrew) | Claimed, in progress | `pdf/phase3-extract-images` |
+| Phase 3: Extract images | Claude session | Merged (PR #2, CI green): Extract pictures sheet, JPEG copied byte for byte, PNG rebuild, skip tiny, ZIP | `pdf/phase3-extract-images` |
 | Phase 4: Compress summary | Claude session (Andrew) | Merged (CI green): the app already had per-file before/after, saved %, 20 files and the notes; added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | `pdf/phase4-compress-summary` |
 | Phase 5: Reading mode | stage-one session | Merged (CI green): full-screen reader with one Exit button, Back also exits, system bars hidden, page stays selected. Opens from More > Reading mode | `pdf/phase5-reading-mode` |
 | Phase 6: Polish and release check | whoever finishes last | Not started | |
