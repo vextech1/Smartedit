@@ -81,6 +81,8 @@ interface PdfEngine {
     fun renderPages(input: File, outputDir: File, dpi: Int = 144, quality: Int = 90, password: String? = null): List<File>
     fun merge(inputs: List<File>, output: File)
     fun split(input: File, outputDir: File, password: String? = null): List<File>
+    /** Save the pictures embedded in the PDF: the first few as files in [outputDir], all of them in one ZIP when there are several. The PDF is not changed. */
+    fun extractImages(input: File, outputDir: File, baseName: String, minSize: Int, password: String? = null): ImageExtraction
     /** One PDF per group of 0-based pages, named by [PageRanges.splitPartName]. */
     fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String? = null): List<File>
     fun reorder(input: File, pageOrder: List<Int>, output: File, password: String? = null)
@@ -169,6 +171,9 @@ interface PdfEngine {
 data class PdfOptimizeStats(val imagesFound: Int, val imagesReplaced: Int)
 
 @Singleton
+/** How many extracted pictures are saved as separate files (the ZIP has them all), as on the site. */
+const val SHOWN_IMAGES = 60
+
 class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : PdfEngine {
     init { com.tom_roush.pdfbox.android.PDFBoxResourceLoader.init(context) }
 
@@ -226,6 +231,32 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
         Splitter().split(doc).mapIndexed { i, part ->
             File(outputDir, "${input.nameWithoutExtension}_page_${i + 1}.pdf").also { out -> part.use { it.save(out) } }
         }
+    }
+
+    override fun extractImages(input: File, outputDir: File, baseName: String, minSize: Int, password: String?): ImageExtraction = load(input, password).use { doc ->
+        outputDir.mkdirs()
+        val zipFile = File(outputDir, "$baseName-images.zip")
+        val listed = ArrayList<ExtractedImageInfo>()
+        var total = 0
+        var cmyk = 0
+        var alphaLost = 0
+        val outcome = java.util.zip.ZipOutputStream(zipFile.outputStream().buffered()).use { zip ->
+            PdfImageExtractor.extract(doc, baseName, minSize) { image ->
+                total++
+                if (image.note == ExtractNote.CMYK_JPEG) cmyk++
+                if (image.note == ExtractNote.ALPHA_LOST) alphaLost++
+                zip.putNextEntry(java.util.zip.ZipEntry(image.name))
+                zip.write(image.bytes)
+                zip.closeEntry()
+                if (listed.size < SHOWN_IMAGES) {
+                    val file = File(outputDir, image.name)
+                    file.writeBytes(image.bytes)
+                    listed += ExtractedImageInfo(file, image.page, image.width, image.height, image.format)
+                }
+            }
+        }
+        if (total < 2) zipFile.delete()
+        ImageExtraction(total, outcome.pages, outcome.truncated, outcome.skips, listed, zipFile.takeIf { total > 1 }, cmyk, alphaLost)
     }
 
     override fun splitGroups(input: File, groups: List<List<Int>>, outputDir: File, baseName: String, password: String?): List<File> = load(input, password).use { source ->

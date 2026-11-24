@@ -250,6 +250,13 @@ class AndroidPdfEditorRepository @Inject constructor(
         out
     }
 
+    override suspend fun extractImagesToManaged(sessionId: String, minSize: Int): com.vextech.editpro.core.pdf.ImageExtraction = withContext(io) {
+        val h = requireHolder(sessionId)
+        val base = store.sanitizeName(h.sourceName.substringBeforeLast('.'))
+        val dir = File(store.documentsDir, "${base}_images_${System.currentTimeMillis()}").apply { mkdirs() }
+        engine.extractImages(h.working, dir, base, minSize, h.password)
+    }
+
     override suspend fun splitToManaged(sessionId: String, groups: List<List<Int>>): List<File> = withContext(io) {
         val h = requireHolder(sessionId)
         val base = h.sourceName.substringBeforeLast('.')

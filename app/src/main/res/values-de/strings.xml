@@ -969,4 +969,20 @@
     <string name="library_saved">In deinem Download-Ordner gespeichert.</string>
     <string name="library_report_subject">Dokument der Bibliothek melden: %1$s</string>
     <string name="library_report_body">Ich melde dieses Dokument in der EditPro-Bibliothek.\nTitel: %1$s\nDatei-ID: %2$s\n\nGrund (zum Beispiel: Es kopiert meine Arbeit, und hier steht, wer ich bin und wo das Original ist):\n\n</string>
+    <string name="extract_menu">Bilder extrahieren</string>
+    <string name="extract_title">Bilder</string>
+    <string name="extract_hint">Speichert die in dieser PDF eingebetteten Bilder. JPEG-Bilder kommen genau so heraus, wie sie sind. Um ganze Seiten als Bilder zu speichern, nutze PDF in Bilder.</string>
+    <string name="extract_skip_small">Winzige Bilder (unter 50 Pixel) überspringen, etwa Symbole und Linien</string>
+    <string name="extract_none">In dieser PDF wurden keine extrahierbaren Bilder gefunden.</string>
+    <string name="extract_none_hint">Wenn die Seiten wie Fotos aussehen, sind es vielleicht Scans in einem Format, das sich nicht extrahieren lässt. Nutze PDF in Bilder, um stattdessen die Seiten zu speichern.</string>
+    <string name="extract_found">Gefundene Bilder: %1$d, auf %2$d Seiten.</string>
+    <string name="extract_skipped_tiny">Winzige Bilder übersprungen (Symbole oder Linien): %1$d</string>
+    <string name="extract_skipped_masks">Schablonenmasken übersprungen: %1$d</string>
+    <string name="extract_skipped_unsupported">Bilder in einem nicht extrahierbaren Format: %1$d</string>
+    <string name="extract_truncated">Bei den ersten %1$d Bildern gestoppt.</string>
+    <string name="extract_note_cmyk">CMYK-JPEG-Bilder: %1$d. Die Farben können in manchen Programmen invertiert aussehen.</string>
+    <string name="extract_note_alpha">Ohne Transparenz gespeicherte Bilder: %1$d. Die Transparenz war nicht lesbar.</string>
+    <string name="extract_all_zip">Alle Bilder (ZIP)</string>
+    <string name="extract_page_picture">Bild von Seite %1$d</string>
+    <string name="extract_showing_first">Die ersten %1$d von %2$d werden gezeigt. Die ZIP-Datei enthält alle.</string>
 </resources>

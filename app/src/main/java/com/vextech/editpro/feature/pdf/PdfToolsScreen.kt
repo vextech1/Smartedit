@@ -79,7 +79,7 @@ import com.vextech.editpro.core.ui.UiText
 import java.io.File
 
 enum class PdfCanvasTool { NONE, CROP, HIGHLIGHT, UNDERLINE, STRIKEOUT, TEXT, NOTE, LINK, RECTANGLE, INK, SIGNATURE, REDACT }
-private enum class PdfDialog { SAVE_AS, WATERMARK, PAGE_NUMBERS, CROP_SHEET, SEARCH, TEXT, NOTE, LINK, REDACT_CONFIRM, FORMS, METADATA, BOOKMARKS, ANNOTATIONS, EXTRACTED_TEXT }
+private enum class PdfDialog { SAVE_AS, WATERMARK, PAGE_NUMBERS, CROP_SHEET, EXTRACT_IMAGES, SEARCH, TEXT, NOTE, LINK, REDACT_CONFIRM, FORMS, METADATA, BOOKMARKS, ANNOTATIONS, EXTRACTED_TEXT }
 
 /** Which row of canvas tools is open above the dock. */
 private enum class ToolPanel { ANNOTATE, SIGN }
@@ -270,6 +270,15 @@ fun PdfToolsScreen(
                         date = java.time.LocalDate.now().toString(),
                         onCancel = { dialog = null },
                     ) { options -> vm.addStamp(options); dialog = null }
+                } else if (dialog == PdfDialog.EXTRACT_IMAGES) {
+                    ExtractImagesSheet(
+                        extraction = state.imageExtraction,
+                        busy = state.busy,
+                        share = share,
+                        onCancel = { dialog = null; vm.clearImageExtraction() },
+                        onClear = vm::clearImageExtraction,
+                        onApply = vm::extractImages,
+                    )
                 } else if (dialog == PdfDialog.CROP_SHEET) {
                     CropSheet(state.pages, onPreview = { cropPreview = it }, onCancel = { dialog = null }) { options -> vm.cropOrResize(options); dialog = null }
                 } else EditorDock(
@@ -311,6 +320,7 @@ fun PdfToolsScreen(
                         MoreAction(Icons.Rounded.PostAdd, R.string.pdf_insert_blank_page) { vm.insertBlankPage() },
                         MoreAction(Icons.Rounded.Tag, R.string.pdf_page_numbers) { dialog = PdfDialog.PAGE_NUMBERS },
                         MoreAction(Icons.Rounded.Crop, R.string.crop_menu) { dialog = PdfDialog.CROP_SHEET },
+                        MoreAction(Icons.Rounded.Image, R.string.extract_menu) { dialog = PdfDialog.EXTRACT_IMAGES },
                         MoreAction(Icons.Rounded.WaterDrop, R.string.pdf_watermark) { dialog = PdfDialog.WATERMARK },
                     ),
                     ::pick,
@@ -351,6 +361,7 @@ fun PdfToolsScreen(
         PdfDialog.WATERMARK -> Unit   // shown as a sheet above the dock
         PdfDialog.PAGE_NUMBERS -> Unit   // shown as a sheet above the dock
         PdfDialog.CROP_SHEET -> Unit   // shown as a sheet above the dock
+        PdfDialog.EXTRACT_IMAGES -> Unit   // shown as a sheet above the dock
         PdfDialog.SEARCH -> SearchDialog(state.searchQuery, state.searchHits, { dialog = null }, vm::search) { page -> vm.selectPage(page); dialog = null }
         PdfDialog.TEXT -> TextInputDialog(stringResource(R.string.pdf_add_text), stringResource(R.string.pdf_text), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.addText(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.NOTE -> TextInputDialog(stringResource(R.string.pdf_add_note), stringResource(R.string.pdf_note), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.note(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
@@ -387,11 +398,11 @@ private fun ExportedFiles(files: List<File>, share: ShareService) {
         Text(stringResource(R.string.pdf_saved_files_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         files.asReversed().forEach { file ->
             TileRow(
-                icon = if (file.extension.equals("zip", true)) Icons.Rounded.FolderZip else Icons.Rounded.PictureAsPdf,
+                icon = if (file.extension.equals("zip", true)) Icons.Rounded.FolderZip else if (file.extension.equals("pdf", true)) Icons.Rounded.PictureAsPdf else Icons.Rounded.Image,
                 title = file.name,
                 subtitle = DateUtils.getRelativeTimeSpanString(file.lastModified(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString(),
                 trailing = {
-                    IconButton(onClick = { runCatching { share.share(file, "application/pdf") } }) { Icon(Icons.Rounded.Share, stringResource(R.string.share)) }
+                    IconButton(onClick = { runCatching { share.share(file, mimeOf(file)) } }) { Icon(Icons.Rounded.Share, stringResource(R.string.share)) }
                 },
             )
         }

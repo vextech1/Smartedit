@@ -1001,4 +1001,20 @@
     <string name="library_saved">تم الحفظ في مجلد التنزيلات.</string>
     <string name="library_report_subject">الإبلاغ عن مستند في المكتبة: %1$s</string>
     <string name="library_report_body">أبلغ عن هذا المستند في مكتبة EditPro.\nالعنوان: %1$s\nمعرّف الملف: %2$s\n\nالسبب (مثلًا: ينسخ عملي، وهذا من أنا وأين الأصل):\n\n</string>
+    <string name="extract_menu">استخراج الصور</string>
+    <string name="extract_title">الصور</string>
+    <string name="extract_hint">احفظ الصور المخزنة داخل هذا الملف. تُحفظ صور JPEG كما هي تمامًا. لحفظ صفحات كاملة كصور، استخدم PDF إلى صور.</string>
+    <string name="extract_skip_small">تخطي الصور الصغيرة جدًا (أقل من 50 بكسل) مثل الأيقونات والخطوط</string>
+    <string name="extract_none">لم يُعثر على صور قابلة للاستخراج في هذا الملف.</string>
+    <string name="extract_none_hint">إذا بدت الصفحات كصور فوتوغرافية فقد تكون ممسوحة ضوئيًا بتنسيق لا يمكن استخراجه. استخدم PDF إلى صور لحفظ الصفحات بدلًا من ذلك.</string>
+    <string name="extract_found">الصور التي وُجدت: %1$d، في %2$d صفحة.</string>
+    <string name="extract_skipped_tiny">صور صغيرة جدًا تم تخطيها (أيقونات أو خطوط): %1$d</string>
+    <string name="extract_skipped_masks">أقنعة تم تخطيها: %1$d</string>
+    <string name="extract_skipped_unsupported">صور بتنسيق لا يمكن استخراجه: %1$d</string>
+    <string name="extract_truncated">توقف عند أول %1$d صورة.</string>
+    <string name="extract_note_cmyk">صور JPEG بنظام CMYK: %1$d. قد تظهر الألوان معكوسة في بعض العارضات.</string>
+    <string name="extract_note_alpha">صور حُفظت دون شفافية: %1$d. تعذّرت قراءة الشفافية.</string>
+    <string name="extract_all_zip">كل الصور (ZIP)</string>
+    <string name="extract_page_picture">صورة من الصفحة %1$d</string>
+    <string name="extract_showing_first">عرض أول %1$d من %2$d. يحتوي ملف ZIP على كلها.</string>
 </resources>

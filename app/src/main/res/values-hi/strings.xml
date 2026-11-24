@@ -969,4 +969,20 @@
     <string name="library_saved">आपके डाउनलोड फ़ोल्डर में सहेजा गया।</string>
     <string name="library_report_subject">लाइब्रेरी दस्तावेज़ की रिपोर्ट करें: %1$s</string>
     <string name="library_report_body">मैं EditPro लाइब्रेरी में इस दस्तावेज़ की रिपोर्ट कर रहा/रही हूँ।\nशीर्षक: %1$s\nफ़ाइल ID: %2$s\n\nकारण (जैसे: यह मेरा काम कॉपी करता है, और मैं कौन हूँ व मूल कहाँ है):\n\n</string>
+    <string name="extract_menu">चित्र निकालें</string>
+    <string name="extract_title">चित्र</string>
+    <string name="extract_hint">इस PDF के अंदर रखे चित्र सहेजें। JPEG चित्र ठीक वैसे ही निकलते हैं जैसे हैं। पूरे पृष्ठों को चित्र के रूप में सहेजने के लिए PDF से चित्र का उपयोग करें।</string>
+    <string name="extract_skip_small">बहुत छोटे चित्र (50 पिक्सेल से कम), जैसे आइकन और रेखाएँ, छोड़ें</string>
+    <string name="extract_none">इस PDF में निकालने योग्य कोई चित्र नहीं मिला।</string>
+    <string name="extract_none_hint">अगर पृष्ठ फ़ोटो जैसे दिखते हैं, तो वे ऐसे फ़ॉर्मेट में स्कैन हो सकते हैं जिन्हें निकाला नहीं जा सकता। इसके बजाय पृष्ठ सहेजने के लिए PDF से चित्र का उपयोग करें।</string>
+    <string name="extract_found">मिले चित्र: %1$d, %2$d पृष्ठों में।</string>
+    <string name="extract_skipped_tiny">छोड़े गए बहुत छोटे चित्र (आइकन या रेखाएँ): %1$d</string>
+    <string name="extract_skipped_masks">छोड़े गए स्टेंसिल मास्क: %1$d</string>
+    <string name="extract_skipped_unsupported">ऐसे फ़ॉर्मेट के चित्र जिन्हें निकाला नहीं जा सकता: %1$d</string>
+    <string name="extract_truncated">पहले %1$d चित्रों पर रुक गया।</string>
+    <string name="extract_note_cmyk">CMYK JPEG चित्र: %1$d। कुछ व्यूअर में रंग उलटे दिख सकते हैं।</string>
+    <string name="extract_note_alpha">पारदर्शिता के बिना सहेजे गए चित्र: %1$d। पारदर्शिता पढ़ी नहीं जा सकी।</string>
+    <string name="extract_all_zip">सभी चित्र (ZIP)</string>
+    <string name="extract_page_picture">पृष्ठ %1$d का चित्र</string>
+    <string name="extract_showing_first">%2$d में से पहले %1$d दिख रहे हैं। ZIP में सभी हैं।</string>
 </resources>
