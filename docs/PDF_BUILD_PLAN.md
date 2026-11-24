@@ -21,13 +21,18 @@ Owner of Phase 0 and Phase 1 ("stage one"): the Claude session that wrote this p
 | Phase 1 lane D: Compressor grayscale | stage-one session | Merged (CI green): grayscale tick box with the text-can't-be-selected warning, always uses the raster path, keeps the result even if larger | |
 | Phase 1 lane E: Metadata remove-all | stage-one session | Merged (CI green): Remove all metadata tick (info, dates and XMP), Created with and PDF producer fields | |
 | Phase 1 lane F: Merge error, Images to PDF margin | stage-one session | Merged (CI green): margin none/small/large for A4 and Letter, clear error when a PDF to merge is protected or damaged | |
-| Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Built: text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
-| Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Built: six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
+| Phase 2 lane G: Watermark (logic + tests first) | Claude session (Andrew) | Merged (CI green): text or logo, nine spots or repeat, size, visible, turn, edge/spacing, page range, live preview on the page, in a ToolSheet | `pdf/phase2-watermark` |
+| Phase 2 lane H: Page numbers/headers/footers (logic + tests first) | Claude session (Andrew) | Merged (CI green): six spots, six ready-made styles, tokens, Bates, page range, first number, font, size, margin mm, gray, in a ToolSheet | `pdf/phase2-page-numbers` |
 | Phase 2 lane I: Crop (trim margins, fit to paper, sheet) | stage-one session | Merged; live trim preview on the page and a per-page "margins too large" check added on top (Claude session, Andrew) | `pdf/phase2-crop`, `pdf/phase2-crop-preview` |
 | Phase 3: Extract images | Claude session (Andrew) | Claimed, in progress | `pdf/phase3-extract-images` |
-| Phase 4: Compress summary | Claude session (Andrew) | Built: the app already had per-file before/after, saved %, 20 files and the notes; added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | `pdf/phase4-compress-summary` |
-| Phase 5: Reading mode | open, for another agent | Not started | |
+| Phase 4: Compress summary | Claude session (Andrew) | Merged (CI green): the app already had per-file before/after, saved %, 20 files and the notes; added "N% larger / same size" for kept grayscale copies, a "Converted to grayscale" note, and one ZIP of all kept results | `pdf/phase4-compress-summary` |
+| Phase 5: Reading mode | stage-one session | Claimed, in progress | `pdf/phase5-reading-mode` |
 | Phase 6: Polish and release check | whoever finishes last | Not started | |
+
+**Summary (as of 2026-11-24)**
+- Merged to main: Phase 0; Phase 1 A–F; Phase 2 G (Watermark), H (Page numbers), I (Crop); Phase 4 (Compress summary).
+- In progress: Phase 3 (Extract images), Phase 5 (Reading mode).
+- Remaining: Phase 6 (Polish and release check); wide-screen side panel for ToolSheet; move the other tools into sheets; then image edit tools and `docs/IMAGE_BUILD_PLAN.md`. Nothing has been tried on a phone yet.
 
 **Next steps for other agents, in order of independence:**
 1. Phase 3 (Extract images) and Phase 5 (Reading mode): they do not need the new sheet, so start now. Build the logic and tests, and put the screen in a plain screen or dialog; switch it into `ToolSheet` after Phase 0 merges.
