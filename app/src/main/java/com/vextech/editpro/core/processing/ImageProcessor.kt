@@ -160,6 +160,47 @@ class ImageProcessor @Inject constructor() {
         return result
     }
 
+    /**
+     * Draws [source] onto a new [width] x [height] picture as the Resize sheet describes (crop to fill, whole photo on a colour, or stretch).
+     * Big reductions are made in halving steps first, so small pictures made from large photos stay sharp. Never modifies [source].
+     */
+    fun resizeFit(
+        source: Bitmap, width: Int, height: Int, mode: com.vextech.editpro.core.image.FitMode,
+        zoom: Double, panX: Double, panY: Double, background: Int,
+    ): Bitmap {
+        val fit = com.vextech.editpro.core.image.ResizeFit.fitRect(source.width, source.height, width, height, mode, zoom, panX, panY)
+        var region = Bitmap.createBitmap(
+            source,
+            fit.sx.toInt().coerceIn(0, source.width - 1), fit.sy.toInt().coerceIn(0, source.height - 1),
+            fit.sw.toInt().coerceIn(1, source.width - fit.sx.toInt().coerceIn(0, source.width - 1)),
+            fit.sh.toInt().coerceIn(1, source.height - fit.sy.toInt().coerceIn(0, source.height - 1)),
+        )
+        val targetW = fit.dw.toInt().coerceAtLeast(1)
+        val targetH = fit.dh.toInt().coerceAtLeast(1)
+        while (region.width / 2 >= targetW && region.height / 2 >= targetH) {
+            val half = Bitmap.createScaledBitmap(region, region.width / 2, region.height / 2, true)
+            if (region !== source) region.recycle()
+            region = half
+        }
+        val out = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(out)
+        if (mode == com.vextech.editpro.core.image.FitMode.FIT) canvas.drawColor(background)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG or Paint.DITHER_FLAG)
+        canvas.drawBitmap(region, null, RectF(fit.dx.toFloat(), fit.dy.toFloat(), (fit.dx + fit.dw).toFloat(), (fit.dy + fit.dh).toFloat()), paint)
+        if (region !== source) region.recycle()
+        return out
+    }
+
+    /** Puts a picture with see-through pixels on white, for formats that cannot keep transparency. */
+    fun onWhite(source: Bitmap): Bitmap {
+        if (!source.hasAlpha()) return source
+        val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(out)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(source, 0f, 0f, null)
+        return out
+    }
+
     fun grayscale(source: Bitmap): Bitmap = adjust(source, 0f, 1f, 0f)
 
     /** Paper to white and ink to black, as the site's "Clean document" look (see [ToneMath.cleanDocument]). */

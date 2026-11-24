@@ -31,6 +31,8 @@ import com.vextech.editpro.core.image.ExportEstimate
 import com.vextech.editpro.core.image.ExportFormat
 import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.ResizeFit
+import com.vextech.editpro.core.image.ResizeSpec
 import com.vextech.editpro.core.image.Turn
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +43,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -61,6 +63,10 @@ data class ImageEditorUiState(
     val export: ExportEstimate? = null,
     /** True when the picture has see-through pixels, so JPG is not offered. */
     val hasAlpha: Boolean = false,
+    /** Size the picture will have at full quality, in pixels, which the Resize sheet starts from. */
+    val fullSize: Pair<Int, Int>? = null,
+    /** File-size limit in KB from a form size chosen in Resize, which Export keeps to; null for none. */
+    val exportLimitKB: Int? = null,
     val busy: Boolean = false,
     val saving: Boolean = false,
     val saved: SavedImage? = null,
@@ -243,13 +249,44 @@ class ImageEditorViewModel @Inject constructor(
         replaceStack(next)
     }
 
+    // ---- resize sheet
+
+    fun openResize() {
+        val base = committed ?: return
+        _state.update { it.copy(tool = EditorTool.RESIZE, fullSize = fullSizeOf(base)) }
+    }
+
+    private fun fullSizeOf(base: Bitmap): Pair<Int, Int> {
+        val k = fullScale(base)
+        return maxOf(1, (base.width * k).roundToInt()) to maxOf(1, (base.height * k).roundToInt())
+    }
+
+    /** Shows [spec] on the picture a moment after the last change; null puts the unresized picture back. Nothing is recorded until [applyResize]. */
+    fun previewResize(spec: ResizeSpec?) {
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val shown = withContext(io) {
+                if (spec == null) base else {
+                    val (w, h) = previewDims(spec.width, spec.height)
+                    processor.resizeFit(base, w, h, spec.mode, spec.zoom, spec.panX, spec.panY, spec.background)
+                }
+            }
+            _state.update { if (it.tool == EditorTool.RESIZE) it.copy(preview = shown) else it }
+        }
+    }
+
+    fun applyResize(spec: ResizeSpec) = commit(EditOp.Resize(spec))
+
     // ---- export sheet
 
     fun openExport() {
         if (_state.value.source == null || _state.value.saving) return
         val hasAlpha = sourceHasAlpha || _state.value.stack.done.any { it == EditOp.RemoveBackground }
-        _state.update { it.copy(tool = EditorTool.EXPORT, hasAlpha = hasAlpha, export = null) }
-        estimateExport(ExportRequest(ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0))
+        val limit = (_state.value.stack.done.lastOrNull { it is EditOp.Resize } as? EditOp.Resize)?.spec?.maxBytes?.let { (it / 1024).toInt() }
+        _state.update { it.copy(tool = EditorTool.EXPORT, hasAlpha = hasAlpha, exportLimitKB = limit, export = null) }
+        estimateExport(ExportRequest(if (limit != null) ExportFormat.JPEG else ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0))
     }
 
     /** Works out the size and about how large the file will be for [request], a moment after the last change. */
@@ -263,8 +300,20 @@ class ImageEditorViewModel @Inject constructor(
         }
     }
 
+    /** Pixels at full quality per pixel of the preview: a chosen resize fixes the long side, otherwise it is the save size over the preview size. */
+    private fun fullScale(base: Bitmap): Double {
+        val resize = _state.value.stack.done.lastOrNull { it is EditOp.Resize } as? EditOp.Resize
+        if (resize != null) return maxOf(resize.spec.width, resize.spec.height).toDouble() / maxOf(base.width, base.height)
+        return if (sourceLongSide > 0) minOf(SAVE_MAX_DIMENSION, sourceLongSide).toDouble() / minOf(PREVIEW_MAX_DIMENSION, sourceLongSide) else 1.0
+    }
+
+    private fun previewDims(w: Int, h: Int): Pair<Int, Int> {
+        val k = minOf(1.0, PREVIEW_MAX_DIMENSION.toDouble() / maxOf(w, h))
+        return maxOf(1, (w * k).roundToInt()) to maxOf(1, (h * k).roundToInt())
+    }
+
     private fun estimate(base: Bitmap, request: ExportRequest): ExportEstimate {
-        val k = if (sourceLongSide > 0) minOf(SAVE_MAX_DIMENSION, sourceLongSide).toDouble() / minOf(PREVIEW_MAX_DIMENSION, sourceLongSide) else 1.0
+        val k = fullScale(base)
         val (fullW, fullH) = (base.width * k).roundToInt().coerceAtLeast(1) to (base.height * k).roundToInt().coerceAtLeast(1)
         val (finalW, finalH) = ExportMath.limitSide(fullW, fullH, request.longestSide)
         val (sampleW, sampleH) = ExportMath.sampleSize(finalW, finalH, PREVIEW_MAX_DIMENSION)
@@ -290,7 +339,7 @@ class ImageEditorViewModel @Inject constructor(
         liveJob?.cancel()
         estimateJob?.cancel()
         adjustBase = null
-        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, preview = committed ?: it.preview) }
+        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, preview = committed ?: it.preview) }
     }
 
     // ---- saving
@@ -306,23 +355,32 @@ class ImageEditorViewModel @Inject constructor(
             _state.update { it.copy(saving = true, tool = EditorTool.NONE, export = null) }
             try {
                 val ops = current.stack.done
+                val limit = (ops.lastOrNull { it is EditOp.Resize } as? EditOp.Resize)?.spec?.maxBytes
+                // A form size with a file-size limit is always saved as JPG, at the highest quality that stays under the limit.
+                val format = if (limit != null) ExportFormat.JPEG else request.format
                 val saved = withContext(io) {
                     val full = processor.decodeOriented(file, SAVE_MAX_DIMENSION)
-                    val rendered = render(full, ops)
+                    val rendered = render(full, ops, exact = true)
                     val (w, h) = ExportMath.limitSide(rendered.width, rendered.height, request.longestSide)
-                    val sized = if (w != rendered.width || h != rendered.height) Bitmap.createScaledBitmap(rendered, w, h, true) else rendered
+                    val scaled = if (w != rendered.width || h != rendered.height) Bitmap.createScaledBitmap(rendered, w, h, true) else rendered
+                    val sized = if (format == ExportFormat.JPEG) processor.onWhite(scaled) else scaled
                     try {
-                        store.writeBitmap(
-                            sized, store.editedDir, ExportMath.fileName(source.name, request.format),
-                            compressFormat(request.format), if (request.format == ExportFormat.PNG) 100 else request.quality.coerceIn(ExportMath.MIN_QUALITY, 100),
-                        )
+                        val quality = when {
+                            format == ExportFormat.PNG -> 100
+                            limit != null -> ResizeFit.bestQuality(limit) { q ->
+                                java.io.ByteArrayOutputStream().also { sized.compress(Bitmap.CompressFormat.JPEG, q, it) }.size().toLong()
+                            }.first
+                            else -> request.quality.coerceIn(ExportMath.MIN_QUALITY, 100)
+                        }
+                        store.writeBitmap(sized, store.editedDir, ExportMath.fileName(source.name, format), compressFormat(format), quality)
                     } finally {
-                        if (sized !== rendered) sized.recycle()
+                        if (sized !== scaled) sized.recycle()
+                        if (scaled !== rendered) scaled.recycle()
                         if (rendered !== full) rendered.recycle()
                         full.recycle()
                     }
                 }
-                val mime = request.format.mimeType
+                val mime = format.mimeType
                 val entity = repository.registerFile(saved, ResourceType.IMAGE, mime)
                 repository.recordHistory(HistoryAction.EDITED, "Edited ${saved.name}", ResourceType.IMAGE, entity.id, saved.toURI().toString(), saved.name)
                 _state.update { it.copy(saved = SavedImage(saved.name, saved.toURI().toString(), mime, saved.length())) }
@@ -342,12 +400,17 @@ class ImageEditorViewModel @Inject constructor(
     fun dismissSaved() { _state.update { it.copy(saved = null) } }
 
     /** Replays [ops] on [source]. The source is never modified or recycled; intermediate bitmaps are. */
-    private fun render(source: Bitmap, ops: List<EditOp>): Bitmap {
+    /** [exact] is true when saving: a resize then makes exactly the size asked for. In the preview a resize keeps its shape but is capped at preview size. */
+    private fun render(source: Bitmap, ops: List<EditOp>, exact: Boolean = false): Bitmap {
         var current = source
         for (op in ops) {
             val next = when (op) {
                 is EditOp.Rotate -> processor.rotate(current, 90f * op.quarterTurns)
                 is EditOp.Crop -> processor.crop(current, op.rect.left, op.rect.top, op.rect.right, op.rect.bottom)
+                is EditOp.Resize -> {
+                    val (w, h) = if (exact) op.spec.width to op.spec.height else previewDims(op.spec.width, op.spec.height)
+                    processor.resizeFit(current, w, h, op.spec.mode, op.spec.zoom, op.spec.panX, op.spec.panY, op.spec.background)
+                }
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {

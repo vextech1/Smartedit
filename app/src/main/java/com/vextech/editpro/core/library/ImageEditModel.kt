@@ -66,6 +66,8 @@ sealed interface EditOp {
     data class Flip(val horizontal: Boolean) : EditOp
     data class Adjust(val params: AdjustParams) : EditOp
     data class Filter(val filter: ImageFilter) : EditOp
+    /** Makes the picture a new size, as the Resize sheet describes. A later resize replaces an earlier one. */
+    data class Resize(val spec: com.vextech.editpro.core.image.ResizeSpec) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -113,6 +115,11 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Filter -> if (last.filter == op.filter) return this else done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Resize -> when {
+                last is EditOp.Resize && last.spec == op.spec -> return this
+                last is EditOp.Resize -> done.dropLast(1) + op
+                else -> done + op
+            }
             EditOp.RemoveBackground -> if (last == EditOp.RemoveBackground) return this else done + op
         }
         return EditStack(next, emptyList())
@@ -140,6 +147,7 @@ object EditPolicies {
         for (op in ops) when (op) {
             is EditOp.Rotate -> rotatedSize(w, h, op.quarterTurns).let { w = it.first; h = it.second }
             is EditOp.Crop -> op.rect.toPixels(w, h).let { w = it.width; h = it.height }
+            is EditOp.Resize -> { w = op.spec.width; h = op.spec.height }
             else -> Unit
         }
         return w to h
