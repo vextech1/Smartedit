@@ -1102,4 +1102,13 @@
     <string name="mark_color_amber">एम्बर</string>
     <string name="mark_color_green">हरा</string>
     <string name="mark_color_blue">नीला</string>
+    <string name="hide_title">धुंधला करें या छिपाएँ</string>
+    <string name="hide_black">काला बॉक्स</string>
+    <string name="hide_pixelate">पिक्सलेट</string>
+    <string name="hide_blur">ब्लर</string>
+    <string name="hide_strength">तीव्रता</string>
+    <string name="hide_hint">चेहरों, नंबर प्लेट या पतों पर बॉक्स खींचें।</string>
+    <string name="hide_count">ढके गए: %1$d</string>
+    <string name="hide_history_warning">इस फ़ोटो के पुराने संस्करण अब भी नीचे का हिस्सा दिखाते हैं। केवल नया संस्करण साझा करें।</string>
+    <string name="hide_undo">आखिरी बॉक्स हटाएँ</string>
 </resources>

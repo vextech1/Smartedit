@@ -1147,4 +1147,13 @@
     <string name="mark_color_amber">Amber</string>
     <string name="mark_color_green">Green</string>
     <string name="mark_color_blue">Blue</string>
+    <string name="hide_title">Blur or Hide</string>
+    <string name="hide_black">Black box</string>
+    <string name="hide_pixelate">Pixelate</string>
+    <string name="hide_blur">Blur</string>
+    <string name="hide_strength">Strength</string>
+    <string name="hide_hint">Drag boxes over faces, plates or addresses.</string>
+    <string name="hide_count">Covered: %1$d</string>
+    <string name="hide_history_warning">Earlier versions of this photo still show what is underneath. Share only the new version.</string>
+    <string name="hide_undo">Undo last box</string>
 </resources>

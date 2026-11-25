@@ -1110,4 +1110,13 @@
     <string name="mark_color_amber">Ambre</string>
     <string name="mark_color_green">Vert</string>
     <string name="mark_color_blue">Bleu</string>
+    <string name="hide_title">Flouter ou masquer</string>
+    <string name="hide_black">Boîte noire</string>
+    <string name="hide_pixelate">Pixeliser</string>
+    <string name="hide_blur">Flou</string>
+    <string name="hide_strength">Intensité</string>
+    <string name="hide_hint">Faites glisser des cadres sur les visages, plaques ou adresses.</string>
+    <string name="hide_count">Masqués : %1$d</string>
+    <string name="hide_history_warning">Les versions précédentes de cette photo montrent encore ce qui est dessous. Ne partagez que la nouvelle version.</string>
+    <string name="hide_undo">Annuler le dernier cadre</string>
 </resources>

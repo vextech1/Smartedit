@@ -72,6 +72,8 @@ sealed interface EditOp {
     data class Round(val spec: com.vextech.editpro.core.image.RoundSpec) : EditOp
     /** Marks drawn on the picture at this point (Draw & Text). Each use adds its own step, so undo takes them off one batch at a time. */
     data class Marks(val marks: List<com.vextech.editpro.core.image.Mark>) : EditOp
+    /** Covers boxes with black, pixels or blur (Blur or Hide). The pixels underneath are gone in the saved picture. */
+    data class Hide(val boxes: List<com.vextech.editpro.core.image.HideBox>) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -129,6 +131,7 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Round -> done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Hide -> if (op.boxes.isEmpty()) return this else done + op
             is EditOp.Marks -> if (op.marks.isEmpty()) return this else done + op
             EditOp.RemoveBackground -> if (last == EditOp.RemoveBackground) return this else done + op
         }

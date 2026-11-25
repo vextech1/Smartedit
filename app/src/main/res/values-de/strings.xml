@@ -1102,4 +1102,13 @@
     <string name="mark_color_amber">Bernstein</string>
     <string name="mark_color_green">Grün</string>
     <string name="mark_color_blue">Blau</string>
+    <string name="hide_title">Verwischen oder Verbergen</string>
+    <string name="hide_black">Schwarzer Kasten</string>
+    <string name="hide_pixelate">Verpixeln</string>
+    <string name="hide_blur">Weichzeichnen</string>
+    <string name="hide_strength">Stärke</string>
+    <string name="hide_hint">Ziehe Kästen über Gesichter, Kennzeichen oder Adressen.</string>
+    <string name="hide_count">Verdeckt: %1$d</string>
+    <string name="hide_history_warning">Frühere Versionen dieses Fotos zeigen weiterhin, was darunter ist. Teile nur die neue Version.</string>
+    <string name="hide_undo">Letzten Kasten rückgängig</string>
 </resources>
