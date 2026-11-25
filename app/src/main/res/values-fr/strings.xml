@@ -1093,4 +1093,21 @@
     <string name="print_fits_sideways">%1$d photos tiennent sur ce papier, en paysage. Imprimez à taille réelle.</string>
     <string name="print_too_big">Cette taille est trop grande pour ce papier. Choisissez un papier plus grand.</string>
     <string name="print_bad_size">Saisissez la taille de la photo en chiffres.</string>
+    <string name="mark_title">Dessin et texte</string>
+    <string name="mark_pen">Dessiner</string>
+    <string name="mark_arrow">Flèche</string>
+    <string name="mark_box">Cadre</string>
+    <string name="mark_oval">Ovale</string>
+    <string name="mark_text">Texte</string>
+    <string name="mark_thickness">Épaisseur</string>
+    <string name="mark_text_size">Taille du texte</string>
+    <string name="mark_text_box">Fond clair derrière le texte</string>
+    <string name="mark_hint_draw">Faites glisser sur la photo pour dessiner.</string>
+    <string name="mark_hint_text">Touchez la photo où le texte doit commencer.</string>
+    <string name="mark_need_text">Saisissez d\'abord du texte, puis touchez la photo où il doit commencer.</string>
+    <string name="mark_undo">Annuler la dernière marque</string>
+    <string name="mark_color_red">Rouge</string>
+    <string name="mark_color_amber">Ambre</string>
+    <string name="mark_color_green">Vert</string>
+    <string name="mark_color_blue">Bleu</string>
 </resources>

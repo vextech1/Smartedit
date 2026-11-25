@@ -1130,4 +1130,21 @@
     <string name="print_fits_sideways">Fits %1$d photos on this paper, sideways. Print at actual size.</string>
     <string name="print_too_big">This size is too big to fit on that paper. Pick a larger paper.</string>
     <string name="print_bad_size">Enter the photo size as numbers.</string>
+    <string name="mark_title">Draw &amp; Text</string>
+    <string name="mark_pen">Draw</string>
+    <string name="mark_arrow">Arrow</string>
+    <string name="mark_box">Box</string>
+    <string name="mark_oval">Oval</string>
+    <string name="mark_text">Text</string>
+    <string name="mark_thickness">Thickness</string>
+    <string name="mark_text_size">Text size</string>
+    <string name="mark_text_box">Light box behind the text</string>
+    <string name="mark_hint_draw">Drag on the photo to draw.</string>
+    <string name="mark_hint_text">Tap the photo where the text should start.</string>
+    <string name="mark_need_text">Type some text first, then tap the photo where it should start.</string>
+    <string name="mark_undo">Undo last mark</string>
+    <string name="mark_color_red">Red</string>
+    <string name="mark_color_amber">Amber</string>
+    <string name="mark_color_green">Green</string>
+    <string name="mark_color_blue">Blue</string>
 </resources>

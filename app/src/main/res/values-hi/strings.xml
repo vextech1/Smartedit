@@ -1085,4 +1085,21 @@
     <string name="print_fits_sideways">इस कागज़ पर %1$d फ़ोटो आड़ी आती हैं। असली आकार में प्रिंट करें।</string>
     <string name="print_too_big">यह आकार उस कागज़ के लिए बहुत बड़ा है। बड़ा कागज़ चुनें।</string>
     <string name="print_bad_size">फ़ोटो का आकार अंकों में लिखें।</string>
+    <string name="mark_title">चित्र और टेक्स्ट</string>
+    <string name="mark_pen">चित्र बनाएँ</string>
+    <string name="mark_arrow">तीर</string>
+    <string name="mark_box">बॉक्स</string>
+    <string name="mark_oval">अंडाकार</string>
+    <string name="mark_text">टेक्स्ट</string>
+    <string name="mark_thickness">मोटाई</string>
+    <string name="mark_text_size">टेक्स्ट का आकार</string>
+    <string name="mark_text_box">टेक्स्ट के पीछे हल्का बॉक्स</string>
+    <string name="mark_hint_draw">चित्र बनाने के लिए फ़ोटो पर खींचें।</string>
+    <string name="mark_hint_text">फ़ोटो पर वहाँ टैप करें जहाँ टेक्स्ट शुरू होना है।</string>
+    <string name="mark_need_text">पहले टेक्स्ट लिखें, फिर फ़ोटो पर वहाँ टैप करें जहाँ वह शुरू हो।</string>
+    <string name="mark_undo">आखिरी निशान हटाएँ</string>
+    <string name="mark_color_red">लाल</string>
+    <string name="mark_color_amber">एम्बर</string>
+    <string name="mark_color_green">हरा</string>
+    <string name="mark_color_blue">नीला</string>
 </resources>
