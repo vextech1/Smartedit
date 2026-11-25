@@ -1093,4 +1093,21 @@
     <string name="print_fits_sideways">Caben %1$d fotos en este papel, en horizontal. Imprime a tamaño real.</string>
     <string name="print_too_big">Este tamaño es demasiado grande para ese papel. Elige un papel mayor.</string>
     <string name="print_bad_size">Escribe el tamaño de la foto con números.</string>
+    <string name="mark_title">Dibujo y texto</string>
+    <string name="mark_pen">Dibujar</string>
+    <string name="mark_arrow">Flecha</string>
+    <string name="mark_box">Cuadro</string>
+    <string name="mark_oval">Óvalo</string>
+    <string name="mark_text">Texto</string>
+    <string name="mark_thickness">Grosor</string>
+    <string name="mark_text_size">Tamaño del texto</string>
+    <string name="mark_text_box">Cuadro claro detrás del texto</string>
+    <string name="mark_hint_draw">Arrastra sobre la foto para dibujar.</string>
+    <string name="mark_hint_text">Toca la foto donde debe empezar el texto.</string>
+    <string name="mark_need_text">Escribe primero el texto y toca la foto donde debe empezar.</string>
+    <string name="mark_undo">Deshacer última marca</string>
+    <string name="mark_color_red">Rojo</string>
+    <string name="mark_color_amber">Ámbar</string>
+    <string name="mark_color_green">Verde</string>
+    <string name="mark_color_blue">Azul</string>
 </resources>

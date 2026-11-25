@@ -1117,4 +1117,21 @@
     <string name="print_fits_sideways">تتسع %1$d صور على هذا الورق بشكل أفقي. اطبع بالحجم الفعلي.</string>
     <string name="print_too_big">هذا الحجم أكبر من الورق. اختر ورقًا أكبر.</string>
     <string name="print_bad_size">أدخل حجم الصورة بالأرقام.</string>
+    <string name="mark_title">رسم ونص</string>
+    <string name="mark_pen">رسم</string>
+    <string name="mark_arrow">سهم</string>
+    <string name="mark_box">مربع</string>
+    <string name="mark_oval">شكل بيضاوي</string>
+    <string name="mark_text">نص</string>
+    <string name="mark_thickness">السماكة</string>
+    <string name="mark_text_size">حجم النص</string>
+    <string name="mark_text_box">مربع فاتح خلف النص</string>
+    <string name="mark_hint_draw">اسحب على الصورة للرسم.</string>
+    <string name="mark_hint_text">اضغط على الصورة حيث يبدأ النص.</string>
+    <string name="mark_need_text">اكتب نصًا أولاً ثم اضغط على الصورة حيث يبدأ.</string>
+    <string name="mark_undo">تراجع عن آخر علامة</string>
+    <string name="mark_color_red">أحمر</string>
+    <string name="mark_color_amber">كهرماني</string>
+    <string name="mark_color_green">أخضر</string>
+    <string name="mark_color_blue">أزرق</string>
 </resources>

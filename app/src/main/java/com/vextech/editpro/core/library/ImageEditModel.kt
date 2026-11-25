@@ -70,6 +70,8 @@ sealed interface EditOp {
     data class Resize(val spec: com.vextech.editpro.core.image.ResizeSpec) : EditOp
     /** Crops to a picture shape and cuts the corners (transparent), as the Round sheet describes. A later Round replaces an earlier one. */
     data class Round(val spec: com.vextech.editpro.core.image.RoundSpec) : EditOp
+    /** Marks drawn on the picture at this point (Draw & Text). Each use adds its own step, so undo takes them off one batch at a time. */
+    data class Marks(val marks: List<com.vextech.editpro.core.image.Mark>) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -127,6 +129,7 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Round -> done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Marks -> if (op.marks.isEmpty()) return this else done + op
             EditOp.RemoveBackground -> if (last == EditOp.RemoveBackground) return this else done + op
         }
         return EditStack(next, emptyList())

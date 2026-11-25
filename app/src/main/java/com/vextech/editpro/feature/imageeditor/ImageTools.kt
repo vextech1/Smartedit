@@ -7,6 +7,7 @@ import androidx.compose.material.icons.rounded.Flip
 import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material.icons.rounded.PhotoSizeSelectLarge
 import androidx.compose.material.icons.rounded.RoundedCorner
+import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material.icons.rounded.Print
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material.icons.rounded.Tune
@@ -21,7 +22,7 @@ enum class ImageToolGroup(val label: Int) {
 }
 
 /** Every tool Edit Image can open. A new lane adds its id here, one entry in [imageTools], and one branch in the screen's `openTool`. */
-enum class ImageToolId { ADJUST, CROP, ROTATE, FLIP, RESIZE, ROUND, PRINT_SHEET, EXPORT, REMOVE_BACKGROUND }
+enum class ImageToolId { ADJUST, CROP, ROTATE, FLIP, RESIZE, ROUND, PRINT_SHEET, MARKUP, EXPORT, REMOVE_BACKGROUND }
 
 data class ImageToolEntry(val id: ImageToolId, val label: Int, val icon: ImageVector, val group: ImageToolGroup)
 
@@ -34,6 +35,7 @@ val imageTools: List<ImageToolEntry> = listOf(
     ImageToolEntry(ImageToolId.RESIZE, R.string.resize_title, Icons.Rounded.PhotoSizeSelectLarge, ImageToolGroup.EDIT),
     ImageToolEntry(ImageToolId.ROUND, R.string.round_title, Icons.Rounded.RoundedCorner, ImageToolGroup.EDIT),
     ImageToolEntry(ImageToolId.REMOVE_BACKGROUND, R.string.ie_remove_background, Icons.Rounded.AutoFixHigh, ImageToolGroup.EDIT),
+    ImageToolEntry(ImageToolId.MARKUP, R.string.mark_title, Icons.Rounded.Brush, ImageToolGroup.MARK),
     ImageToolEntry(ImageToolId.PRINT_SHEET, R.string.print_title, Icons.Rounded.Print, ImageToolGroup.OUTPUT),
     ImageToolEntry(ImageToolId.EXPORT, R.string.ie_export, Icons.Rounded.IosShare, ImageToolGroup.OUTPUT),
 )

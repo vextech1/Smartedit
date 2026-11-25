@@ -48,11 +48,16 @@ import com.vextech.editpro.core.image.FitMode
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeForm
 import com.vextech.editpro.core.image.ResizeParse
+import com.vextech.editpro.core.image.MarkForm
+import com.vextech.editpro.core.image.MarkTool
+import com.vextech.editpro.core.image.DrawPoint
 import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.RoundForm
 import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.draw.rotate
 import kotlin.math.roundToInt
@@ -109,6 +114,7 @@ fun ImageEditorScreen(
     LaunchedEffect(resizeForm, state.tool, fullSize) {
         if (state.tool == EditorTool.RESIZE && fullSize != null) vm.previewResize((resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok)?.spec)
     }
+    var markForm by remember(state.tool == EditorTool.MARKUP) { mutableStateOf(MarkForm()) }
     var printForm by remember(state.tool == EditorTool.PRINT_SHEET) { mutableStateOf(PrintSheetForm()) }
     var roundForm by remember(state.tool == EditorTool.ROUND) { mutableStateOf(RoundForm()) }
     LaunchedEffect(roundForm, state.tool) {
@@ -130,6 +136,7 @@ fun ImageEditorScreen(
             EditorTool.RESIZE -> stringResource(R.string.resize_title)
             EditorTool.ROUND -> stringResource(R.string.round_title)
             EditorTool.PRINT_SHEET -> stringResource(R.string.print_title)
+            EditorTool.MARKUP -> stringResource(R.string.mark_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -181,6 +188,9 @@ fun ImageEditorScreen(
                             roundForm = roundForm.copy(panX = px, panY = py)
                         }
                     }
+                    if (state.tool == EditorTool.MARKUP) {
+                        MarkLayer(imageAspect, markForm, { change -> markForm = change(markForm) }, Modifier.fillMaxSize())
+                    }
                     if (state.tool == EditorTool.CROP) {
                         CropOverlay(
                             crop = state.crop,
@@ -217,6 +227,7 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.MARKUP -> MarkupSheet(markForm, { markForm = it }, vm::applyMarks, vm::closeTool)
                     EditorTool.PRINT_SHEET -> PrintSheetSheet(printForm, { printForm = it }, vm::savePrintSheet, vm::closeTool)
                     EditorTool.EXPORT -> ExportSheet(
                         hasAlpha = state.hasAlpha, limitKB = state.exportLimitKB, estimate = state.export,
@@ -243,6 +254,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.MARKUP -> vm.openMarkup()
                     ImageToolId.PRINT_SHEET -> vm.openPrintSheet()
                     ImageToolId.EXPORT -> vm.openExport()
                     ImageToolId.RESIZE -> vm.openResize()
@@ -540,6 +552,41 @@ private fun ExportSheet(hasAlpha: Boolean, limitKB: Int?, estimate: ExportEstima
             estimate?.let { stringResource(R.string.ie_export_estimate, it.width, it.height, formatBytes(it.bytes)) } ?: stringResource(R.string.ie_export_estimating),
         )
         if (hasAlpha) SheetHint(stringResource(R.string.ie_export_alpha_note))
+    }
+}
+
+/** Takes the finger on the photo for Draw & Text and paints the marks over it. [update] changes the form from its latest value, so quick moves lose no points. */
+@Composable
+private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) -> MarkForm) -> Unit, modifier: Modifier) {
+    var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
+    val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
+    val left = (box.width - fitW) / 2f
+    val top = (box.height - fitH) / 2f
+    fun point(o: androidx.compose.ui.geometry.Offset) =
+        DrawPoint(if (fitW > 0f) ((o.x - left) / fitW).coerceIn(0f, 1f) else 0f, if (fitH > 0f) ((o.y - top) / fitH).coerceIn(0f, 1f) else 0f)
+    val textTool = form.tool == MarkTool.TEXT
+    androidx.compose.foundation.Canvas(
+        modifier.onSizeChanged { box = it }.pointerInput(imageAspect, textTool, box) {
+            if (textTool) {
+                detectTapGestures { o -> update { it.tap(point(o)) } }
+            } else {
+                detectDragGestures(
+                    onDragStart = { o -> update { it.down(point(o)) } },
+                    onDrag = { change, _ -> change.consume(); update { it.move(point(change.position)) } },
+                    onDragEnd = { update { it.up() } },
+                    onDragCancel = { update { it.up() } },
+                )
+            }
+        },
+    ) {
+        drawIntoCanvas { c ->
+            val n = c.nativeCanvas
+            n.save()
+            n.translate(left, top)
+            com.vextech.editpro.core.processing.MarkPainter.draw(n, fitW, fitH, form.shown)
+            n.restore()
+        }
     }
 }
 

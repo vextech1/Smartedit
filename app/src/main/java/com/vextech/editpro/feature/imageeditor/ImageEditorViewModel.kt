@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -311,6 +311,15 @@ class ImageEditorViewModel @Inject constructor(
         return processor.roundCorners(source, w, h, spec.radiusPct, spec.zoom, spec.panX, spec.panY)
     }
 
+    // ---- draw & text
+
+    fun openMarkup() {
+        if (committed == null || _state.value.saving) return
+        _state.update { it.copy(tool = EditorTool.MARKUP) }
+    }
+
+    fun applyMarks(marks: List<com.vextech.editpro.core.image.Mark>) = commit(EditOp.Marks(marks))
+
     // ---- photo sheet
 
     fun openPrintSheet() {
@@ -497,6 +506,7 @@ class ImageEditorViewModel @Inject constructor(
                     processor.resizeFit(current, w, h, op.spec.mode, op.spec.zoom, op.spec.panX, op.spec.panY, op.spec.background)
                 }
                 is EditOp.Round -> roundOf(current, op.spec)
+                is EditOp.Marks -> processor.drawMarks(current, op.marks)
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {

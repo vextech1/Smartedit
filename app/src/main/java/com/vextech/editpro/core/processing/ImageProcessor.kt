@@ -206,6 +206,13 @@ class ImageProcessor @Inject constructor() {
         return out
     }
 
+    /** A copy of [source] with the Draw & Text [marks] drawn on it. */
+    fun drawMarks(source: Bitmap, marks: List<com.vextech.editpro.core.image.Mark>): Bitmap {
+        val out = source.copy(Bitmap.Config.ARGB_8888, true)
+        MarkPainter.draw(Canvas(out), out.width.toFloat(), out.height.toFloat(), marks)
+        return out
+    }
+
     /** Puts a picture with see-through pixels on white, for formats that cannot keep transparency. */
     fun onWhite(source: Bitmap): Bitmap {
         if (!source.hasAlpha()) return source
