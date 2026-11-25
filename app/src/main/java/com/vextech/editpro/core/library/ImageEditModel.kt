@@ -66,6 +66,10 @@ sealed interface EditOp {
     data class Flip(val horizontal: Boolean) : EditOp
     data class Adjust(val params: AdjustParams) : EditOp
     data class Filter(val filter: ImageFilter) : EditOp
+    /** Makes the picture a new size, as the Resize sheet describes. A later resize replaces an earlier one. */
+    data class Resize(val spec: com.vextech.editpro.core.image.ResizeSpec) : EditOp
+    /** Crops to a picture shape and cuts the corners (transparent), as the Round sheet describes. A later Round replaces an earlier one. */
+    data class Round(val spec: com.vextech.editpro.core.image.RoundSpec) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -113,6 +117,16 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Filter -> if (last.filter == op.filter) return this else done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Resize -> when {
+                last is EditOp.Resize && last.spec == op.spec -> return this
+                last is EditOp.Resize -> done.dropLast(1) + op
+                else -> done + op
+            }
+            is EditOp.Round -> when {
+                last is EditOp.Round && last.spec == op.spec -> return this
+                last is EditOp.Round -> done.dropLast(1) + op
+                else -> done + op
+            }
             EditOp.RemoveBackground -> if (last == EditOp.RemoveBackground) return this else done + op
         }
         return EditStack(next, emptyList())
@@ -140,6 +154,8 @@ object EditPolicies {
         for (op in ops) when (op) {
             is EditOp.Rotate -> rotatedSize(w, h, op.quarterTurns).let { w = it.first; h = it.second }
             is EditOp.Crop -> op.rect.toPixels(w, h).let { w = it.width; h = it.height }
+            is EditOp.Resize -> { w = op.spec.width; h = op.spec.height }
+            is EditOp.Round -> com.vextech.editpro.core.image.RoundShapes.outputSize(w, h, op.spec.ratio, maxOf(w, h)).let { w = it.first; h = it.second }
             else -> Unit
         }
         return w to h
@@ -147,7 +163,10 @@ object EditPolicies {
 
     /** Background removal produces transparency, so the result must be PNG. */
     fun outputFormat(sourceHasAlpha: Boolean, ops: List<EditOp>): ImageOutput =
-        if (sourceHasAlpha || ops.any { it == EditOp.RemoveBackground }) ImageOutput.PNG else ImageOutput.JPEG
+        if (sourceHasAlpha || makesTransparency(ops)) ImageOutput.PNG else ImageOutput.JPEG
+
+    /** True when an edit leaves see-through pixels: background removal, or Round with cut corners. */
+    fun makesTransparency(ops: List<EditOp>): Boolean = ops.any { it == EditOp.RemoveBackground || (it is EditOp.Round && it.spec.radiusPct > 0) }
 
     fun outputName(originalName: String, output: ImageOutput): String {
         val base = originalName.substringBeforeLast('.', originalName).trim().ifBlank { "image" }

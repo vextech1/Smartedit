@@ -13,6 +13,8 @@ import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDAcroForm
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDTextField
 import com.vextech.editpro.core.pdf.PdfBoxEngine
+import com.vextech.editpro.core.pdf.StampOptions
+import com.vextech.editpro.core.pdf.StampZones
 import com.vextech.editpro.feature.pdf.domain.PdfRect
 import com.vextech.editpro.feature.pdf.domain.PdfSecurityOptions
 import java.io.File
@@ -81,7 +83,7 @@ class PdfBoxEngineTest {
         assertThat(engine.search(blankInserted, "PAGE_2").single().pageIndex).isEqualTo(2)
 
         val numbered = file("numbered.pdf")
-        engine.addPageNumbers(blankInserted, 101, numbered)
+        engine.addStamp(blankInserted, StampOptions(StampZones(), StampZones(center = "{n}"), startNumber = 101), numbered)
         assertThat(engine.search(numbered, "101")).isNotEmpty()
 
         val linked = file("linked.pdf")

@@ -30,3 +30,15 @@ Status: **implemented at source level** (not yet compiled).
 ## Verification
 `tools/verify_ui_kit.sh` runs `tools/static_checks.py`: import resolution (main, test, androidTest), duplicate declarations, same type name in several packages, `R.string` references, locale key parity, XML validity, hard-coded text in `core/ui`, TODO/FIXME markers. No Android SDK needed.
 Not run here: Gradle compile, Compose rendering, the system file picker flow.
+
+## Tool sheets (`core/ui/sheet`)
+Shared by the PDF editor and the image editor. Added after Phase 1; see `docs/PDF_BUILD_PLAN.md` for how they were built.
+
+| Piece | File | Purpose |
+|---|---|---|
+| `ToolSheet` | `ToolSheet.kt` | The sheet frame: handle (closes without applying), `Reset | Title | tick`, scrolling content, max 46% of the screen height on phones. In a side panel (`LocalSheetPanel`) it fills the panel instead. |
+| `SheetEdits`, `SheetHistory`, `SheetHistoryRegistry`, `rememberSheetEdits` | `SheetEdits.kt` | The unapplied edits of one sheet (the draft its fields show, plus undo and redo steps; quick runs of typing or dragging merge into one step). The top bar's Undo/Redo step through them first, then through the document's saved versions. |
+| `SheetTextField`, `SheetSlider`, `SheetCheck`, `SheetChips`, `SheetSwatches`, `SheetHint`, `SheetWarning` and the other form parts | `SheetParts.kt` | Form building blocks. Sliders speak their label, chips and swatches are selectable groups, warnings are announced. |
+| `SheetPanel`, `LocalSheetPanel` | `SheetPanel.kt` | When a sheet becomes a side panel (width 840 dp or more, or landscape and 560 dp or more) and how wide (360 dp, at most 45% of the width). The host lays out the page and panel side by side; the PDF editor does, the image editor does not yet. |
+| `Timeline` | `Timeline.kt` | A list of snapshots with a position: the step-by-step history behind Undo and Redo for edits a sheet has not applied yet. Pure Kotlin, unit tested. |
+

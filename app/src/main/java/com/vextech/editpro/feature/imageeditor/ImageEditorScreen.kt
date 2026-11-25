@@ -44,7 +44,15 @@ import com.vextech.editpro.core.image.ExportEstimate
 import com.vextech.editpro.core.image.ExportFormat
 import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.FitMode
+import com.vextech.editpro.core.image.ResizeFit
+import com.vextech.editpro.core.image.ResizeForm
+import com.vextech.editpro.core.image.ResizeParse
+import com.vextech.editpro.core.image.RoundForm
+import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.draw.rotate
 import kotlin.math.roundToInt
 import com.vextech.editpro.core.library.AdjustParams
@@ -95,6 +103,15 @@ fun ImageEditorScreen(
     var comparing by remember { mutableStateOf(false) }
     var aspect by remember(state.tool) { mutableStateOf(CropShape.FREE) }
     var moreOpen by remember { mutableStateOf(false) }
+    val fullSize = state.fullSize
+    var resizeForm by remember(state.tool == EditorTool.RESIZE, fullSize) { mutableStateOf(ResizeForm.start(fullSize?.first ?: 1, fullSize?.second ?: 1)) }
+    LaunchedEffect(resizeForm, state.tool, fullSize) {
+        if (state.tool == EditorTool.RESIZE && fullSize != null) vm.previewResize((resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok)?.spec)
+    }
+    var roundForm by remember(state.tool == EditorTool.ROUND) { mutableStateOf(RoundForm()) }
+    LaunchedEffect(roundForm, state.tool) {
+        if (state.tool == EditorTool.ROUND) vm.previewRound(roundForm.spec())
+    }
     BackHandler(enabled = state.tool != EditorTool.NONE) { vm.closeTool() }
 
     val editing = state.source != null
@@ -108,6 +125,8 @@ fun ImageEditorScreen(
             EditorTool.ROTATE -> stringResource(R.string.ie_rotate_title)
             EditorTool.FLIP -> stringResource(R.string.ie_flip)
             EditorTool.EXPORT -> stringResource(R.string.ie_export)
+            EditorTool.RESIZE -> stringResource(R.string.resize_title)
+            EditorTool.ROUND -> stringResource(R.string.round_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -141,6 +160,24 @@ fun ImageEditorScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit,
                     )
+                    if (state.tool == EditorTool.RESIZE && fullSize != null && resizeForm.mode == FitMode.FILL) {
+                        ResizeDragLayer(imageAspect, Modifier.fillMaxSize()) { dx, dy, boxW, boxH ->
+                            val parsed = resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok ?: return@ResizeDragLayer
+                            val fit = ResizeFit.fitRect(fullSize.first, fullSize.second, parsed.spec.width, parsed.spec.height, FitMode.FILL, resizeForm.zoom, resizeForm.panX, resizeForm.panY)
+                            val (px, py) = ResizeFit.panBy(resizeForm.panX, resizeForm.panY, dx, dy, boxW, boxH, fit)
+                            resizeForm = resizeForm.copy(panX = px, panY = py)
+                        }
+                    }
+                    if (state.tool == EditorTool.ROUND && roundForm.ratioId != RoundShapes.ORIGINAL) {
+                        // The preview already shows the cropped shape; dragging moves which part of the photo stays in.
+                        ResizeDragLayer(imageAspect, Modifier.fillMaxSize()) { dx, dy, boxW, boxH ->
+                            val (sw, sh) = vm.roundBaseSize() ?: return@ResizeDragLayer
+                            val (ow, oh) = roundForm.outputSize(sw, sh)
+                            val fit = ResizeFit.fitRect(sw, sh, ow, oh, FitMode.FILL, roundForm.zoom, roundForm.panX, roundForm.panY)
+                            val (px, py) = ResizeFit.panBy(roundForm.panX, roundForm.panY, dx, dy, boxW, boxH, fit)
+                            roundForm = roundForm.copy(panX = px, panY = py)
+                        }
+                    }
                     if (state.tool == EditorTool.CROP) {
                         CropOverlay(
                             crop = state.crop,
@@ -172,8 +209,13 @@ fun ImageEditorScreen(
                         flip = state.tool == EditorTool.FLIP, turn = state.turn,
                         onTurn = vm::setTurn, onApply = vm::applyTurn, onCancel = vm::closeTool,
                     )
+                    EditorTool.RESIZE -> if (fullSize != null) ResizeSheet(
+                        sourceWidth = fullSize.first, sourceHeight = fullSize.second, form = resizeForm, onForm = { resizeForm = it },
+                        onApply = vm::applyResize, onCancel = vm::closeTool,
+                    )
+                    EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
                     EditorTool.EXPORT -> ExportSheet(
-                        hasAlpha = state.hasAlpha, estimate = state.export,
+                        hasAlpha = state.hasAlpha, limitKB = state.exportLimitKB, estimate = state.export,
                         onChange = vm::estimateExport, onApply = vm::save, onCancel = vm::closeTool,
                     )
                     EditorTool.NONE -> EditorBottom(
@@ -196,7 +238,9 @@ fun ImageEditorScreen(
                     ImageToolId.CROP -> vm.openCrop()
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
+                    ImageToolId.ROUND -> vm.openRound()
                     ImageToolId.EXPORT -> vm.openExport()
+                    ImageToolId.RESIZE -> vm.openResize()
                     ImageToolId.REMOVE_BACKGROUND -> vm.removeBackground()
                 }
             },
@@ -462,8 +506,8 @@ private fun sideLabel(side: Int): String = if (side == 0) stringResource(R.strin
 
 /** Export as a sheet: format, quality, longest side, and the size and about how large the file will be. The tick saves. */
 @Composable
-private fun ExportSheet(hasAlpha: Boolean, estimate: ExportEstimate?, onChange: (ExportRequest) -> Unit, onApply: (ExportRequest) -> Unit, onCancel: () -> Unit) {
-    val start = remember(hasAlpha) { ExportRequest(ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0) }
+private fun ExportSheet(hasAlpha: Boolean, limitKB: Int?, estimate: ExportEstimate?, onChange: (ExportRequest) -> Unit, onApply: (ExportRequest) -> Unit, onCancel: () -> Unit) {
+    val start = remember(hasAlpha, limitKB) { ExportRequest(if (limitKB != null) ExportFormat.JPEG else ExportMath.startFormat(hasAlpha), ExportMath.DEFAULT_QUALITY, 0) }
     var request by remember(start) { mutableStateOf(start) }
     fun update(next: ExportRequest) { request = next; onChange(next) }
     ToolSheet(
@@ -473,12 +517,15 @@ private fun ExportSheet(hasAlpha: Boolean, estimate: ExportEstimate?, onChange: 
         canReset = request != start,
         onApply = { onApply(request) },
     ) {
+        if (limitKB != null) SheetHint(stringResource(R.string.ie_export_limit_note, limitKB))
         SheetChips(
-            ExportMath.formatsFor(hasAlpha).map { it.name to when (it) { ExportFormat.JPEG -> "JPG"; ExportFormat.PNG -> "PNG"; ExportFormat.WEBP -> "WebP" } },
+            (if (limitKB != null) listOf(ExportFormat.JPEG) else ExportMath.formatsFor(hasAlpha)).map { it.name to when (it) { ExportFormat.JPEG -> "JPG"; ExportFormat.PNG -> "PNG"; ExportFormat.WEBP -> "WebP" } },
             request.format.name,
             onPick = { id -> update(request.copy(format = ExportFormat.valueOf(id))) },
         )
-        if (request.format.lossy) {
+        if (limitKB != null) {
+            Unit
+        } else if (request.format.lossy) {
             SheetSlider(stringResource(R.string.ie_export_quality, request.quality), request.quality.toFloat(), ExportMath.MIN_QUALITY.toFloat()..100f, { update(request.copy(quality = it.roundToInt())) })
         } else {
             SheetHint(stringResource(R.string.ie_export_png_note))
@@ -489,6 +536,23 @@ private fun ExportSheet(hasAlpha: Boolean, estimate: ExportEstimate?, onChange: 
         )
         if (hasAlpha) SheetHint(stringResource(R.string.ie_export_alpha_note))
     }
+}
+
+/** Lets the picture be dragged to choose which part of the photo stays in a crop-to-fill resize. Reports each drag step in pixels, with the picture's on-screen size. */
+@Composable
+private fun ResizeDragLayer(imageAspect: Float, modifier: Modifier, onDrag: (dx: Double, dy: Double, boxW: Double, boxH: Double) -> Unit) {
+    var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    Box(
+        modifier.onSizeChanged { box = it }.pointerInput(imageAspect) {
+            detectDragGestures { change, drag ->
+                change.consume()
+                // The picture is shown to fit inside this box, so its drawn size is the box scaled down to the picture's own shape.
+                val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
+                val fitH = fitW / imageAspect
+                onDrag(drag.x.toDouble(), drag.y.toDouble(), fitW.toDouble(), fitH.toDouble())
+            }
+        },
+    )
 }
 
 /** The More sheet: every registered tool, grouped Edit, Mark and Output. Groups with no tool yet are left out. */

@@ -103,7 +103,6 @@ interface PdfEngine {
      * [logo] is the picture for a [WatermarkKind.LOGO] draft. Placement follows the page as it looks on screen, so rotated pages stay upright.
      */
     fun watermark(input: File, draft: WatermarkDraft, logo: Bitmap?, pages: Set<Int>?, output: File, password: String? = null): Int
-    fun addPageNumbers(input: File, startNumber: Int, output: File, password: String? = null)
     /**
      * Prints page numbers, headers, footers or Bates numbers as set in [options]; returns how many pages were stamped.
      * Text uses the PDF standard fonts, so Western letters only. Placement follows the page as it looks on screen.
@@ -495,29 +494,6 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             doc.save(output)
         }
         return marked
-    }
-
-    override fun addPageNumbers(input: File, startNumber: Int, output: File, password: String?) {
-        require(startNumber >= 0)
-        load(input, password).use { doc ->
-            repeat(doc.numberOfPages) { index ->
-                val page = doc.getPage(index)
-                val label = (startNumber + index).toString()
-                val font = PDType1Font.HELVETICA
-                val size = 10f
-                val textWidth = font.getStringWidth(label) / 1000f * size
-                val box = page.cropBox
-                PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, true, true).use { stream ->
-                    stream.beginText()
-                    stream.setNonStrokingColor(70 / 255f, 70 / 255f, 70 / 255f)
-                    stream.setFont(font, size)
-                    stream.newLineAtOffset(box.lowerLeftX + (box.width - textWidth) / 2f, box.lowerLeftY + 18f)
-                    stream.showText(label)
-                    stream.endText()
-                }
-            }
-            doc.save(output)
-        }
     }
 
     override fun addStamp(input: File, options: StampOptions, output: File, password: String?): Int {
