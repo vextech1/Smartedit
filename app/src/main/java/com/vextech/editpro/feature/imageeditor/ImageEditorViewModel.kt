@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -320,6 +320,26 @@ class ImageEditorViewModel @Inject constructor(
 
     fun applyMarks(marks: List<com.vextech.editpro.core.image.Mark>) = commit(EditOp.Marks(marks))
 
+    // ---- blur or hide
+
+    fun openHide() {
+        if (committed == null || _state.value.saving) return
+        _state.update { it.copy(tool = EditorTool.HIDE) }
+    }
+
+    /** Shows [boxes] covered on the picture a moment after the last change. Nothing is recorded until [applyHide]. */
+    fun previewHide(boxes: List<com.vextech.editpro.core.image.HideBox>) {
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val shown = withContext(io) { if (boxes.isEmpty()) base else processor.hide(base, boxes) }
+            _state.update { if (it.tool == EditorTool.HIDE) it.copy(preview = shown) else it }
+        }
+    }
+
+    fun applyHide(boxes: List<com.vextech.editpro.core.image.HideBox>) = commit(EditOp.Hide(boxes))
+
     // ---- photo sheet
 
     fun openPrintSheet() {
@@ -507,6 +527,7 @@ class ImageEditorViewModel @Inject constructor(
                 }
                 is EditOp.Round -> roundOf(current, op.spec)
                 is EditOp.Marks -> processor.drawMarks(current, op.marks)
+                is EditOp.Hide -> processor.hide(current, op.boxes)
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {

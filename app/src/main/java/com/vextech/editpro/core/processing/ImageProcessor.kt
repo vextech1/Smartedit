@@ -206,6 +206,20 @@ class ImageProcessor @Inject constructor() {
         return out
     }
 
+    /** A copy of [source] with each box covered as its kind says. Only the pixels inside a box are read or changed. */
+    fun hide(source: Bitmap, boxes: List<com.vextech.editpro.core.image.HideBox>): Bitmap {
+        val out = source.copy(Bitmap.Config.ARGB_8888, true)
+        val minSide = min(out.width, out.height)
+        for (box in boxes) {
+            val r = com.vextech.editpro.core.image.Redact.rectFor(box, out.width, out.height) ?: continue
+            val px = IntArray(r.w * r.h)
+            out.getPixels(px, 0, r.w, r.x, r.y, r.w, r.h)
+            com.vextech.editpro.core.image.Redact.apply(px, r.w, r.h, box.kind, box.strength, minSide)
+            out.setPixels(px, 0, r.w, r.x, r.y, r.w, r.h)
+        }
+        return out
+    }
+
     /** A copy of [source] with the Draw & Text [marks] drawn on it. */
     fun drawMarks(source: Bitmap, marks: List<com.vextech.editpro.core.image.Mark>): Bitmap {
         val out = source.copy(Bitmap.Config.ARGB_8888, true)

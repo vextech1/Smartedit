@@ -1134,4 +1134,13 @@
     <string name="mark_color_amber">كهرماني</string>
     <string name="mark_color_green">أخضر</string>
     <string name="mark_color_blue">أزرق</string>
+    <string name="hide_title">تمويه أو إخفاء</string>
+    <string name="hide_black">مربع أسود</string>
+    <string name="hide_pixelate">تبكسل</string>
+    <string name="hide_blur">طمس</string>
+    <string name="hide_strength">القوة</string>
+    <string name="hide_hint">اسحب مربعات فوق الوجوه أو اللوحات أو العناوين.</string>
+    <string name="hide_count">المغطى: %1$d</string>
+    <string name="hide_history_warning">النسخ السابقة من هذه الصورة ما زالت تُظهر ما تحتها. شارك النسخة الجديدة فقط.</string>
+    <string name="hide_undo">تراجع عن آخر مربع</string>
 </resources>

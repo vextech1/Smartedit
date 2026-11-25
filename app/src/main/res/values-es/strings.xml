@@ -1110,4 +1110,13 @@
     <string name="mark_color_amber">Ámbar</string>
     <string name="mark_color_green">Verde</string>
     <string name="mark_color_blue">Azul</string>
+    <string name="hide_title">Difuminar u ocultar</string>
+    <string name="hide_black">Cuadro negro</string>
+    <string name="hide_pixelate">Pixelar</string>
+    <string name="hide_blur">Desenfocar</string>
+    <string name="hide_strength">Intensidad</string>
+    <string name="hide_hint">Arrastra cuadros sobre caras, matrículas o direcciones.</string>
+    <string name="hide_count">Cubiertos: %1$d</string>
+    <string name="hide_history_warning">Las versiones anteriores de esta foto aún muestran lo que hay debajo. Comparte solo la versión nueva.</string>
+    <string name="hide_undo">Deshacer último cuadro</string>
 </resources>
