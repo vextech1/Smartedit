@@ -1071,4 +1071,5 @@
     <string name="round_roundness">गोलाई</string>
     <string name="round_shape">तस्वीर का आकार</string>
     <string name="round_original">आकार वही रखें</string>
+    <string name="pdf_search_showing_first">%2$d में से पहले %1$d परिणाम दिख रहे हैं।</string>
 </resources>

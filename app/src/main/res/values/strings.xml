@@ -1116,4 +1116,5 @@
     <string name="round_roundness">Roundness</string>
     <string name="round_shape">Picture shape</string>
     <string name="round_original">Keep shape</string>
+    <string name="pdf_search_showing_first">Showing the first %1$d of %2$d matches.</string>
 </resources>

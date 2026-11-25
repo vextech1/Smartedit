@@ -1103,4 +1103,5 @@
     <string name="round_roundness">الاستدارة</string>
     <string name="round_shape">شكل الصورة</string>
     <string name="round_original">الشكل الأصلي</string>
+    <string name="pdf_search_showing_first">عرض أول %1$d من %2$d نتيجة.</string>
 </resources>

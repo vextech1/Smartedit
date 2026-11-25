@@ -27,6 +27,7 @@ import com.vextech.editpro.core.ui.sheet.ToolSheet
 import com.vextech.editpro.feature.pdf.domain.PdfBookmark
 import com.vextech.editpro.feature.pdf.domain.PdfFormEdits
 import com.vextech.editpro.feature.pdf.domain.PdfFormField
+import com.vextech.editpro.feature.pdf.domain.PdfSearchHit
 
 /**
  * Fill in the PDF's form fields. Nothing changes until the tick, which sets every edited field in one step, so one Undo
@@ -122,6 +123,57 @@ fun BookmarksSheet(
                     )
                 }
             }
+        }
+    }
+}
+
+/** How many search hits the sheet lists; the rest are summarised so a very common word cannot flood it. */
+private const val MAX_SHOWN_HITS = 100
+
+/**
+ * Search the document's text. Unlike the old dialog it stays open when you tap a hit, so you can step through the
+ * matches with the page visible beside or above it; the tick closes it.
+ */
+@Composable
+fun SearchSheet(
+    query: String,
+    hits: List<PdfSearchHit>,
+    busy: Boolean,
+    onCancel: () -> Unit,
+    onSearch: (String) -> Unit,
+    onJump: (page: Int) -> Unit,
+) {
+    var text by rememberSaveable(query) { mutableStateOf(query) }
+
+    ToolSheet(
+        title = stringResource(R.string.pdf_search_document),
+        onCancel = onCancel,
+        onReset = { text = "" },
+        canReset = text.isNotEmpty(),
+        busy = busy,
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            SheetTextField(
+                label = stringResource(R.string.search),
+                value = text,
+                onChange = { text = it },
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = { onSearch(text) }, enabled = text.isNotBlank() && !busy) { Text(stringResource(R.string.search)) }
+        }
+        // A non-blank query with no hits means a search ran and found nothing (an untouched sheet has a blank query).
+        if (hits.isEmpty() && query.isNotBlank() && !busy) {
+            SheetHint(stringResource(R.string.pdf_no_search_results))
+        }
+        hits.take(MAX_SHOWN_HITS).forEachIndexed { index, hit ->
+            key(index) {
+                TextButton(onClick = { onJump(hit.pageIndex) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.pdf_search_hit, hit.pageIndex + 1, hit.snippet), modifier = Modifier.fillMaxWidth())
+                }
+            }
+        }
+        if (hits.size > MAX_SHOWN_HITS) {
+            SheetHint(stringResource(R.string.pdf_search_showing_first, MAX_SHOWN_HITS, hits.size))
         }
     }
 }
