@@ -1216,4 +1216,15 @@
     <string name="collage_auto">تلقائي</string>
     <string name="collage_spacing">المسافة بين الصور</string>
     <string name="collage_limit">يتسع الكولاج الواحد لـ %1$d صورة فقط، لذلك تُركت %2$d.</string>
+    <string name="colour_title">منتقي الألوان</string>
+    <string name="colour_hint">اضغط أو اسحب على الصورة لاختيار لون.</string>
+    <string name="colour_hex">HEX</string>
+    <string name="colour_rgb">RGB</string>
+    <string name="colour_hsl">HSL</string>
+    <string name="colour_copy">نسخ</string>
+    <string name="colour_keep">احتفظ بهذا اللون</string>
+    <string name="colour_main">الألوان الرئيسية في هذه الصورة</string>
+    <string name="colour_copy_all">انسخ الكل بصيغة HEX</string>
+    <string name="colour_kept">الألوان التي احتفظت بها</string>
+    <string name="colour_copied">تم نسخ %1$s</string>
 </resources>

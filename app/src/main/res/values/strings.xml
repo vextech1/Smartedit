@@ -1229,4 +1229,15 @@
     <string name="collage_auto">Automatic</string>
     <string name="collage_spacing">Space between</string>
     <string name="collage_limit">Only %1$d photos fit in one collage, so %2$d were left out.</string>
+    <string name="colour_title">Colour picker</string>
+    <string name="colour_hint">Tap or drag on the photo to pick a colour.</string>
+    <string name="colour_hex">HEX</string>
+    <string name="colour_rgb">RGB</string>
+    <string name="colour_hsl">HSL</string>
+    <string name="colour_copy">Copy</string>
+    <string name="colour_keep">Keep this colour</string>
+    <string name="colour_main">Main colours in this photo</string>
+    <string name="colour_copy_all">Copy all as HEX</string>
+    <string name="colour_kept">Colours you kept</string>
+    <string name="colour_copied">Copied %1$s</string>
 </resources>

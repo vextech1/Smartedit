@@ -53,6 +53,7 @@ import com.vextech.editpro.core.image.HideForm
 import com.vextech.editpro.core.image.MarkForm
 import com.vextech.editpro.core.image.MarkTool
 import com.vextech.editpro.core.image.CollageForm
+import com.vextech.editpro.core.image.PickerForm
 import com.vextech.editpro.core.image.FrameForm
 import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.MarkSpot
@@ -128,6 +129,11 @@ fun ImageEditorScreen(
         if (state.tool == EditorTool.WATERMARK) vm.previewWatermark(wmFull)
     }
     val logoPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::pickLogo) }
+    var pickerForm by remember(state.tool == EditorTool.COLOUR) { mutableStateOf(PickerForm()) }
+    LaunchedEffect(state.palette) {
+        if (state.tool == EditorTool.COLOUR && pickerForm.at == null) state.palette.firstOrNull()?.let { pickerForm = pickerForm.use(it) }
+    }
+    val pickerContext = androidx.compose.ui.platform.LocalContext.current
     var collageForm by remember(state.tool == EditorTool.COLLAGE) { mutableStateOf(CollageForm()) }
     LaunchedEffect(collageForm, state.collage, state.tool) {
         if (state.tool == EditorTool.COLLAGE) vm.previewCollage(collageForm)
@@ -168,6 +174,7 @@ fun ImageEditorScreen(
             EditorTool.WATERMARK -> stringResource(R.string.wm_title)
             EditorTool.FRAMES -> stringResource(R.string.frames_title)
             EditorTool.COLLAGE -> stringResource(R.string.collage_title)
+            EditorTool.COLOUR -> stringResource(R.string.colour_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -222,6 +229,9 @@ fun ImageEditorScreen(
                     if (state.tool == EditorTool.MARKUP) {
                         MarkLayer(imageAspect, markForm, { change -> markForm = change(markForm) }, Modifier.fillMaxSize())
                     }
+                    if (state.tool == EditorTool.COLOUR) {
+                        PickLayer(imageAspect, pickerForm.at, { p -> vm.colourAt(p.x, p.y)?.let { c -> pickerForm = pickerForm.copy(current = c, at = p) } }, Modifier.fillMaxSize())
+                    }
                     if (state.tool == EditorTool.WATERMARK && wmFull.ready) {
                         WatermarkLayer(imageAspect, wmFull, state.markAspect, vm.committedSize(), { change -> wmSpec = change(wmSpec) }, Modifier.fillMaxSize())
                     }
@@ -264,6 +274,14 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.COLOUR -> ColourSheet(
+                        pickerForm, state.palette, { pickerForm = it },
+                        { text ->
+                            pickerContext.getSystemService(android.content.ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("colour", text))
+                            android.widget.Toast.makeText(pickerContext, pickerContext.getString(R.string.colour_copied, text), android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        vm::closeTool,
+                    )
                     EditorTool.COLLAGE -> CollageSheet(
                         state.collage, collageForm, state.saving, { collageForm = it }, { collagePicker.launch(arrayOf("image/*")) },
                         vm::moveCollagePhoto, vm::removeCollagePhoto, vm::applyCollage, vm::closeTool,
@@ -301,6 +319,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.COLOUR -> vm.openColour()
                     ImageToolId.COLLAGE -> vm.openCollage()
                     ImageToolId.FRAMES -> vm.openFrames()
                     ImageToolId.WATERMARK -> vm.openWatermark()
@@ -637,6 +656,29 @@ private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) ->
             n.translate(left, top)
             com.vextech.editpro.core.processing.MarkPainter.draw(n, fitW, fitH, form.shown)
             n.restore()
+        }
+    }
+}
+
+/** Reads the colour under a tap or drag on the photo and rings the spot. */
+@Composable
+private fun PickLayer(imageAspect: Float, at: DrawPoint?, onPick: (DrawPoint) -> Unit, modifier: Modifier) {
+    var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
+    val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
+    val left = (box.width - fitW) / 2f
+    val top = (box.height - fitH) / 2f
+    fun point(o: androidx.compose.ui.geometry.Offset) =
+        DrawPoint(if (fitW > 0f) ((o.x - left) / fitW).coerceIn(0f, 1f) else 0f, if (fitH > 0f) ((o.y - top) / fitH).coerceIn(0f, 1f) else 0f)
+    androidx.compose.foundation.Canvas(
+        modifier.onSizeChanged { box = it }
+            .pointerInput(imageAspect, box) { detectTapGestures { o -> onPick(point(o)) } }
+            .pointerInput(imageAspect, box) { detectDragGestures(onDragStart = { o -> onPick(point(o)) }, onDrag = { change, _ -> change.consume(); onPick(point(change.position)) }) },
+    ) {
+        if (at != null) {
+            val c = androidx.compose.ui.geometry.Offset(left + at.x * fitW, top + at.y * fitH)
+            drawCircle(androidx.compose.ui.graphics.Color.Black, radius = 12.dp.toPx(), center = c, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.dp.toPx()))
+            drawCircle(androidx.compose.ui.graphics.Color.White, radius = 12.dp.toPx(), center = c, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5.dp.toPx()))
         }
     }
 }
