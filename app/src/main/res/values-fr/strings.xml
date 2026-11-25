@@ -97,7 +97,6 @@
     <string name="pdf_search_hit">Page %1$d · %2$s</string>
     <string name="pdf_no_search_results">Aucun résultat</string>
     <string name="pdf_no_forms">Ce PDF ne contient aucun champ de formulaire interactif.</string>
-    <string name="pdf_update_field">Mettre à jour</string>
     <string name="pdf_flatten_forms">Aplatir les formulaires</string>
     <string name="pdf_title">Titre</string>
     <string name="pdf_author">Auteur</string>
@@ -1013,4 +1012,7 @@
     <string name="ie_export_estimate">%1$d × %2$d px · environ %3$s</string>
     <string name="ie_export_estimating">Calcul de la taille…</string>
     <string name="ie_export_alpha_note">Cette image a des zones transparentes, le JPG n’est donc pas proposé.</string>
+    <string name="pdf_flatten_forms_hint">L’aplatissement transforme les champs du formulaire en texte fixe, qui ne peut plus être modifié.</string>
+    <string name="pdf_bookmark_adds_to">Ajoute un signet à la page %1$d.</string>
+    <string name="pdf_no_bookmarks">Ce PDF n’a pas encore de signets.</string>
 </resources>

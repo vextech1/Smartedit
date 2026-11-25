@@ -275,6 +275,23 @@ fun PdfToolsScreen(
                         date = java.time.LocalDate.now().toString(),
                         onCancel = { dialog = null },
                     ) { options -> vm.addStamp(options); dialog = null }
+                } else if (dialog == PdfDialog.FORMS) {
+                    FormsSheet(
+                        fields = state.forms,
+                        busy = state.busy,
+                        onCancel = { dialog = null },
+                        onApply = vm::applyForms,
+                    )
+                } else if (dialog == PdfDialog.BOOKMARKS) {
+                    BookmarksSheet(
+                        bookmarks = state.bookmarks,
+                        currentPage = currentPage,
+                        busy = state.busy,
+                        onCancel = { dialog = null },
+                        onAdd = vm::addBookmark,
+                        onRemove = vm::removeBookmark,
+                        onJump = { vm.selectPage(it) },
+                    )
                 } else if (dialog == PdfDialog.EXTRACT_IMAGES) {
                     ExtractImagesSheet(
                         extraction = state.imageExtraction,
@@ -372,9 +389,9 @@ fun PdfToolsScreen(
         PdfDialog.NOTE -> TextInputDialog(stringResource(R.string.pdf_add_note), stringResource(R.string.pdf_note), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.note(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.LINK -> TextInputDialog(stringResource(R.string.pdf_add_link), stringResource(R.string.pdf_link_url), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { url -> pendingRect?.let { vm.link(it, url) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.REDACT_CONFIRM -> ConfirmRedactionDialog({ dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { pendingRect?.let(vm::redact); dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
-        PdfDialog.FORMS -> FormsDialog(state.forms, { dialog = null }, vm::setFormField, vm::flattenForms)
+        PdfDialog.FORMS -> Unit   // shown as a sheet above the dock
         PdfDialog.METADATA -> Unit   // shown as a sheet above the dock
-        PdfDialog.BOOKMARKS -> BookmarksDialog(state.bookmarks, currentPage, { dialog = null }, vm::addBookmark, vm::removeBookmark) { vm.selectPage(it); dialog = null }
+        PdfDialog.BOOKMARKS -> Unit   // shown as a sheet above the dock
         PdfDialog.ANNOTATIONS -> AnnotationsDialog(state.annotations, { dialog = null }, vm::removeAnnotation) { vm.selectPage(it); dialog = null }
         PdfDialog.EXTRACTED_TEXT -> TextViewerDialog(stringResource(R.string.pdf_extracted_text), state.extractedText, onDismiss = { dialog = null })
         null -> Unit
@@ -900,50 +917,6 @@ private fun SearchDialog(query: String, hits: List<PdfSearchHit>, onDismiss: () 
                 OutlinedTextField(text, { text = it }, label = { Text(stringResource(R.string.search)) }, modifier = Modifier.fillMaxWidth())
                 Button(onClick = { onSearch(text) }, enabled = text.isNotBlank()) { Text(stringResource(R.string.search)) }
                 LazyColumn { items(hits) { hit -> TextButton(onClick = { onPage(hit.pageIndex) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.pdf_search_hit, hit.pageIndex + 1, hit.snippet)) } } }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
-    )
-}
-
-@Composable
-private fun FormsDialog(fields: List<PdfFormField>, onDismiss: () -> Unit, onSet: (String, String) -> Unit, onFlatten: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_forms)) },
-        text = {
-            Column(Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
-                if (fields.isEmpty()) Text(stringResource(R.string.pdf_no_forms))
-                else LazyColumn(Modifier.weight(1f, fill = false)) {
-                    items(fields, key = { it.name }) { field ->
-                        var value by remember(field.name, field.value) { mutableStateOf(field.value) }
-                        Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-                            Text(field.name, style = MaterialTheme.typography.labelMedium)
-                            OutlinedTextField(value, { value = it }, enabled = !field.readOnly, modifier = Modifier.fillMaxWidth())
-                            TextButton(onClick = { onSet(field.name, value) }, enabled = !field.readOnly && value != field.value) { Text(stringResource(R.string.pdf_update_field)) }
-                        }
-                    }
-                }
-                if (fields.isNotEmpty()) OutlinedButton(onClick = onFlatten, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.pdf_flatten_forms)) }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
-    )
-}
-
-@Composable
-private fun BookmarksDialog(bookmarks: List<PdfBookmark>, currentPage: Int, onDismiss: () -> Unit, onAdd: (String, Int) -> Unit, onRemove: (String) -> Unit, onPage: (Int) -> Unit) {
-    var title by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_bookmarks)) },
-        text = {
-            Column(Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.pdf_bookmark_title)) }, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { if (title.isNotBlank()) { onAdd(title, currentPage); title = "" } }) { Text(stringResource(R.string.pdf_add)) }
-                }
-                LazyColumn { items(bookmarks, key = { it.id }) { item -> ListItem(headlineContent = { Text(item.title) }, supportingContent = { Text(stringResource(R.string.pdf_page_number, item.pageIndex + 1)) }, trailingContent = { TextButton(onClick = { onRemove(item.id) }) { Text(stringResource(R.string.pdf_remove)) } }, modifier = Modifier.fillMaxWidth()) } }
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },

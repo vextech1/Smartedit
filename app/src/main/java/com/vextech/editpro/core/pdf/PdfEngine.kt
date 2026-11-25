@@ -127,6 +127,8 @@ interface PdfEngine {
     fun search(input: File, query: String, password: String? = null): List<PdfSearchHit>
     fun formFields(input: File, password: String? = null): List<PdfFormField>
     fun setFormField(input: File, fieldName: String, value: String, output: File, password: String? = null)
+    /** Set several form fields in one pass. Fails, changing nothing, if any field is missing or read-only. */
+    fun setFormFields(input: File, values: Map<String, String>, output: File, password: String? = null)
     fun flattenForms(input: File, output: File, password: String? = null)
     fun metadata(input: File, password: String? = null): PdfDocumentMetadata
     fun updateMetadata(input: File, metadata: PdfDocumentMetadata, output: File, password: String? = null)
@@ -871,6 +873,18 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             val field = requireNotNull(form.getField(fieldName)) { "Form field no longer exists" }
             require(!field.isReadOnly) { "Form field is read-only" }
             field.setValue(value)
+            doc.save(output)
+        }
+    }
+
+    override fun setFormFields(input: File, values: Map<String, String>, output: File, password: String?) {
+        load(input, password).use { doc ->
+            val form = requireNotNull(doc.documentCatalog.acroForm) { "PDF has no form" }
+            // Check every field first so a bad one cannot leave the document half edited.
+            val fields = values.keys.associateWith { name ->
+                requireNotNull(form.getField(name)) { "Form field no longer exists" }.also { require(!it.isReadOnly) { "Form field is read-only" } }
+            }
+            for ((name, field) in fields) field.setValue(values.getValue(name))
             doc.save(output)
         }
     }

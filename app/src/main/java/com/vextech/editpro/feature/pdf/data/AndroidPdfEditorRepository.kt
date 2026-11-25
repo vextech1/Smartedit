@@ -222,6 +222,7 @@ class AndroidPdfEditorRepository @Inject constructor(
     override suspend fun search(sessionId: String, query: String): List<PdfSearchHit> = withContext(io) { requireHolder(sessionId).let { engine.search(it.working, query, it.password) } }
     override suspend fun forms(sessionId: String): List<PdfFormField> = withContext(io) { requireHolder(sessionId).let { engine.formFields(it.working, it.password) } }
     override suspend fun setFormField(sessionId: String, fieldName: String, value: String) = mutate(sessionId, EditPermission.FORM) { h, out -> engine.setFormField(h.working, fieldName, value, out, h.password) }
+    override suspend fun setFormFields(sessionId: String, values: Map<String, String>) = mutate(sessionId, EditPermission.FORM) { h, out -> engine.setFormFields(h.working, values, out, h.password) }
     override suspend fun flattenForms(sessionId: String) = mutate(sessionId) { h, out -> engine.flattenForms(h.working, out, h.password) }
     override suspend fun metadata(sessionId: String): PdfDocumentMetadata = withContext(io) { requireHolder(sessionId).let { engine.metadata(it.working, it.password) } }
     override suspend fun updateMetadata(sessionId: String, metadata: PdfDocumentMetadata) = mutate(sessionId) { h, out -> engine.updateMetadata(h.working, metadata, out, h.password) }

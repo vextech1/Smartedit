@@ -44,6 +44,7 @@ interface PdfEditorRepository {
     suspend fun search(sessionId: String, query: String): List<PdfSearchHit>
     suspend fun forms(sessionId: String): List<PdfFormField>
     suspend fun setFormField(sessionId: String, fieldName: String, value: String): PdfEditorSession
+    suspend fun setFormFields(sessionId: String, values: Map<String, String>): PdfEditorSession
     suspend fun flattenForms(sessionId: String): PdfEditorSession
     suspend fun metadata(sessionId: String): PdfDocumentMetadata
     suspend fun updateMetadata(sessionId: String, metadata: PdfDocumentMetadata): PdfEditorSession

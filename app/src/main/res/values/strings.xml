@@ -320,7 +320,6 @@
     <string name="pdf_search_hit">Page %1$d · %2$s</string>
     <string name="pdf_no_search_results">No search results</string>
     <string name="pdf_no_forms">This PDF has no interactive form fields.</string>
-    <string name="pdf_update_field">Update field</string>
     <string name="pdf_flatten_forms">Flatten forms</string>
     <string name="pdf_title">Title</string>
     <string name="pdf_author">Author</string>
@@ -1050,4 +1049,7 @@
     <string name="ie_export_estimate">%1$d × %2$d px · about %3$s</string>
     <string name="ie_export_estimating">Working out the size…</string>
     <string name="ie_export_alpha_note">This picture has see-through areas, so JPG is not offered.</string>
+    <string name="pdf_flatten_forms_hint">Flattening turns the form fields into fixed text, so they can’t be edited again.</string>
+    <string name="pdf_bookmark_adds_to">Adds a bookmark to page %1$d.</string>
+    <string name="pdf_no_bookmarks">This PDF has no bookmarks yet.</string>
 </resources>

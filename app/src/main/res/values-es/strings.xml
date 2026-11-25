@@ -97,7 +97,6 @@
     <string name="pdf_search_hit">Página %1$d · %2$s</string>
     <string name="pdf_no_search_results">Sin resultados</string>
     <string name="pdf_no_forms">Este PDF no tiene campos de formulario interactivos.</string>
-    <string name="pdf_update_field">Actualizar campo</string>
     <string name="pdf_flatten_forms">Aplanar formularios</string>
     <string name="pdf_title">Título</string>
     <string name="pdf_author">Autor</string>
@@ -1013,4 +1012,7 @@
     <string name="ie_export_estimate">%1$d × %2$d px · unos %3$s</string>
     <string name="ie_export_estimating">Calculando el tamaño…</string>
     <string name="ie_export_alpha_note">Esta imagen tiene zonas transparentes, así que no se ofrece JPG.</string>
+    <string name="pdf_flatten_forms_hint">Aplanar convierte los campos del formulario en texto fijo, que ya no se puede editar.</string>
+    <string name="pdf_bookmark_adds_to">Añade un marcador a la página %1$d.</string>
+    <string name="pdf_no_bookmarks">Este PDF aún no tiene marcadores.</string>
 </resources>
