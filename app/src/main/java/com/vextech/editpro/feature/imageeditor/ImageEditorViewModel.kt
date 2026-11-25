@@ -46,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -346,6 +346,26 @@ class ImageEditorViewModel @Inject constructor(
 
     fun applyHide(boxes: List<com.vextech.editpro.core.image.HideBox>) = commit(EditOp.Hide(boxes))
 
+    // ---- frames
+
+    fun openFrames() {
+        if (committed == null || _state.value.saving) return
+        _state.update { it.copy(tool = EditorTool.FRAMES) }
+    }
+
+    /** Shows [spec] round the picture a moment after the last change. Nothing is recorded until [applyFrame]. */
+    fun previewFrame(spec: com.vextech.editpro.core.image.FrameSpec) {
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val shown = withContext(io) { processor.frame(base, spec) }
+            _state.update { if (it.tool == EditorTool.FRAMES) it.copy(preview = shown) else it }
+        }
+    }
+
+    fun applyFrame(spec: com.vextech.editpro.core.image.FrameSpec) = commit(EditOp.Frame(spec))
+
     // ---- watermark
 
     fun openWatermark() {
@@ -576,6 +596,7 @@ class ImageEditorViewModel @Inject constructor(
                 is EditOp.Marks -> processor.drawMarks(current, op.marks)
                 is EditOp.Hide -> processor.hide(current, op.boxes)
                 is EditOp.Watermark -> processor.watermark(current, op.spec)
+                is EditOp.Frame -> processor.frame(current, op.spec)
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {

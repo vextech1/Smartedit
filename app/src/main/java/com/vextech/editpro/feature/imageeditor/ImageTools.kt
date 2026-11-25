@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.PhotoSizeSelectLarge
 import androidx.compose.material.icons.rounded.RoundedCorner
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Brush
+import androidx.compose.material.icons.rounded.FilterFrames
 import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material.icons.rounded.Print
 import androidx.compose.material.icons.rounded.Rotate90DegreesCw
@@ -24,7 +25,7 @@ enum class ImageToolGroup(val label: Int) {
 }
 
 /** Every tool Edit Image can open. A new lane adds its id here, one entry in [imageTools], and one branch in the screen's `openTool`. */
-enum class ImageToolId { ADJUST, CROP, ROTATE, FLIP, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, EXPORT, REMOVE_BACKGROUND }
+enum class ImageToolId { ADJUST, CROP, ROTATE, FLIP, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES, EXPORT, REMOVE_BACKGROUND }
 
 data class ImageToolEntry(val id: ImageToolId, val label: Int, val icon: ImageVector, val group: ImageToolGroup)
 
@@ -40,6 +41,7 @@ val imageTools: List<ImageToolEntry> = listOf(
     ImageToolEntry(ImageToolId.MARKUP, R.string.mark_title, Icons.Rounded.Brush, ImageToolGroup.MARK),
     ImageToolEntry(ImageToolId.HIDE, R.string.hide_title, Icons.Rounded.BlurOn, ImageToolGroup.MARK),
     ImageToolEntry(ImageToolId.WATERMARK, R.string.wm_title, Icons.Rounded.WaterDrop, ImageToolGroup.MARK),
+    ImageToolEntry(ImageToolId.FRAMES, R.string.frames_title, Icons.Rounded.FilterFrames, ImageToolGroup.MARK),
     ImageToolEntry(ImageToolId.PRINT_SHEET, R.string.print_title, Icons.Rounded.Print, ImageToolGroup.OUTPUT),
     ImageToolEntry(ImageToolId.EXPORT, R.string.ie_export, Icons.Rounded.IosShare, ImageToolGroup.OUTPUT),
 )

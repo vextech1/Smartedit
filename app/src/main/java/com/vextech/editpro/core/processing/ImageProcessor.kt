@@ -208,6 +208,9 @@ class ImageProcessor @Inject constructor() {
         return out
     }
 
+    /** A copy of [source] inside the frame [spec]. */
+    fun frame(source: Bitmap, spec: com.vextech.editpro.core.image.FrameSpec): Bitmap = FramePainter.draw(source, spec)
+
     /** Width over height of the mark [spec] makes, or null when there is nothing to draw. */
     fun markAspect(spec: com.vextech.editpro.core.image.WatermarkSpec): Double? {
         val mark = buildMark(spec) ?: return null
