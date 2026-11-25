@@ -52,6 +52,7 @@ import com.vextech.editpro.core.image.DrawPoint
 import com.vextech.editpro.core.image.HideForm
 import com.vextech.editpro.core.image.MarkForm
 import com.vextech.editpro.core.image.MarkTool
+import com.vextech.editpro.core.image.CollageForm
 import com.vextech.editpro.core.image.FrameForm
 import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.MarkSpot
@@ -127,6 +128,11 @@ fun ImageEditorScreen(
         if (state.tool == EditorTool.WATERMARK) vm.previewWatermark(wmFull)
     }
     val logoPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::pickLogo) }
+    var collageForm by remember(state.tool == EditorTool.COLLAGE) { mutableStateOf(CollageForm()) }
+    LaunchedEffect(collageForm, state.collage, state.tool) {
+        if (state.tool == EditorTool.COLLAGE) vm.previewCollage(collageForm)
+    }
+    val collagePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> if (uris.isNotEmpty()) vm.addCollagePhotos(uris) }
     var frameForm by remember(state.tool == EditorTool.FRAMES) { mutableStateOf(FrameForm()) }
     LaunchedEffect(frameForm, state.tool) {
         if (state.tool == EditorTool.FRAMES) vm.previewFrame(frameForm.spec())
@@ -161,6 +167,7 @@ fun ImageEditorScreen(
             EditorTool.HIDE -> stringResource(R.string.hide_title)
             EditorTool.WATERMARK -> stringResource(R.string.wm_title)
             EditorTool.FRAMES -> stringResource(R.string.frames_title)
+            EditorTool.COLLAGE -> stringResource(R.string.collage_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -257,6 +264,10 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.COLLAGE -> CollageSheet(
+                        state.collage, collageForm, state.saving, { collageForm = it }, { collagePicker.launch(arrayOf("image/*")) },
+                        vm::moveCollagePhoto, vm::removeCollagePhoto, vm::applyCollage, vm::closeTool,
+                    )
                     EditorTool.FRAMES -> FrameSheet(frameForm, { frameForm = it }, vm::applyFrame, vm::closeTool)
                     EditorTool.WATERMARK -> WatermarkSheet(
                         wmFull, state.logo?.name, { wmSpec = it },
@@ -290,6 +301,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.COLLAGE -> vm.openCollage()
                     ImageToolId.FRAMES -> vm.openFrames()
                     ImageToolId.WATERMARK -> vm.openWatermark()
                     ImageToolId.HIDE -> vm.openHide()

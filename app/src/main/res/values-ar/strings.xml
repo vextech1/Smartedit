@@ -1202,4 +1202,18 @@
     <string name="frames_c_yellow">أصفر</string>
     <string name="frames_c_navy">كحلي</string>
     <string name="frames_generic_note">هذه أشكال هواتف عامة وليست نسخًا من تصميم أي علامة.</string>
+    <string name="collage_title">كولاج</string>
+    <string name="collage_this_photo">هذه الصورة</string>
+    <string name="collage_move_earlier">انقل %1$s للأمام</string>
+    <string name="collage_move_later">انقل %1$s للخلف</string>
+    <string name="collage_remove">احذف %1$s</string>
+    <string name="collage_add">إضافة صور</string>
+    <string name="collage_hint">حتى %1$d صورة. إنشاء الكولاج يستبدل الصورة التي تحررها؛ الحفظ يبقيه.</string>
+    <string name="collage_grid">شبكة (مربعات متساوية)</string>
+    <string name="collage_row">جنبًا إلى جنب (صور كاملة)</string>
+    <string name="collage_column">فوق بعض (صور كاملة)</string>
+    <string name="collage_columns">الأعمدة</string>
+    <string name="collage_auto">تلقائي</string>
+    <string name="collage_spacing">المسافة بين الصور</string>
+    <string name="collage_limit">يتسع الكولاج الواحد لـ %1$d صورة فقط، لذلك تُركت %2$d.</string>
 </resources>

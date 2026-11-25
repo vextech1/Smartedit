@@ -1170,4 +1170,18 @@
     <string name="frames_c_yellow">पीला</string>
     <string name="frames_c_navy">गहरा नीला</string>
     <string name="frames_generic_note">ये सामान्य फ़ोन आकार हैं, किसी ब्रांड के डिज़ाइन की नक़ल नहीं।</string>
+    <string name="collage_title">कोलाज</string>
+    <string name="collage_this_photo">यह फ़ोटो</string>
+    <string name="collage_move_earlier">%1$s को पहले करें</string>
+    <string name="collage_move_later">%1$s को बाद में करें</string>
+    <string name="collage_remove">%1$s हटाएँ</string>
+    <string name="collage_add">फ़ोटो जोड़ें</string>
+    <string name="collage_hint">अधिकतम %1$d फ़ोटो। कोलाज बनाने से आपकी संपादित फ़ोटो बदल जाती है; सहेजें से वह रहता है।</string>
+    <string name="collage_grid">ग्रिड (बराबर बॉक्स)</string>
+    <string name="collage_row">साथ-साथ (पूरी फ़ोटो)</string>
+    <string name="collage_column">ऊपर-नीचे (पूरी फ़ोटो)</string>
+    <string name="collage_columns">कॉलम</string>
+    <string name="collage_auto">अपने आप</string>
+    <string name="collage_spacing">फ़ोटो के बीच जगह</string>
+    <string name="collage_limit">एक कोलाज में केवल %1$d फ़ोटो आती हैं, इसलिए %2$d छोड़ दी गईं।</string>
 </resources>

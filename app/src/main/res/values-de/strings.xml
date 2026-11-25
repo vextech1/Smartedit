@@ -1170,4 +1170,18 @@
     <string name="frames_c_yellow">Gelb</string>
     <string name="frames_c_navy">Marineblau</string>
     <string name="frames_generic_note">Das sind allgemeine Handyformen, keine Kopien eines Markendesigns.</string>
+    <string name="collage_title">Collage</string>
+    <string name="collage_this_photo">Dieses Foto</string>
+    <string name="collage_move_earlier">%1$s früher einordnen</string>
+    <string name="collage_move_later">%1$s später einordnen</string>
+    <string name="collage_remove">%1$s entfernen</string>
+    <string name="collage_add">Fotos hinzufügen</string>
+    <string name="collage_hint">Bis zu %1$d Fotos. Die Collage ersetzt das Foto, das du bearbeitest; Speichern behält sie.</string>
+    <string name="collage_grid">Raster (gleiche Felder)</string>
+    <string name="collage_row">Nebeneinander (ganze Fotos)</string>
+    <string name="collage_column">Untereinander (ganze Fotos)</string>
+    <string name="collage_columns">Spalten</string>
+    <string name="collage_auto">Automatisch</string>
+    <string name="collage_spacing">Abstand</string>
+    <string name="collage_limit">In eine Collage passen nur %1$d Fotos, daher blieben %2$d draußen.</string>
 </resources>
