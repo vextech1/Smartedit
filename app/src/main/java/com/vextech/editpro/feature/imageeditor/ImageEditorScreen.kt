@@ -52,7 +52,6 @@ import com.vextech.editpro.core.image.DrawPoint
 import com.vextech.editpro.core.image.HideForm
 import com.vextech.editpro.core.image.MarkForm
 import com.vextech.editpro.core.image.MarkTool
-import com.vextech.editpro.core.image.DrawPoint
 import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.RoundForm
 import com.vextech.editpro.core.image.RoundShapes
