@@ -1227,4 +1227,6 @@
     <string name="colour_copy_all">انسخ الكل بصيغة HEX</string>
     <string name="colour_kept">الألوان التي احتفظت بها</string>
     <string name="colour_copied">تم نسخ %1$s</string>
+    <string name="ie_crop_auto">تلقائي: اعثر على الصفحة أو الجسم</string>
+    <string name="ie_crop_auto_none">لا يوجد ما يمكن اقتصاصه بوضوح. اسحب الزوايا يدويًا.</string>
 </resources>

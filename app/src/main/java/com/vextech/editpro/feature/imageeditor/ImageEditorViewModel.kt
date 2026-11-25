@@ -31,6 +31,7 @@ import com.vextech.editpro.core.image.ExportEstimate
 import com.vextech.editpro.core.image.ExportFormat
 import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.AutoCrop
 import com.vextech.editpro.core.image.Collage
 import com.vextech.editpro.core.image.CollageForm
 import com.vextech.editpro.core.image.FitMode
@@ -75,6 +76,8 @@ data class ImageEditorUiState(
     val hasAlpha: Boolean = false,
     /** Size the picture will have at full quality, in pixels, which the Resize sheet starts from. */
     val fullSize: Pair<Int, Int>? = null,
+    /** True after Auto found nothing clear to crop, until the crop sheet is changed or closed. */
+    val autoCropMissed: Boolean = false,
     /** The main colours of the picture while the Colour picker is open, most common first. */
     val palette: List<Int> = emptyList(),
     /** The photos in the collage being made, in order. Empty when Collage is not open. */
@@ -204,7 +207,30 @@ class ImageEditorViewModel @Inject constructor(
     fun openCrop() { _state.update { it.copy(tool = EditorTool.CROP, crop = CropRect.FULL) } }
 
     fun setCrop(left: Float, top: Float, right: Float, bottom: Float) {
-        _state.update { it.copy(crop = CropRect.of(left, top, right, bottom)) }
+        _state.update { it.copy(crop = CropRect.of(left, top, right, bottom), autoCropMissed = false) }
+    }
+
+    /** Looks for the content of the picture (a page on a table, a scan with a rim) and selects it. Selects nothing new when none stands out. */
+    fun autoCrop() {
+        val base = committed ?: return
+        viewModelScope.launch {
+            val box = withContext(io) {
+                val (w, h) = AutoCrop.detectSize(base.width, base.height)
+                val small = if (w == base.width && h == base.height) base else Bitmap.createScaledBitmap(base, w, h, true)
+                try {
+                    val px = IntArray(w * h)
+                    small.getPixels(px, 0, w, 0, 0, w, h)
+                    AutoCrop.detect(px, w, h)?.let { b -> floatArrayOf(b.x / w.toFloat(), b.y / h.toFloat(), (b.x + b.w) / w.toFloat(), (b.y + b.h) / h.toFloat()) }
+                } finally {
+                    if (small !== base) small.recycle()
+                }
+            }
+            _state.update {
+                if (it.tool != EditorTool.CROP) it
+                else if (box == null) it.copy(autoCropMissed = true)
+                else it.copy(crop = CropRect.of(box[0], box[1], box[2], box[3]), autoCropMissed = false)
+            }
+        }
     }
 
     fun applyCrop() = commit(EditOp.Crop(_state.value.crop))
@@ -678,7 +704,7 @@ class ImageEditorViewModel @Inject constructor(
         }
         estimateJob?.cancel()
         adjustBase = null
-        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, collage = emptyList(), palette = emptyList(), preview = committed ?: it.preview) }
+        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, collage = emptyList(), palette = emptyList(), autoCropMissed = false, preview = committed ?: it.preview) }
     }
 
     // ---- saving
