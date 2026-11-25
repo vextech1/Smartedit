@@ -5,6 +5,8 @@ import com.vextech.editpro.core.image.ToneMath
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
@@ -203,6 +205,81 @@ class ImageProcessor @Inject constructor() {
         paint.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
         canvas.drawBitmap(filled, 0f, 0f, paint)
         filled.recycle()
+        return out
+    }
+
+    /** Width over height of the mark [spec] makes, or null when there is nothing to draw. */
+    fun markAspect(spec: com.vextech.editpro.core.image.WatermarkSpec): Double? {
+        val mark = buildMark(spec) ?: return null
+        return (mark.width.toDouble() / mark.height).also { mark.recycle() }
+    }
+
+    /** The mark as its own transparent picture, so it can be scaled, turned and repeated cheaply. */
+    private fun buildMark(spec: com.vextech.editpro.core.image.WatermarkSpec): Bitmap? {
+        if (spec.type == com.vextech.editpro.core.image.WatermarkType.LOGO) {
+            val path = spec.logoPath ?: return null
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, bounds)
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+            var sample = 1
+            while (max(bounds.outWidth, bounds.outHeight) / sample > 2000) sample *= 2
+            return BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
+        }
+        val lines = spec.text.split('\n').filter { it.isNotBlank() }
+        if (lines.isEmpty()) return null
+        val px = 200f
+        val pad = if (spec.outline) 16f else 6f
+        val lh = px * 1.15f
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = px; typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD); strokeJoin = Paint.Join.ROUND }
+        val width = ceil(lines.maxOf { paint.measureText(it) } + 2 * pad).toInt().coerceAtLeast(1)
+        val height = ceil(lines.size * lh + 2 * pad - (lh - px)).toInt().coerceAtLeast(1)
+        val out = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(out)
+        val top = -paint.fontMetrics.ascent
+        lines.forEachIndexed { i, line ->
+            val y = pad + top + i * lh
+            if (spec.outline) {
+                paint.style = Paint.Style.STROKE; paint.strokeWidth = px * 0.09f
+                paint.color = com.vextech.editpro.core.image.WatermarkMath.outlineFor(spec.color)
+                canvas.drawText(line, pad, y, paint)
+            }
+            paint.style = Paint.Style.FILL; paint.color = spec.color
+            canvas.drawText(line, pad, y, paint)
+        }
+        return out
+    }
+
+    /** A copy of [source] with the watermark [spec] drawn on it. */
+    fun watermark(source: Bitmap, spec: com.vextech.editpro.core.image.WatermarkSpec): Bitmap {
+        val mark = buildMark(spec) ?: return source.copy(Bitmap.Config.ARGB_8888, true)
+        val out = source.copy(Bitmap.Config.ARGB_8888, true)
+        try {
+            val w0 = out.width; val h0 = out.height
+            val (w, h) = com.vextech.editpro.core.image.WatermarkMath.markSize(w0, h0, mark.width.toDouble() / mark.height, spec.sizePct)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply { alpha = (spec.opacityPct.coerceIn(0, 100) * 255 / 100) }
+            val canvas = Canvas(out)
+            canvas.save()
+            if (spec.spot == com.vextech.editpro.core.image.MarkSpot.TILE) {
+                // Repeat over a square big enough to cover the photo whatever the angle.
+                val d = hypot(w0.toDouble(), h0.toDouble())
+                canvas.translate(w0 / 2f, h0 / 2f)
+                canvas.rotate(spec.angle.toFloat())
+                canvas.translate((-d / 2).toFloat(), (-d / 2).toFloat())
+                for (p in com.vextech.editpro.core.image.WatermarkMath.tilePoints(d, d, w, h, spec.gapPct)) {
+                    canvas.drawBitmap(mark, null, RectF(p.x.toFloat(), p.y.toFloat(), (p.x + w).toFloat(), (p.y + h).toFloat()), paint)
+                }
+            } else {
+                val at = spec.at
+                val p = if (at != null) com.vextech.editpro.core.image.WatermarkMath.placeAt(w0, h0, w, h, at)
+                else com.vextech.editpro.core.image.WatermarkMath.placeMark(w0, h0, w, h, spec.spot, spec.marginPct)
+                canvas.translate((p.x + w / 2).toFloat(), (p.y + h / 2).toFloat())
+                canvas.rotate(spec.angle.toFloat())
+                canvas.drawBitmap(mark, null, RectF((-w / 2).toFloat(), (-h / 2).toFloat(), (w / 2).toFloat(), (h / 2).toFloat()), paint)
+            }
+            canvas.restore()
+        } finally {
+            mark.recycle()
+        }
         return out
     }
 

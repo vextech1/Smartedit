@@ -1111,4 +1111,23 @@
     <string name="hide_count">ढके गए: %1$d</string>
     <string name="hide_history_warning">इस फ़ोटो के पुराने संस्करण अब भी नीचे का हिस्सा दिखाते हैं। केवल नया संस्करण साझा करें।</string>
     <string name="hide_undo">आखिरी बॉक्स हटाएँ</string>
+    <string name="wm_title">वॉटरमार्क</string>
+    <string name="wm_type_text">टेक्स्ट</string>
+    <string name="wm_type_logo">लोगो</string>
+    <string name="wm_text_label">टेक्स्ट</string>
+    <string name="wm_text_placeholder">अपना नाम लिखें, जैसे © जेन 2026</string>
+    <string name="wm_need_text">जो शब्द जोड़ने हैं वे लिखें। तब तक फ़ोटो में कुछ नहीं जुड़ता।</string>
+    <string name="wm_outline">आउटलाइन, ताकि हर फ़ोटो पर पढ़ा जा सके</string>
+    <string name="wm_hint_drag">निशान हिलाने के लिए एक उँगली से खींचें। बड़ा या छोटा करने के लिए दो उँगलियों से पिंच करें।</string>
+    <string name="wm_hint_repeat">दोहराव पूरी फ़ोटो को ढकता है। आकार बदलने के लिए दो उँगलियों से पिंच करें, या एक निशान के लिए स्थान चुनें।</string>
+    <string name="wm_top_left">ऊपर बाएँ</string>
+    <string name="wm_top_centre">ऊपर बीच</string>
+    <string name="wm_top_right">ऊपर दाएँ</string>
+    <string name="wm_middle_left">बीच बाएँ</string>
+    <string name="wm_centre">बीच</string>
+    <string name="wm_middle_right">बीच दाएँ</string>
+    <string name="wm_bottom_left">नीचे बाएँ</string>
+    <string name="wm_bottom_centre">नीचे बीच</string>
+    <string name="wm_bottom_right">नीचे दाएँ</string>
+    <string name="wm_repeat">दोहराएँ</string>
 </resources>

@@ -53,6 +53,11 @@ import com.vextech.editpro.core.image.HideForm
 import com.vextech.editpro.core.image.MarkForm
 import com.vextech.editpro.core.image.MarkTool
 import com.vextech.editpro.core.image.PrintSheetForm
+import com.vextech.editpro.core.image.MarkSpot
+import com.vextech.editpro.core.image.PxPoint
+import com.vextech.editpro.core.image.WatermarkMath
+import com.vextech.editpro.core.image.WatermarkSpec
+import androidx.compose.foundation.gestures.detectTransformGestures
 import com.vextech.editpro.core.image.RoundForm
 import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
@@ -115,6 +120,12 @@ fun ImageEditorScreen(
     LaunchedEffect(resizeForm, state.tool, fullSize) {
         if (state.tool == EditorTool.RESIZE && fullSize != null) vm.previewResize((resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok)?.spec)
     }
+    var wmSpec by remember(state.tool == EditorTool.WATERMARK) { mutableStateOf(WatermarkSpec()) }
+    val wmFull = wmSpec.copy(logoPath = state.logo?.path.takeIf { wmSpec.type == com.vextech.editpro.core.image.WatermarkType.LOGO }, logoName = state.logo?.name ?: "")
+    LaunchedEffect(wmFull, state.tool) {
+        if (state.tool == EditorTool.WATERMARK) vm.previewWatermark(wmFull)
+    }
+    val logoPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::pickLogo) }
     var hideForm by remember(state.tool == EditorTool.HIDE) { mutableStateOf(HideForm()) }
     LaunchedEffect(hideForm.boxes, state.tool) {
         if (state.tool == EditorTool.HIDE) vm.previewHide(hideForm.boxes)
@@ -143,6 +154,7 @@ fun ImageEditorScreen(
             EditorTool.PRINT_SHEET -> stringResource(R.string.print_title)
             EditorTool.MARKUP -> stringResource(R.string.mark_title)
             EditorTool.HIDE -> stringResource(R.string.hide_title)
+            EditorTool.WATERMARK -> stringResource(R.string.wm_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -187,7 +199,7 @@ fun ImageEditorScreen(
                     if (state.tool == EditorTool.ROUND && roundForm.ratioId != RoundShapes.ORIGINAL) {
                         // The preview already shows the cropped shape; dragging moves which part of the photo stays in.
                         ResizeDragLayer(imageAspect, Modifier.fillMaxSize()) { dx, dy, boxW, boxH ->
-                            val (sw, sh) = vm.roundBaseSize() ?: return@ResizeDragLayer
+                            val (sw, sh) = vm.committedSize() ?: return@ResizeDragLayer
                             val (ow, oh) = roundForm.outputSize(sw, sh)
                             val fit = ResizeFit.fitRect(sw, sh, ow, oh, FitMode.FILL, roundForm.zoom, roundForm.panX, roundForm.panY)
                             val (px, py) = ResizeFit.panBy(roundForm.panX, roundForm.panY, dx, dy, boxW, boxH, fit)
@@ -196,6 +208,9 @@ fun ImageEditorScreen(
                     }
                     if (state.tool == EditorTool.MARKUP) {
                         MarkLayer(imageAspect, markForm, { change -> markForm = change(markForm) }, Modifier.fillMaxSize())
+                    }
+                    if (state.tool == EditorTool.WATERMARK && wmFull.ready) {
+                        WatermarkLayer(imageAspect, wmFull, state.markAspect, vm.committedSize(), { change -> wmSpec = change(wmSpec) }, Modifier.fillMaxSize())
                     }
                     if (state.tool == EditorTool.HIDE) {
                         HideLayer(imageAspect, hideForm, { change -> hideForm = change(hideForm) }, Modifier.fillMaxSize())
@@ -236,6 +251,10 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.WATERMARK -> WatermarkSheet(
+                        wmFull, state.logo?.name, { wmSpec = it },
+                        { logoPicker.launch(arrayOf("image/*")) }, { vm.applyWatermark(it) }, vm::closeTool,
+                    )
                     EditorTool.HIDE -> HideSheet(hideForm, { hideForm = it }, vm::applyHide, vm::closeTool)
                     EditorTool.MARKUP -> MarkupSheet(markForm, { markForm = it }, vm::applyMarks, vm::closeTool)
                     EditorTool.PRINT_SHEET -> PrintSheetSheet(printForm, { printForm = it }, vm::savePrintSheet, vm::closeTool)
@@ -264,6 +283,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.WATERMARK -> vm.openWatermark()
                     ImageToolId.HIDE -> vm.openHide()
                     ImageToolId.MARKUP -> vm.openMarkup()
                     ImageToolId.PRINT_SHEET -> vm.openPrintSheet()
@@ -599,6 +619,35 @@ private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) ->
             n.restore()
         }
     }
+}
+
+/** One finger drags the watermark, two fingers pinching resize it. The mark follows the finger from where it was, so it never jumps. */
+@Composable
+private fun WatermarkLayer(
+    imageAspect: Float, spec: WatermarkSpec, markAspect: Double, photo: Pair<Int, Int>?,
+    update: ((WatermarkSpec) -> WatermarkSpec) -> Unit, modifier: Modifier,
+) {
+    var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
+    val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
+    Box(
+        modifier.onSizeChanged { box = it }.pointerInput(imageAspect, box, photo, markAspect) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                if (photo == null || fitW <= 0f || fitH <= 0f) return@detectTransformGestures
+                update { s ->
+                    if (zoom != 1f) s.copy(sizePct = WatermarkMath.pinchSize(s.sizePct, zoom.toDouble()))
+                    else if (s.spot == MarkSpot.TILE) s
+                    else {
+                        val (iw, ih) = photo
+                        val (w, h) = WatermarkMath.markSize(iw, ih, markAspect, s.sizePct)
+                        val from = s.at ?: WatermarkMath.centerOf(iw, ih, w, h, s.spot, s.marginPct)
+                        val moved = WatermarkMath.dragged(iw, ih, w, h, from, pan.x / fitW.toDouble(), pan.y / fitH.toDouble())
+                        s.copy(atX = moved.x, atY = moved.y)
+                    }
+                }
+            }
+        },
+    )
 }
 
 /** Takes a drag on the photo for Blur or Hide and outlines the box being drawn. */

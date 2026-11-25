@@ -74,6 +74,8 @@ sealed interface EditOp {
     data class Marks(val marks: List<com.vextech.editpro.core.image.Mark>) : EditOp
     /** Covers boxes with black, pixels or blur (Blur or Hide). The pixels underneath are gone in the saved picture. */
     data class Hide(val boxes: List<com.vextech.editpro.core.image.HideBox>) : EditOp
+    /** A text or logo watermark on the picture. A later watermark is added on top of an earlier one. */
+    data class Watermark(val spec: com.vextech.editpro.core.image.WatermarkSpec) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -131,6 +133,7 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Round -> done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Watermark -> if (!op.spec.ready) return this else done + op
             is EditOp.Hide -> if (op.boxes.isEmpty()) return this else done + op
             is EditOp.Marks -> if (op.marks.isEmpty()) return this else done + op
             EditOp.RemoveBackground -> if (last == EditOp.RemoveBackground) return this else done + op

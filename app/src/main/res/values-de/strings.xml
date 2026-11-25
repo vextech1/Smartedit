@@ -1111,4 +1111,23 @@
     <string name="hide_count">Verdeckt: %1$d</string>
     <string name="hide_history_warning">Frühere Versionen dieses Fotos zeigen weiterhin, was darunter ist. Teile nur die neue Version.</string>
     <string name="hide_undo">Letzten Kasten rückgängig</string>
+    <string name="wm_title">Wasserzeichen</string>
+    <string name="wm_type_text">Text</string>
+    <string name="wm_type_logo">Logo</string>
+    <string name="wm_text_label">Text</string>
+    <string name="wm_text_placeholder">Gib deinen Namen ein, zum Beispiel © Jana 2026</string>
+    <string name="wm_need_text">Gib den Text ein. Bis dahin wird nichts zum Foto hinzugefügt.</string>
+    <string name="wm_outline">Umriss, damit es auf jedem Foto lesbar ist</string>
+    <string name="wm_hint_drag">Mit einem Finger ziehen, um das Zeichen zu bewegen. Mit zwei Fingern zusammenziehen oder spreizen, um es zu verkleinern oder zu vergrößern.</string>
+    <string name="wm_hint_repeat">Wiederholen deckt das ganze Foto ab. Mit zwei Fingern die Größe ändern, oder eine Position für ein einzelnes Zeichen wählen.</string>
+    <string name="wm_top_left">Oben links</string>
+    <string name="wm_top_centre">Oben Mitte</string>
+    <string name="wm_top_right">Oben rechts</string>
+    <string name="wm_middle_left">Mitte links</string>
+    <string name="wm_centre">Mitte</string>
+    <string name="wm_middle_right">Mitte rechts</string>
+    <string name="wm_bottom_left">Unten links</string>
+    <string name="wm_bottom_centre">Unten Mitte</string>
+    <string name="wm_bottom_right">Unten rechts</string>
+    <string name="wm_repeat">Wiederholen</string>
 </resources>
