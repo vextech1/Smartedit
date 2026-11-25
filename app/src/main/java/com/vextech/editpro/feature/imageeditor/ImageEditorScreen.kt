@@ -74,6 +74,7 @@ import com.vextech.editpro.core.library.AdjustParams
 import com.vextech.editpro.core.ui.sheet.SheetChips
 import com.vextech.editpro.core.ui.sheet.SheetHint
 import com.vextech.editpro.core.ui.sheet.SheetSlider
+import com.vextech.editpro.core.ui.sheet.SheetWarning
 import com.vextech.editpro.core.ui.sheet.ToolSheet
 import com.vextech.editpro.core.library.ImageFilter
 import com.vextech.editpro.core.sharing.ShareService
@@ -263,6 +264,7 @@ fun ImageEditorScreen(
                         applyEnabled = !state.crop.isFull,
                         onApply = vm::applyCrop, onCancel = vm::closeTool,
                         onReset = { aspect = CropShape.FREE; vm.setCrop(0f, 0f, 1f, 1f) },
+                        onAuto = { aspect = CropShape.FREE; vm.autoCrop() }, autoMissed = state.autoCropMissed,
                     )
                     EditorTool.ADJUST -> AdjustSheet(state.adjust, vm::setAdjust, vm::applyAdjust, vm::closeTool)
                     EditorTool.ROTATE, EditorTool.FLIP -> TurnSheet(
@@ -523,7 +525,7 @@ private fun cropShapeLabel(shape: CropShape): String = when (shape) {
 
 /** Crop as a sheet: shapes on top, Reset, the title and the tick. The box itself is dragged on the picture above. */
 @Composable
-private fun CropSheet(aspect: CropShape, onAspect: (CropShape) -> Unit, applyEnabled: Boolean, onApply: () -> Unit, onCancel: () -> Unit, onReset: () -> Unit) {
+private fun CropSheet(aspect: CropShape, onAspect: (CropShape) -> Unit, applyEnabled: Boolean, onApply: () -> Unit, onCancel: () -> Unit, onReset: () -> Unit, onAuto: () -> Unit, autoMissed: Boolean) {
     ToolSheet(
         title = stringResource(R.string.ie_crop),
         onCancel = onCancel,
@@ -533,6 +535,8 @@ private fun CropSheet(aspect: CropShape, onAspect: (CropShape) -> Unit, applyEna
         busy = !applyEnabled,
     ) {
         SheetChips(CropShape.entries.map { it.name to cropShapeLabel(it) }, aspect.name, onPick = { id -> onAspect(CropShape.valueOf(id)) })
+        OutlinedButton(onClick = onAuto, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ie_crop_auto)) }
+        if (autoMissed) SheetWarning(stringResource(R.string.ie_crop_auto_none))
         SheetHint(stringResource(R.string.ie_crop_hint))
     }
 }

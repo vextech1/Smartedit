@@ -1203,4 +1203,6 @@
     <string name="colour_copy_all">Tout copier en HEX</string>
     <string name="colour_kept">Couleurs gardées</string>
     <string name="colour_copied">%1$s copié</string>
+    <string name="ie_crop_auto">Auto : trouver la page ou l\'objet</string>
+    <string name="ie_crop_auto_none">Rien de net à recadrer. Faites glisser les coins à la main.</string>
 </resources>
