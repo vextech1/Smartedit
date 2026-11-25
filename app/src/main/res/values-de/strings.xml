@@ -1071,4 +1071,5 @@
     <string name="round_roundness">Rundung</string>
     <string name="round_shape">Bildform</string>
     <string name="round_original">Form behalten</string>
+    <string name="pdf_search_showing_first">Die ersten %1$d von %2$d Treffern werden angezeigt.</string>
 </resources>

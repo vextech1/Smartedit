@@ -1079,4 +1079,5 @@
     <string name="round_roundness">Redondez</string>
     <string name="round_shape">Forma de la imagen</string>
     <string name="round_original">Mantener forma</string>
+    <string name="pdf_search_showing_first">Se muestran las primeras %1$d de %2$d coincidencias.</string>
 </resources>

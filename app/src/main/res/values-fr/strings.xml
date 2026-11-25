@@ -1079,4 +1079,5 @@
     <string name="round_roundness">Arrondi des coins</string>
     <string name="round_shape">Forme de l\'image</string>
     <string name="round_original">Garder la forme</string>
+    <string name="pdf_search_showing_first">Affichage des %1$d premières sur %2$d résultats.</string>
 </resources>

@@ -235,7 +235,7 @@ fun PdfToolsScreen(
             val metadataToEdit = state.metadata
             val sheetOpen = (dialog == PdfDialog.METADATA && metadataToEdit != null) || dialog == PdfDialog.WATERMARK ||
                 dialog == PdfDialog.PAGE_NUMBERS || dialog == PdfDialog.EXTRACT_IMAGES || dialog == PdfDialog.CROP_SHEET ||
-                dialog == PdfDialog.FORMS || dialog == PdfDialog.BOOKMARKS
+                dialog == PdfDialog.FORMS || dialog == PdfDialog.BOOKMARKS || dialog == PdfDialog.SEARCH
             // On tablets and landscape screens an open sheet becomes a panel beside the page instead of covering its bottom.
             val sidePanel = sheetOpen && SheetPanel.useSidePanel(config.screenWidthDp, config.screenHeightDp)
             val pageArea: @Composable ColumnScope.() -> Unit = {
@@ -285,6 +285,15 @@ fun PdfToolsScreen(
                         date = java.time.LocalDate.now().toString(),
                         onCancel = { dialog = null },
                     ) { options -> vm.addStamp(options); dialog = null }
+                } else if (dialog == PdfDialog.SEARCH) {
+                    SearchSheet(
+                        query = state.searchQuery,
+                        hits = state.searchHits,
+                        busy = state.busy,
+                        onCancel = { dialog = null },
+                        onSearch = vm::search,
+                        onJump = { vm.selectPage(it) },
+                    )
                 } else if (dialog == PdfDialog.FORMS) {
                     FormsSheet(
                         fields = state.forms,
@@ -404,7 +413,7 @@ fun PdfToolsScreen(
         PdfDialog.PAGE_NUMBERS -> Unit   // shown as a sheet above the dock
         PdfDialog.CROP_SHEET -> Unit   // shown as a sheet above the dock
         PdfDialog.EXTRACT_IMAGES -> Unit   // shown as a sheet above the dock
-        PdfDialog.SEARCH -> SearchDialog(state.searchQuery, state.searchHits, { dialog = null }, vm::search) { page -> vm.selectPage(page); dialog = null }
+        PdfDialog.SEARCH -> Unit   // shown as a sheet above the dock
         PdfDialog.TEXT -> TextInputDialog(stringResource(R.string.pdf_add_text), stringResource(R.string.pdf_text), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.addText(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.NOTE -> TextInputDialog(stringResource(R.string.pdf_add_note), stringResource(R.string.pdf_note), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { text -> pendingRect?.let { vm.note(it, text) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
         PdfDialog.LINK -> TextInputDialog(stringResource(R.string.pdf_add_link), stringResource(R.string.pdf_link_url), onDismiss = { dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }) { url -> pendingRect?.let { vm.link(it, url) }; dialog = null; pendingRect = null; tool = PdfCanvasTool.NONE }
@@ -923,23 +932,6 @@ private fun PasswordDialog(wrong: Boolean, onDismiss: () -> Unit, onSubmit: (Str
         text = { OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.pdf_password)) }, singleLine = true) },
         confirmButton = { TextButton(onClick = { onSubmit(password) }, enabled = password.isNotEmpty()) { Text(stringResource(R.string.pdf_open_document)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-    )
-}
-
-@Composable
-private fun SearchDialog(query: String, hits: List<PdfSearchHit>, onDismiss: () -> Unit, onSearch: (String) -> Unit, onPage: (Int) -> Unit) {
-    var text by remember(query) { mutableStateOf(query) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pdf_search_document)) },
-        text = {
-            Column(Modifier.fillMaxWidth().heightIn(max = 440.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(text, { text = it }, label = { Text(stringResource(R.string.search)) }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = { onSearch(text) }, enabled = text.isNotBlank()) { Text(stringResource(R.string.search)) }
-                LazyColumn { items(hits) { hit -> TextButton(onClick = { onPage(hit.pageIndex) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.pdf_search_hit, hit.pageIndex + 1, hit.snippet)) } } }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.close)) } },
     )
 }
 
