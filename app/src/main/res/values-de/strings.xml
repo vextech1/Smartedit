@@ -1072,4 +1072,17 @@
     <string name="round_shape">Bildform</string>
     <string name="round_original">Form behalten</string>
     <string name="pdf_search_showing_first">Die ersten %1$d von %2$d Treffern werden angezeigt.</string>
+    <string name="print_title">Fotobogen</string>
+    <string name="print_paper">Papier</string>
+    <string name="print_photo_size">Fotogröße</string>
+    <string name="print_width_mm">Breite (mm)</string>
+    <string name="print_height_mm">Höhe (mm)</string>
+    <string name="print_copies">Kopien</string>
+    <string name="print_fill">Seite füllen</string>
+    <string name="print_guides">Dünne Schnittlinien zeichnen</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">Auf diesem Papier passen %1$d Fotos. In Originalgröße drucken.</string>
+    <string name="print_fits_sideways">Auf diesem Papier passen %1$d Fotos quer. In Originalgröße drucken.</string>
+    <string name="print_too_big">Diese Größe ist zu groß für das Papier. Wähle größeres Papier.</string>
+    <string name="print_bad_size">Gib die Fotogröße als Zahlen ein.</string>
 </resources>

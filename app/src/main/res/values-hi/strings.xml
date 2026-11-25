@@ -1072,4 +1072,17 @@
     <string name="round_shape">तस्वीर का आकार</string>
     <string name="round_original">आकार वही रखें</string>
     <string name="pdf_search_showing_first">%2$d में से पहले %1$d परिणाम दिख रहे हैं।</string>
+    <string name="print_title">फ़ोटो शीट</string>
+    <string name="print_paper">कागज़</string>
+    <string name="print_photo_size">फ़ोटो का आकार</string>
+    <string name="print_width_mm">चौड़ाई (मिमी)</string>
+    <string name="print_height_mm">ऊँचाई (मिमी)</string>
+    <string name="print_copies">प्रतियाँ</string>
+    <string name="print_fill">पूरा पेज भरें</string>
+    <string name="print_guides">कटिंग की पतली रेखाएँ बनाएँ</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">इस कागज़ पर %1$d फ़ोटो आती हैं। असली आकार में प्रिंट करें।</string>
+    <string name="print_fits_sideways">इस कागज़ पर %1$d फ़ोटो आड़ी आती हैं। असली आकार में प्रिंट करें।</string>
+    <string name="print_too_big">यह आकार उस कागज़ के लिए बहुत बड़ा है। बड़ा कागज़ चुनें।</string>
+    <string name="print_bad_size">फ़ोटो का आकार अंकों में लिखें।</string>
 </resources>

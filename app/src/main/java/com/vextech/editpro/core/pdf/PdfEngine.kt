@@ -65,6 +65,8 @@ enum class PdfRenderFormat { JPEG, PNG }
 enum class PdfPageSize { FIT_IMAGE, A4, LETTER }
 
 interface PdfEngine {
+    /** Writes a one-page PDF with [photos] copies of [photo] laid out as [layout], each [cellWMm] x [cellHMm] mm, with thin cutting lines when [guides]. */
+    fun photoSheet(photo: Bitmap, layout: com.vextech.editpro.core.image.SheetLayout, cellWMm: Double, cellHMm: Double, photos: Int, guides: Boolean, output: File)
     fun pageCount(file: File, password: String? = null): Int
     fun pageInfo(file: File, password: String? = null): List<PdfPageInfo>
     fun renderPage(input: File, pageIndex: Int, output: File, dpi: Int = 120, password: String? = null) =
@@ -675,6 +677,34 @@ class PdfBoxEngine @Inject constructor(@ApplicationContext context: Context) : P
             }
             page.annotations.add(link)
             link.constructAppearances(doc)
+            doc.save(output)
+        }
+    }
+
+    override fun photoSheet(photo: Bitmap, layout: com.vextech.editpro.core.image.SheetLayout, cellWMm: Double, cellHMm: Double, photos: Int, guides: Boolean, output: File) {
+        val pt = 72.0 / com.vextech.editpro.core.image.SizeMath.MM_PER_IN
+        val gap = com.vextech.editpro.core.image.PrintSheets.GAP_MM
+        PDDocument().use { doc ->
+            val page = PDPage(PDRectangle((layout.pageW * pt).toFloat(), (layout.pageH * pt).toFloat()))
+            doc.addPage(page)
+            val image = JPEGFactory.createFromImage(doc, photo, .92f)
+            PDPageContentStream(doc, page).use { s ->
+                s.setStrokingColor(0.55f, 0.55f, 0.55f)
+                s.setLineWidth(0.3f)
+                for (i in 0 until photos) {
+                    val col = i % layout.cols
+                    val row = i / layout.cols
+                    val x = ((layout.x0 + col * (cellWMm + gap)) * pt).toFloat()
+                    val w = (cellWMm * pt).toFloat()
+                    val h = (cellHMm * pt).toFloat()
+                    val y = ((layout.pageH - layout.y0 - row * (cellHMm + gap) - cellHMm) * pt).toFloat()
+                    s.drawImage(image, x, y, w, h)
+                    if (guides) {
+                        s.addRect(x, y, w, h)
+                        s.stroke()
+                    }
+                }
+            }
             doc.save(output)
         }
     }

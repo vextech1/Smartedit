@@ -1080,4 +1080,17 @@
     <string name="round_shape">Forma de la imagen</string>
     <string name="round_original">Mantener forma</string>
     <string name="pdf_search_showing_first">Se muestran las primeras %1$d de %2$d coincidencias.</string>
+    <string name="print_title">Hoja de fotos</string>
+    <string name="print_paper">Papel</string>
+    <string name="print_photo_size">Tamaño de la foto</string>
+    <string name="print_width_mm">Ancho (mm)</string>
+    <string name="print_height_mm">Alto (mm)</string>
+    <string name="print_copies">Copias</string>
+    <string name="print_fill">Llenar la página</string>
+    <string name="print_guides">Dibujar líneas finas de corte</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">Caben %1$d fotos en este papel. Imprime a tamaño real.</string>
+    <string name="print_fits_sideways">Caben %1$d fotos en este papel, en horizontal. Imprime a tamaño real.</string>
+    <string name="print_too_big">Este tamaño es demasiado grande para ese papel. Elige un papel mayor.</string>
+    <string name="print_bad_size">Escribe el tamaño de la foto con números.</string>
 </resources>

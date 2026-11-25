@@ -1117,4 +1117,17 @@
     <string name="round_shape">Picture shape</string>
     <string name="round_original">Keep shape</string>
     <string name="pdf_search_showing_first">Showing the first %1$d of %2$d matches.</string>
+    <string name="print_title">Photo sheet</string>
+    <string name="print_paper">Paper</string>
+    <string name="print_photo_size">Photo size</string>
+    <string name="print_width_mm">Width (mm)</string>
+    <string name="print_height_mm">Height (mm)</string>
+    <string name="print_copies">Copies</string>
+    <string name="print_fill">Fill the page</string>
+    <string name="print_guides">Draw thin cutting lines</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">Fits %1$d photos on this paper. Print at actual size.</string>
+    <string name="print_fits_sideways">Fits %1$d photos on this paper, sideways. Print at actual size.</string>
+    <string name="print_too_big">This size is too big to fit on that paper. Pick a larger paper.</string>
+    <string name="print_bad_size">Enter the photo size as numbers.</string>
 </resources>
