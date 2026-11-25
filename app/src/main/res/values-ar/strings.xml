@@ -97,7 +97,6 @@
     <string name="pdf_search_hit">الصفحة %1$d · %2$s</string>
     <string name="pdf_no_search_results">لا توجد نتائج</string>
     <string name="pdf_no_forms">لا يحتوي ملف PDF هذا على حقول نماذج تفاعلية.</string>
-    <string name="pdf_update_field">تحديث الحقل</string>
     <string name="pdf_flatten_forms">تسطيح النماذج</string>
     <string name="pdf_title">العنوان</string>
     <string name="pdf_author">المؤلف</string>
@@ -1037,6 +1036,9 @@
     <string name="ie_export_estimate">%1$d × %2$d بكسل · حوالي %3$s</string>
     <string name="ie_export_estimating">جارٍ حساب الحجم…</string>
     <string name="ie_export_alpha_note">في هذه الصورة مناطق شفافة، لذا لا يتوفر JPG.</string>
+    <string name="pdf_flatten_forms_hint">التسطيح يحوّل حقول النموذج إلى نص ثابت، فلا يمكن تعديلها مرة أخرى.</string>
+    <string name="pdf_bookmark_adds_to">تضيف إشارة مرجعية إلى الصفحة %1$d.</string>
+    <string name="pdf_no_bookmarks">لا توجد إشارات مرجعية في هذا الملف بعد.</string>
     <string name="resize_title">تغيير الحجم</string>
     <string name="resize_custom">مخصص</string>
     <string name="resize_group_id">الهوية وجواز السفر</string>

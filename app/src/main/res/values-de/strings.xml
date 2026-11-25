@@ -97,7 +97,6 @@
     <string name="pdf_search_hit">Seite %1$d · %2$s</string>
     <string name="pdf_no_search_results">Keine Suchergebnisse</string>
     <string name="pdf_no_forms">Diese PDF enthält keine interaktiven Formularfelder.</string>
-    <string name="pdf_update_field">Feld aktualisieren</string>
     <string name="pdf_flatten_forms">Formulare reduzieren</string>
     <string name="pdf_title">Titel</string>
     <string name="pdf_author">Autor</string>
@@ -1005,6 +1004,9 @@
     <string name="ie_export_estimate">%1$d × %2$d px · etwa %3$s</string>
     <string name="ie_export_estimating">Größe wird berechnet…</string>
     <string name="ie_export_alpha_note">Dieses Bild hat durchsichtige Bereiche, daher gibt es kein JPG.</string>
+    <string name="pdf_flatten_forms_hint">Beim Verflachen werden die Formularfelder zu festem Text und lassen sich nicht mehr bearbeiten.</string>
+    <string name="pdf_bookmark_adds_to">Fügt ein Lesezeichen für Seite %1$d hinzu.</string>
+    <string name="pdf_no_bookmarks">Diese PDF hat noch keine Lesezeichen.</string>
     <string name="resize_title">Größe ändern</string>
     <string name="resize_custom">Eigene</string>
     <string name="resize_group_id">Ausweis und Pass</string>

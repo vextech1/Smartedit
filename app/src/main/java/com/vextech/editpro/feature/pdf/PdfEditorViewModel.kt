@@ -299,6 +299,16 @@ class PdfEditorViewModel @Inject constructor(
 
     fun setFormField(name: String, value: String) = mutate { id -> repository.setFormField(id, name, value) }
     fun flattenForms() = mutate { id -> repository.flattenForms(id) }
+
+    /** Apply every changed form field in one pass, then optionally flatten. A no-op call (nothing to set, no flatten) changes nothing. */
+    fun applyForms(values: Map<String, String>, flatten: Boolean) {
+        if (values.isEmpty() && !flatten) return
+        mutate { id ->
+            var session = if (values.isNotEmpty()) repository.setFormFields(id, values) else null
+            if (flatten) session = repository.flattenForms(id)
+            checkNotNull(session)
+        }
+    }
     fun updateMetadata(metadata: PdfDocumentMetadata) = mutate { id -> repository.updateMetadata(id, metadata) }
     fun addBookmark(title: String, page: Int = currentPage()) = mutate { id -> repository.addBookmark(id, title, page) }
     fun removeBookmark(bookmarkId: String) = mutate { id -> repository.removeBookmark(id, bookmarkId) }

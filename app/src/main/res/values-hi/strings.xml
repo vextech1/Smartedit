@@ -97,7 +97,6 @@
     <string name="pdf_search_hit">पेज %1$d · %2$s</string>
     <string name="pdf_no_search_results">कोई परिणाम नहीं</string>
     <string name="pdf_no_forms">इस PDF में इंटरैक्टिव फ़ॉर्म फ़ील्ड नहीं हैं।</string>
-    <string name="pdf_update_field">फ़ील्ड अपडेट करें</string>
     <string name="pdf_flatten_forms">फ़ॉर्म फ़्लैटन करें</string>
     <string name="pdf_title">शीर्षक</string>
     <string name="pdf_author">लेखक</string>
@@ -1005,6 +1004,9 @@
     <string name="ie_export_estimate">%1$d × %2$d px · लगभग %3$s</string>
     <string name="ie_export_estimating">आकार निकाला जा रहा है…</string>
     <string name="ie_export_alpha_note">इस तस्वीर में पारदर्शी हिस्से हैं, इसलिए JPG नहीं दिया गया।</string>
+    <string name="pdf_flatten_forms_hint">समतल करने पर फ़ॉर्म फ़ील्ड स्थिर टेक्स्ट बन जाते हैं, जिन्हें फिर बदला नहीं जा सकता।</string>
+    <string name="pdf_bookmark_adds_to">पृष्ठ %1$d पर बुकमार्क जोड़ता है।</string>
+    <string name="pdf_no_bookmarks">इस PDF में अभी कोई बुकमार्क नहीं है।</string>
     <string name="resize_title">आकार बदलें</string>
     <string name="resize_custom">कस्टम</string>
     <string name="resize_group_id">पहचान और पासपोर्ट</string>
