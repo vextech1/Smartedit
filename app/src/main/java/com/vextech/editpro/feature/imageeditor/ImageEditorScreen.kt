@@ -52,6 +52,7 @@ import com.vextech.editpro.core.image.DrawPoint
 import com.vextech.editpro.core.image.HideForm
 import com.vextech.editpro.core.image.MarkForm
 import com.vextech.editpro.core.image.MarkTool
+import com.vextech.editpro.core.image.FrameForm
 import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.MarkSpot
 import com.vextech.editpro.core.image.PxPoint
@@ -126,6 +127,10 @@ fun ImageEditorScreen(
         if (state.tool == EditorTool.WATERMARK) vm.previewWatermark(wmFull)
     }
     val logoPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::pickLogo) }
+    var frameForm by remember(state.tool == EditorTool.FRAMES) { mutableStateOf(FrameForm()) }
+    LaunchedEffect(frameForm, state.tool) {
+        if (state.tool == EditorTool.FRAMES) vm.previewFrame(frameForm.spec())
+    }
     var hideForm by remember(state.tool == EditorTool.HIDE) { mutableStateOf(HideForm()) }
     LaunchedEffect(hideForm.boxes, state.tool) {
         if (state.tool == EditorTool.HIDE) vm.previewHide(hideForm.boxes)
@@ -155,6 +160,7 @@ fun ImageEditorScreen(
             EditorTool.MARKUP -> stringResource(R.string.mark_title)
             EditorTool.HIDE -> stringResource(R.string.hide_title)
             EditorTool.WATERMARK -> stringResource(R.string.wm_title)
+            EditorTool.FRAMES -> stringResource(R.string.frames_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -251,6 +257,7 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.FRAMES -> FrameSheet(frameForm, { frameForm = it }, vm::applyFrame, vm::closeTool)
                     EditorTool.WATERMARK -> WatermarkSheet(
                         wmFull, state.logo?.name, { wmSpec = it },
                         { logoPicker.launch(arrayOf("image/*")) }, { vm.applyWatermark(it) }, vm::closeTool,
@@ -283,6 +290,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.FRAMES -> vm.openFrames()
                     ImageToolId.WATERMARK -> vm.openWatermark()
                     ImageToolId.HIDE -> vm.openHide()
                     ImageToolId.MARKUP -> vm.openMarkup()

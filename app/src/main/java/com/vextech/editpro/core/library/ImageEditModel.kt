@@ -76,6 +76,8 @@ sealed interface EditOp {
     data class Hide(val boxes: List<com.vextech.editpro.core.image.HideBox>) : EditOp
     /** A text or logo watermark on the picture. A later watermark is added on top of an earlier one. */
     data class Watermark(val spec: com.vextech.editpro.core.image.WatermarkSpec) : EditOp
+    /** Puts the picture in a wall frame or a phone frame. A later frame replaces an earlier one that is still the last step. */
+    data class Frame(val spec: com.vextech.editpro.core.image.FrameSpec) : EditOp
     data object RemoveBackground : EditOp
 }
 
@@ -133,6 +135,11 @@ class EditStack private constructor(val done: List<EditOp>, private val undone: 
                 last is EditOp.Round -> done.dropLast(1) + op
                 else -> done + op
             }
+            is EditOp.Frame -> when {
+                last is EditOp.Frame && last.spec == op.spec -> return this
+                last is EditOp.Frame -> done.dropLast(1) + op
+                else -> done + op
+            }
             is EditOp.Watermark -> if (!op.spec.ready) return this else done + op
             is EditOp.Hide -> if (op.boxes.isEmpty()) return this else done + op
             is EditOp.Marks -> if (op.marks.isEmpty()) return this else done + op
@@ -164,6 +171,7 @@ object EditPolicies {
             is EditOp.Rotate -> rotatedSize(w, h, op.quarterTurns).let { w = it.first; h = it.second }
             is EditOp.Crop -> op.rect.toPixels(w, h).let { w = it.width; h = it.height }
             is EditOp.Resize -> { w = op.spec.width; h = op.spec.height }
+            is EditOp.Frame -> com.vextech.editpro.core.image.Frames.outputSize(op.spec, w, h).let { w = it.first; h = it.second }
             is EditOp.Round -> com.vextech.editpro.core.image.RoundShapes.outputSize(w, h, op.spec.ratio, maxOf(w, h)).let { w = it.first; h = it.second }
             else -> Unit
         }
@@ -175,7 +183,7 @@ object EditPolicies {
         if (sourceHasAlpha || makesTransparency(ops)) ImageOutput.PNG else ImageOutput.JPEG
 
     /** True when an edit leaves see-through pixels: background removal, or Round with cut corners. */
-    fun makesTransparency(ops: List<EditOp>): Boolean = ops.any { it == EditOp.RemoveBackground || (it is EditOp.Round && it.spec.radiusPct > 0) }
+    fun makesTransparency(ops: List<EditOp>): Boolean = ops.any { it == EditOp.RemoveBackground || (it is EditOp.Round && it.spec.radiusPct > 0) || (it is EditOp.Frame && com.vextech.editpro.core.image.Frames.isTransparent(it.spec)) }
 
     fun outputName(originalName: String, output: ImageOutput): String {
         val base = originalName.substringBeforeLast('.', originalName).trim().ifBlank { "image" }
