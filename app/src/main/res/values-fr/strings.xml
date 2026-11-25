@@ -1178,4 +1178,18 @@
     <string name="frames_c_yellow">Jaune</string>
     <string name="frames_c_navy">Bleu marine</string>
     <string name="frames_generic_note">Ce sont des formes de téléphone génériques, pas des copies du design d\'une marque.</string>
+    <string name="collage_title">Collage</string>
+    <string name="collage_this_photo">Cette photo</string>
+    <string name="collage_move_earlier">Déplacer %1$s avant</string>
+    <string name="collage_move_later">Déplacer %1$s après</string>
+    <string name="collage_remove">Retirer %1$s</string>
+    <string name="collage_add">Ajouter des photos</string>
+    <string name="collage_hint">Jusqu\'à %1$d photos. Créer le collage remplace la photo en cours ; Enregistrer le conserve.</string>
+    <string name="collage_grid">Grille (cases égales)</string>
+    <string name="collage_row">Côte à côte (photos entières)</string>
+    <string name="collage_column">Empilées (photos entières)</string>
+    <string name="collage_columns">Colonnes</string>
+    <string name="collage_auto">Automatique</string>
+    <string name="collage_spacing">Espace entre les photos</string>
+    <string name="collage_limit">Un collage ne peut contenir que %1$d photos, %2$d ont donc été laissées de côté.</string>
 </resources>

@@ -208,6 +208,27 @@ class ImageProcessor @Inject constructor() {
         return out
     }
 
+    /** Draws [photos] into the cells of [layout] on [background], each cropped to fill its cell or fitted whole, as [fit] says. */
+    fun collage(photos: List<Bitmap>, layout: com.vextech.editpro.core.image.CollageLayout, fit: com.vextech.editpro.core.image.FitMode, background: Int): Bitmap {
+        val out = Bitmap.createBitmap(layout.w, layout.h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(out)
+        canvas.drawColor(background)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+        layout.cells.forEachIndexed { i, cell ->
+            val src = photos.getOrNull(i) ?: return@forEachIndexed
+            val f = com.vextech.editpro.core.image.ResizeFit.fitRect(src.width, src.height, cell.w, cell.h, fit)
+            val from = Rect(
+                f.sx.toInt().coerceIn(0, src.width - 1), f.sy.toInt().coerceIn(0, src.height - 1),
+                (f.sx + f.sw).toInt().coerceIn(1, src.width), (f.sy + f.sh).toInt().coerceIn(1, src.height),
+            )
+            canvas.save()
+            canvas.clipRect(cell.x.toFloat(), cell.y.toFloat(), (cell.x + cell.w).toFloat(), (cell.y + cell.h).toFloat())
+            canvas.drawBitmap(src, from, RectF(cell.x + f.dx.toFloat(), cell.y + f.dy.toFloat(), (cell.x + f.dx + f.dw).toFloat(), (cell.y + f.dy + f.dh).toFloat()), paint)
+            canvas.restore()
+        }
+        return out
+    }
+
     /** A copy of [source] inside the frame [spec]. */
     fun frame(source: Bitmap, spec: com.vextech.editpro.core.image.FrameSpec): Bitmap = FramePainter.draw(source, spec)
 

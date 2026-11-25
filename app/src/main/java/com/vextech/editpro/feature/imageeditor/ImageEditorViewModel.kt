@@ -31,6 +31,8 @@ import com.vextech.editpro.core.image.ExportEstimate
 import com.vextech.editpro.core.image.ExportFormat
 import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.Collage
+import com.vextech.editpro.core.image.CollageForm
 import com.vextech.editpro.core.image.FitMode
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeSpec
@@ -46,9 +48,11 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES, COLLAGE }
 
 data class EditorSource(val uri: String, val name: String)
+
+data class CollageEntry(val id: Int, val name: String, val thumb: Bitmap, val current: Boolean)
 
 data class StagedLogo(val path: String, val name: String)
 
@@ -70,6 +74,8 @@ data class ImageEditorUiState(
     val hasAlpha: Boolean = false,
     /** Size the picture will have at full quality, in pixels, which the Resize sheet starts from. */
     val fullSize: Pair<Int, Int>? = null,
+    /** The photos in the collage being made, in order. Empty when Collage is not open. */
+    val collage: List<CollageEntry> = emptyList(),
     /** The logo chosen for a watermark: its staged file and the name to show. */
     val logo: StagedLogo? = null,
     /** Width over height of the watermark being placed, so dragging keeps it on the photo. */
@@ -126,17 +132,7 @@ class ImageEditorViewModel @Inject constructor(
                     val copy = store.stageContent(uri, ".img")
                     Triple(meta.name, copy, processor.decodeOriented(copy, PREVIEW_MAX_DIMENSION))
                 }
-                staged?.delete()
-                staged = file
-                original = bitmap
-                committed = bitmap
-                sourceHasAlpha = bitmap.hasAlpha()
-                sourceLongSide = withContext(io) {
-                    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    android.graphics.BitmapFactory.decodeFile(file.absolutePath, bounds)
-                    maxOf(bounds.outWidth, bounds.outHeight)
-                }
-                _state.value = ImageEditorUiState(source = EditorSource(uri.toString(), name), preview = bitmap)
+                openStaged(file, bitmap, name, uri.toString())
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -144,6 +140,21 @@ class ImageEditorViewModel @Inject constructor(
                 events.message(UiText.res(R.string.ie_load_failed))
             }
         }
+    }
+
+    /** Makes the staged file [file] (already decoded to [bitmap]) the picture being edited, with no edits yet. */
+    private suspend fun openStaged(file: File, bitmap: Bitmap, name: String, uri: String) {
+        staged?.delete()
+        staged = file
+        original = bitmap
+        committed = bitmap
+        sourceHasAlpha = bitmap.hasAlpha()
+        sourceLongSide = withContext(io) {
+            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            android.graphics.BitmapFactory.decodeFile(file.absolutePath, bounds)
+            maxOf(bounds.outWidth, bounds.outHeight)
+        }
+        _state.value = ImageEditorUiState(source = EditorSource(uri, name), preview = bitmap)
     }
 
     // ---- committed edits
@@ -346,6 +357,123 @@ class ImageEditorViewModel @Inject constructor(
 
     fun applyHide(boxes: List<com.vextech.editpro.core.image.HideBox>) = commit(EditOp.Hide(boxes))
 
+    // ---- collage
+
+    private class CollageSource(val id: Int, val name: String, val file: File?, val preview: Bitmap)
+
+    private val collageSources = mutableListOf<CollageSource>()
+    private var nextCollageId = 1
+
+    private fun publishCollage() {
+        val entries = collageSources.map { CollageEntry(it.id, it.name, it.preview, it.file == null) }
+        _state.update { it.copy(collage = entries) }
+    }
+
+    /** Opens Collage with the picture being edited as the first photo. */
+    fun openCollage() {
+        val base = committed ?: return
+        if (_state.value.saving) return
+        collageSources.clear()
+        collageSources += CollageSource(0, _state.value.source?.name ?: "", null, base)
+        nextCollageId = 1
+        _state.update { it.copy(tool = EditorTool.COLLAGE) }
+        publishCollage()
+    }
+
+    /** Adds photos to the collage, up to the limit. */
+    fun addCollagePhotos(uris: List<Uri>) {
+        viewModelScope.launch {
+            val room = Collage.MAX_PHOTOS - collageSources.size
+            if (uris.size > room) events.message(UiText.res(R.string.collage_limit, Collage.MAX_PHOTOS, uris.size - maxOf(0, room)))
+            for (uri in uris.take(maxOf(0, room))) {
+                try {
+                    val source = withContext(io) {
+                        val name = metadataReader.read(uri).name
+                        val file = store.stageContent(uri, ".img")
+                        CollageSource(nextCollageId++, name, file, processor.decodeOriented(file, COLLAGE_PREVIEW_SIDE))
+                    }
+                    collageSources += source
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    events.message(UiText.res(R.string.ie_load_failed))
+                }
+            }
+            publishCollage()
+        }
+    }
+
+    fun moveCollagePhoto(id: Int, by: Int) {
+        val i = collageSources.indexOfFirst { it.id == id }
+        val j = i + by
+        if (i < 0 || j < 0 || j >= collageSources.size) return
+        collageSources.add(j, collageSources.removeAt(i))
+        publishCollage()
+    }
+
+    fun removeCollagePhoto(id: Int) {
+        val i = collageSources.indexOfFirst { it.id == id }
+        if (i < 0) return
+        val gone = collageSources.removeAt(i)
+        if (gone.file != null) { gone.file.delete(); gone.preview.recycle() }
+        publishCollage()
+    }
+
+    /** Shows the collage as [form] lays it out, a moment after the last change. Nothing replaces the photo until [applyCollage]. */
+    fun previewCollage(form: CollageForm) {
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val sources = collageSources.toList()
+            val shown = withContext(io) {
+                if (sources.isEmpty()) null else {
+                    val layout = form.layout(sources.map { it.preview.width.toDouble() / it.preview.height }, minOf(form.outWidth, COLLAGE_PREVIEW_WIDTH))
+                    processor.collage(sources.map { it.preview }, layout, form.fitFor(), form.background)
+                }
+            }
+            if (shown != null) _state.update { if (it.tool == EditorTool.COLLAGE) it.copy(preview = shown) else it }
+        }
+    }
+
+    /** Makes the full-size collage and opens it in the editor as the new picture. The earlier edits and undo history are replaced. */
+    fun applyCollage(form: CollageForm) {
+        val sources = collageSources.toList()
+        val file = staged ?: return
+        if (sources.isEmpty() || _state.value.saving) return
+        val ops = _state.value.stack.done
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true) }
+            try {
+                val (out, bitmap) = withContext(io) {
+                    val aspects = sources.map { it.preview.width.toDouble() / it.preview.height }
+                    val layout = form.layout(aspects, form.outWidth)
+                    val photos = sources.mapIndexed { i, s ->
+                        val cell = layout.cells[i]
+                        val side = maxOf(cell.w, cell.h)
+                        if (s.file == null) {
+                            val full = processor.decodeOriented(file, minOf(SAVE_MAX_DIMENSION, maxOf(side, PREVIEW_MAX_DIMENSION)))
+                            render(full, ops, exact = true).also { if (it !== full) full.recycle() }
+                        } else processor.decodeOriented(s.file, side)
+                    }
+                    val made = processor.collage(photos, layout, form.fitFor(), form.background)
+                    photos.forEach { it.recycle() }
+                    val target = store.newStageFile(".jpg")
+                    java.io.FileOutputStream(target).use { made.compress(Bitmap.CompressFormat.JPEG, 95, it) }
+                    made.recycle()
+                    target to processor.decodeOriented(target, PREVIEW_MAX_DIMENSION)
+                }
+                collageSources.forEach { s -> if (s.file != null) { s.file.delete(); s.preview.recycle() } }
+                collageSources.clear()
+                openStaged(out, bitmap, "collage.jpg", Uri.fromFile(out).toString())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                events.message(UiText.res(R.string.ie_save_failed))
+                _state.update { it.copy(saving = false) }
+            }
+        }
+    }
+
     // ---- frames
 
     fun openFrames() {
@@ -518,9 +646,13 @@ class ImageEditorViewModel @Inject constructor(
 
     fun closeTool() {
         liveJob?.cancel()
+        if (collageSources.isNotEmpty()) {
+            collageSources.forEach { s -> if (s.file != null) { s.file.delete(); s.preview.recycle() } }
+            collageSources.clear()
+        }
         estimateJob?.cancel()
         adjustBase = null
-        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, preview = committed ?: it.preview) }
+        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, collage = emptyList(), preview = committed ?: it.preview) }
     }
 
     // ---- saving
@@ -623,5 +755,7 @@ class ImageEditorViewModel @Inject constructor(
         const val SAVE_MAX_DIMENSION = 4096
         const val JPEG_QUALITY = 92
         const val LIVE_PREVIEW_DELAY_MS = 30L
+        const val COLLAGE_PREVIEW_SIDE = 800
+        const val COLLAGE_PREVIEW_WIDTH = 1000
     }
 }

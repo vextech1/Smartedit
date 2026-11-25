@@ -1215,4 +1215,18 @@
     <string name="frames_c_yellow">Yellow</string>
     <string name="frames_c_navy">Navy</string>
     <string name="frames_generic_note">These are generic phone shapes, not copies of any brand\'s design.</string>
+    <string name="collage_title">Collage</string>
+    <string name="collage_this_photo">This photo</string>
+    <string name="collage_move_earlier">Move %1$s earlier</string>
+    <string name="collage_move_later">Move %1$s later</string>
+    <string name="collage_remove">Remove %1$s</string>
+    <string name="collage_add">Add photos</string>
+    <string name="collage_hint">Up to %1$d photos. Making the collage replaces the photo you are editing; Save keeps it.</string>
+    <string name="collage_grid">Grid (equal boxes)</string>
+    <string name="collage_row">Side by side (whole photos)</string>
+    <string name="collage_column">Stacked (whole photos)</string>
+    <string name="collage_columns">Columns</string>
+    <string name="collage_auto">Automatic</string>
+    <string name="collage_spacing">Space between</string>
+    <string name="collage_limit">Only %1$d photos fit in one collage, so %2$d were left out.</string>
 </resources>

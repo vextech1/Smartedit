@@ -74,6 +74,9 @@ class DocumentStore @Inject constructor(@ApplicationContext private val context:
         }
     }.getOrNull()
 
+    /** An empty file in the cache for work in progress. */
+    fun newStageFile(suffix: String = ".tmp"): File = File(context.cacheDir, "stage_${UUID.randomUUID()}$suffix")
+
     fun stageContent(uri: Uri, suffix: String = ".tmp"): File {
         val file = File(context.cacheDir, "stage_${UUID.randomUUID()}$suffix")
         resolver.openInputStream(uri).use { input ->
