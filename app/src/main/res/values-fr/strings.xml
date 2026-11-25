@@ -1119,4 +1119,23 @@
     <string name="hide_count">Masqués : %1$d</string>
     <string name="hide_history_warning">Les versions précédentes de cette photo montrent encore ce qui est dessous. Ne partagez que la nouvelle version.</string>
     <string name="hide_undo">Annuler le dernier cadre</string>
+    <string name="wm_title">Filigrane</string>
+    <string name="wm_type_text">Texte</string>
+    <string name="wm_type_logo">Logo</string>
+    <string name="wm_text_label">Texte</string>
+    <string name="wm_text_placeholder">Saisissez votre nom, par exemple © Jeanne 2026</string>
+    <string name="wm_need_text">Saisissez les mots à ajouter. Rien n\'est ajouté à la photo avant.</string>
+    <string name="wm_outline">Contour, pour rester lisible sur toute photo</string>
+    <string name="wm_hint_drag">Faites glisser avec un doigt pour déplacer la marque. Pincez avec deux doigts pour l\'agrandir ou la réduire.</string>
+    <string name="wm_hint_repeat">La répétition couvre toute la photo. Pincez avec deux doigts pour la redimensionner, ou choisissez une position pour une seule marque.</string>
+    <string name="wm_top_left">En haut à gauche</string>
+    <string name="wm_top_centre">En haut au centre</string>
+    <string name="wm_top_right">En haut à droite</string>
+    <string name="wm_middle_left">Au milieu à gauche</string>
+    <string name="wm_centre">Centre</string>
+    <string name="wm_middle_right">Au milieu à droite</string>
+    <string name="wm_bottom_left">En bas à gauche</string>
+    <string name="wm_bottom_centre">En bas au centre</string>
+    <string name="wm_bottom_right">En bas à droite</string>
+    <string name="wm_repeat">Répéter</string>
 </resources>

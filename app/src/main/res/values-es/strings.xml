@@ -1119,4 +1119,23 @@
     <string name="hide_count">Cubiertos: %1$d</string>
     <string name="hide_history_warning">Las versiones anteriores de esta foto aún muestran lo que hay debajo. Comparte solo la versión nueva.</string>
     <string name="hide_undo">Deshacer último cuadro</string>
+    <string name="wm_title">Marca de agua</string>
+    <string name="wm_type_text">Texto</string>
+    <string name="wm_type_logo">Logotipo</string>
+    <string name="wm_text_label">Texto</string>
+    <string name="wm_text_placeholder">Escribe tu nombre, por ejemplo © Ana 2026</string>
+    <string name="wm_need_text">Escribe las palabras que quieres añadir. No se añade nada a la foto hasta entonces.</string>
+    <string name="wm_outline">Contorno, para que se lea en cualquier foto</string>
+    <string name="wm_hint_drag">Arrastra con un dedo para mover la marca. Pellizca con dos dedos para hacerla mayor o menor.</string>
+    <string name="wm_hint_repeat">Repetir cubre toda la foto. Pellizca con dos dedos para cambiar el tamaño, o elige una posición para colocar una sola marca.</string>
+    <string name="wm_top_left">Arriba izquierda</string>
+    <string name="wm_top_centre">Arriba centro</string>
+    <string name="wm_top_right">Arriba derecha</string>
+    <string name="wm_middle_left">Medio izquierda</string>
+    <string name="wm_centre">Centro</string>
+    <string name="wm_middle_right">Medio derecha</string>
+    <string name="wm_bottom_left">Abajo izquierda</string>
+    <string name="wm_bottom_centre">Abajo centro</string>
+    <string name="wm_bottom_right">Abajo derecha</string>
+    <string name="wm_repeat">Repetir</string>
 </resources>

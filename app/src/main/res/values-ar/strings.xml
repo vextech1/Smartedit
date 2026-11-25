@@ -1143,4 +1143,23 @@
     <string name="hide_count">المغطى: %1$d</string>
     <string name="hide_history_warning">النسخ السابقة من هذه الصورة ما زالت تُظهر ما تحتها. شارك النسخة الجديدة فقط.</string>
     <string name="hide_undo">تراجع عن آخر مربع</string>
+    <string name="wm_title">علامة مائية</string>
+    <string name="wm_type_text">نص</string>
+    <string name="wm_type_logo">شعار</string>
+    <string name="wm_text_label">النص</string>
+    <string name="wm_text_placeholder">اكتب اسمك، مثل © سارة 2026</string>
+    <string name="wm_need_text">اكتب الكلمات المراد إضافتها. لن يُضاف شيء إلى الصورة قبل ذلك.</string>
+    <string name="wm_outline">حدود، ليُقرأ على أي صورة</string>
+    <string name="wm_hint_drag">اسحب بإصبع واحد لتحريك العلامة. اقرص بإصبعين لتكبيرها أو تصغيرها.</string>
+    <string name="wm_hint_repeat">التكرار يغطي الصورة كلها. اقرص بإصبعين لتغيير الحجم، أو اختر موضعًا لوضع علامة واحدة.</string>
+    <string name="wm_top_left">أعلى اليسار</string>
+    <string name="wm_top_centre">أعلى الوسط</string>
+    <string name="wm_top_right">أعلى اليمين</string>
+    <string name="wm_middle_left">وسط اليسار</string>
+    <string name="wm_centre">الوسط</string>
+    <string name="wm_middle_right">وسط اليمين</string>
+    <string name="wm_bottom_left">أسفل اليسار</string>
+    <string name="wm_bottom_centre">أسفل الوسط</string>
+    <string name="wm_bottom_right">أسفل اليمين</string>
+    <string name="wm_repeat">تكرار</string>
 </resources>

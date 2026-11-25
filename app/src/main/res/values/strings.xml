@@ -1156,4 +1156,23 @@
     <string name="hide_count">Covered: %1$d</string>
     <string name="hide_history_warning">Earlier versions of this photo still show what is underneath. Share only the new version.</string>
     <string name="hide_undo">Undo last box</string>
+    <string name="wm_title">Watermark</string>
+    <string name="wm_type_text">Text</string>
+    <string name="wm_type_logo">Logo</string>
+    <string name="wm_text_label">Text</string>
+    <string name="wm_text_placeholder">Type your name, for example © Jane 2026</string>
+    <string name="wm_need_text">Type the words to add. Nothing is added to the photo until you do.</string>
+    <string name="wm_outline">Outline, so it reads on any photo</string>
+    <string name="wm_hint_drag">Drag with one finger to move the mark. Pinch with two fingers to make it bigger or smaller.</string>
+    <string name="wm_hint_repeat">Repeat covers the whole photo. Pinch with two fingers to resize it, or choose a position to place one mark.</string>
+    <string name="wm_top_left">Top left</string>
+    <string name="wm_top_centre">Top centre</string>
+    <string name="wm_top_right">Top right</string>
+    <string name="wm_middle_left">Middle left</string>
+    <string name="wm_centre">Centre</string>
+    <string name="wm_middle_right">Middle right</string>
+    <string name="wm_bottom_left">Bottom left</string>
+    <string name="wm_bottom_centre">Bottom centre</string>
+    <string name="wm_bottom_right">Bottom right</string>
+    <string name="wm_repeat">Repeat</string>
 </resources>

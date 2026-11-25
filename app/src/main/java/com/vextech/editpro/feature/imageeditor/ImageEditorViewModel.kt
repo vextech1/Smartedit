@@ -46,9 +46,11 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK }
 
 data class EditorSource(val uri: String, val name: String)
+
+data class StagedLogo(val path: String, val name: String)
 
 data class SavedImage(val name: String, val uri: String, val mimeType: String, val sizeBytes: Long)
 
@@ -68,6 +70,10 @@ data class ImageEditorUiState(
     val hasAlpha: Boolean = false,
     /** Size the picture will have at full quality, in pixels, which the Resize sheet starts from. */
     val fullSize: Pair<Int, Int>? = null,
+    /** The logo chosen for a watermark: its staged file and the name to show. */
+    val logo: StagedLogo? = null,
+    /** Width over height of the watermark being placed, so dragging keeps it on the photo. */
+    val markAspect: Double = 1.0,
     /** File-size limit in KB from a form size chosen in Resize, which Export keeps to; null for none. */
     val exportLimitKB: Int? = null,
     val busy: Boolean = false,
@@ -302,7 +308,7 @@ class ImageEditorViewModel @Inject constructor(
     }
 
     /** Size of the picture Round starts from (the edits so far), in preview pixels. */
-    fun roundBaseSize(): Pair<Int, Int>? = committed?.let { it.width to it.height }
+    fun committedSize(): Pair<Int, Int>? = committed?.let { it.width to it.height }
 
     fun applyRound(spec: RoundSpec) = commit(EditOp.Round(spec))
 
@@ -339,6 +345,47 @@ class ImageEditorViewModel @Inject constructor(
     }
 
     fun applyHide(boxes: List<com.vextech.editpro.core.image.HideBox>) = commit(EditOp.Hide(boxes))
+
+    // ---- watermark
+
+    fun openWatermark() {
+        if (committed == null || _state.value.saving) return
+        _state.update { it.copy(tool = EditorTool.WATERMARK) }
+    }
+
+    /** Stages the picked logo so the watermark can be replayed at save size. */
+    fun pickLogo(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val staged = withContext(io) {
+                    val file = store.stageContent(uri, ".logo")
+                    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    android.graphics.BitmapFactory.decodeFile(file.absolutePath, bounds)
+                    if (bounds.outWidth <= 0) { file.delete(); null } else StagedLogo(file.absolutePath, metadataReader.read(uri).name)
+                }
+                if (staged == null) events.message(UiText.res(R.string.ie_save_failed)) else _state.update { it.copy(logo = staged) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                events.message(UiText.res(R.string.ie_save_failed))
+            }
+        }
+    }
+
+    /** Shows [spec] on the picture a moment after the last change; null puts the plain picture back. Nothing is recorded until [applyWatermark]. */
+    fun previewWatermark(spec: com.vextech.editpro.core.image.WatermarkSpec?) {
+        val base = committed ?: return
+        liveJob?.cancel()
+        liveJob = viewModelScope.launch {
+            delay(LIVE_PREVIEW_DELAY_MS)
+            val (shown, aspect) = withContext(io) {
+                if (spec == null || !spec.ready) base to null else processor.watermark(base, spec) to processor.markAspect(spec)
+            }
+            _state.update { if (it.tool == EditorTool.WATERMARK) it.copy(preview = shown, markAspect = aspect ?: it.markAspect) else it }
+        }
+    }
+
+    fun applyWatermark(spec: com.vextech.editpro.core.image.WatermarkSpec) = commit(EditOp.Watermark(spec))
 
     // ---- photo sheet
 
@@ -528,6 +575,7 @@ class ImageEditorViewModel @Inject constructor(
                 is EditOp.Round -> roundOf(current, op.spec)
                 is EditOp.Marks -> processor.drawMarks(current, op.marks)
                 is EditOp.Hide -> processor.hide(current, op.boxes)
+                is EditOp.Watermark -> processor.watermark(current, op.spec)
                 is EditOp.Flip -> if (op.horizontal) processor.flipHorizontal(current) else processor.flipVertical(current)
                 is EditOp.Adjust -> processor.adjust(current, op.params.brightness, op.params.contrast, op.params.saturation, op.params.temperature, op.params.tint)
                 is EditOp.Filter -> when (op.filter) {
