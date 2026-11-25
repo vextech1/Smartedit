@@ -1192,4 +1192,15 @@
     <string name="collage_auto">Automático</string>
     <string name="collage_spacing">Espacio entre fotos</string>
     <string name="collage_limit">En un collage caben solo %1$d fotos, así que %2$d quedaron fuera.</string>
+    <string name="colour_title">Selector de color</string>
+    <string name="colour_hint">Toca o arrastra sobre la foto para elegir un color.</string>
+    <string name="colour_hex">HEX</string>
+    <string name="colour_rgb">RGB</string>
+    <string name="colour_hsl">HSL</string>
+    <string name="colour_copy">Copiar</string>
+    <string name="colour_keep">Guardar este color</string>
+    <string name="colour_main">Colores principales de esta foto</string>
+    <string name="colour_copy_all">Copiar todos como HEX</string>
+    <string name="colour_kept">Colores guardados</string>
+    <string name="colour_copied">Copiado %1$s</string>
 </resources>

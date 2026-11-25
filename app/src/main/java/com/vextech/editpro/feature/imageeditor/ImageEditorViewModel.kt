@@ -34,6 +34,7 @@ import com.vextech.editpro.core.image.ExportRequest
 import com.vextech.editpro.core.image.Collage
 import com.vextech.editpro.core.image.CollageForm
 import com.vextech.editpro.core.image.FitMode
+import com.vextech.editpro.core.image.ColourMath
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeSpec
 import com.vextech.editpro.core.image.RoundShapes
@@ -48,7 +49,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES, COLLAGE }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET, MARKUP, HIDE, WATERMARK, FRAMES, COLLAGE, COLOUR }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -74,6 +75,8 @@ data class ImageEditorUiState(
     val hasAlpha: Boolean = false,
     /** Size the picture will have at full quality, in pixels, which the Resize sheet starts from. */
     val fullSize: Pair<Int, Int>? = null,
+    /** The main colours of the picture while the Colour picker is open, most common first. */
+    val palette: List<Int> = emptyList(),
     /** The photos in the collage being made, in order. Empty when Collage is not open. */
     val collage: List<CollageEntry> = emptyList(),
     /** The logo chosen for a watermark: its staged file and the name to show. */
@@ -356,6 +359,29 @@ class ImageEditorViewModel @Inject constructor(
     }
 
     fun applyHide(boxes: List<com.vextech.editpro.core.image.HideBox>) = commit(EditOp.Hide(boxes))
+
+    // ---- colour picker
+
+    fun openColour() {
+        val base = committed ?: return
+        _state.update { it.copy(tool = EditorTool.COLOUR) }
+        viewModelScope.launch {
+            val colours = withContext(io) {
+                val px = IntArray(base.width * base.height)
+                base.getPixels(px, 0, base.width, 0, 0, base.width, base.height)
+                ColourMath.extract(px, 6)
+            }
+            _state.update { if (it.tool == EditorTool.COLOUR) it.copy(palette = colours) else it }
+        }
+    }
+
+    /** The colour of the picture at [x], [y] (shares of its width and height), or null when there is no picture. */
+    fun colourAt(x: Float, y: Float): Int? {
+        val base = committed ?: return null
+        val px = (x * base.width).toInt().coerceIn(0, base.width - 1)
+        val py = (y * base.height).toInt().coerceIn(0, base.height - 1)
+        return base.getPixel(px, py) or (0xFF shl 24)
+    }
 
     // ---- collage
 
@@ -652,7 +678,7 @@ class ImageEditorViewModel @Inject constructor(
         }
         estimateJob?.cancel()
         adjustBase = null
-        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, collage = emptyList(), preview = committed ?: it.preview) }
+        _state.update { it.copy(tool = EditorTool.NONE, crop = CropRect.FULL, adjust = AdjustParams(), turn = Turn.NONE, export = null, exportLimitKB = null, collage = emptyList(), palette = emptyList(), preview = committed ?: it.preview) }
     }
 
     // ---- saving

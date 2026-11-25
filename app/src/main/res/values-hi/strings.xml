@@ -1184,4 +1184,15 @@
     <string name="collage_auto">अपने आप</string>
     <string name="collage_spacing">फ़ोटो के बीच जगह</string>
     <string name="collage_limit">एक कोलाज में केवल %1$d फ़ोटो आती हैं, इसलिए %2$d छोड़ दी गईं।</string>
+    <string name="colour_title">रंग चुनें</string>
+    <string name="colour_hint">रंग चुनने के लिए फ़ोटो पर टैप करें या खींचें।</string>
+    <string name="colour_hex">HEX</string>
+    <string name="colour_rgb">RGB</string>
+    <string name="colour_hsl">HSL</string>
+    <string name="colour_copy">कॉपी करें</string>
+    <string name="colour_keep">यह रंग रखें</string>
+    <string name="colour_main">इस फ़ोटो के मुख्य रंग</string>
+    <string name="colour_copy_all">सभी को HEX में कॉपी करें</string>
+    <string name="colour_kept">आपके रखे रंग</string>
+    <string name="colour_copied">%1$s कॉपी हुआ</string>
 </resources>
