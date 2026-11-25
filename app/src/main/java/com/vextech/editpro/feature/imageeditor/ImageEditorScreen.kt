@@ -48,6 +48,7 @@ import com.vextech.editpro.core.image.FitMode
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeForm
 import com.vextech.editpro.core.image.ResizeParse
+import com.vextech.editpro.core.image.PrintSheetForm
 import com.vextech.editpro.core.image.RoundForm
 import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
@@ -108,6 +109,7 @@ fun ImageEditorScreen(
     LaunchedEffect(resizeForm, state.tool, fullSize) {
         if (state.tool == EditorTool.RESIZE && fullSize != null) vm.previewResize((resizeForm.parse(fullSize.first, fullSize.second) as? ResizeParse.Ok)?.spec)
     }
+    var printForm by remember(state.tool == EditorTool.PRINT_SHEET) { mutableStateOf(PrintSheetForm()) }
     var roundForm by remember(state.tool == EditorTool.ROUND) { mutableStateOf(RoundForm()) }
     LaunchedEffect(roundForm, state.tool) {
         if (state.tool == EditorTool.ROUND) vm.previewRound(roundForm.spec())
@@ -127,6 +129,7 @@ fun ImageEditorScreen(
             EditorTool.EXPORT -> stringResource(R.string.ie_export)
             EditorTool.RESIZE -> stringResource(R.string.resize_title)
             EditorTool.ROUND -> stringResource(R.string.round_title)
+            EditorTool.PRINT_SHEET -> stringResource(R.string.print_title)
             EditorTool.NONE -> state.source?.name ?: stringResource(R.string.ie_title)
         },
         onBack = { if (toolOpen) vm.closeTool() else onBack() },
@@ -214,6 +217,7 @@ fun ImageEditorScreen(
                         onApply = vm::applyResize, onCancel = vm::closeTool,
                     )
                     EditorTool.ROUND -> RoundSheet(roundForm, { roundForm = it }, vm::applyRound, vm::closeTool)
+                    EditorTool.PRINT_SHEET -> PrintSheetSheet(printForm, { printForm = it }, vm::savePrintSheet, vm::closeTool)
                     EditorTool.EXPORT -> ExportSheet(
                         hasAlpha = state.hasAlpha, limitKB = state.exportLimitKB, estimate = state.export,
                         onChange = vm::estimateExport, onApply = vm::save, onCancel = vm::closeTool,
@@ -239,6 +243,7 @@ fun ImageEditorScreen(
                     ImageToolId.ROTATE -> vm.openTurn(EditorTool.ROTATE)
                     ImageToolId.FLIP -> vm.openTurn(EditorTool.FLIP)
                     ImageToolId.ROUND -> vm.openRound()
+                    ImageToolId.PRINT_SHEET -> vm.openPrintSheet()
                     ImageToolId.EXPORT -> vm.openExport()
                     ImageToolId.RESIZE -> vm.openResize()
                     ImageToolId.REMOVE_BACKGROUND -> vm.removeBackground()
@@ -274,7 +279,7 @@ fun ImageEditorScreen(
                         Icon(Icons.Rounded.Download, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ie_save))
                     }
                 }
-                if (onOpenTool != null) {
+                if (onOpenTool != null && saved.mimeType != "application/pdf") {
                     // The site's image-result crossings: Make PDF and Read text.
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(

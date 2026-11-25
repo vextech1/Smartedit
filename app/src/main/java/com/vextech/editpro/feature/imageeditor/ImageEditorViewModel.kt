@@ -31,6 +31,7 @@ import com.vextech.editpro.core.image.ExportEstimate
 import com.vextech.editpro.core.image.ExportFormat
 import com.vextech.editpro.core.image.ExportMath
 import com.vextech.editpro.core.image.ExportRequest
+import com.vextech.editpro.core.image.FitMode
 import com.vextech.editpro.core.image.ResizeFit
 import com.vextech.editpro.core.image.ResizeSpec
 import com.vextech.editpro.core.image.RoundShapes
@@ -45,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND }
+enum class EditorTool { NONE, CROP, ADJUST, ROTATE, FLIP, EXPORT, RESIZE, ROUND, PRINT_SHEET }
 
 data class EditorSource(val uri: String, val name: String)
 
@@ -84,6 +85,7 @@ class ImageEditorViewModel @Inject constructor(
     private val processor: ImageProcessor,
     private val repository: EditProRepository,
     private val metadataReader: UriMetadataReader,
+    private val pdf: com.vextech.editpro.core.pdf.PdfEngine,
     @IoDispatcher private val io: CoroutineDispatcher,
 ) : ViewModel() {
     private val _state = MutableStateFlow(ImageEditorUiState())
@@ -307,6 +309,59 @@ class ImageEditorViewModel @Inject constructor(
     private fun roundOf(source: Bitmap, spec: RoundSpec): Bitmap {
         val (w, h) = RoundShapes.outputSize(source.width, source.height, spec.ratio, maxOf(source.width, source.height))
         return processor.roundCorners(source, w, h, spec.radiusPct, spec.zoom, spec.panX, spec.panY)
+    }
+
+    // ---- photo sheet
+
+    fun openPrintSheet() {
+        if (committed == null || _state.value.saving) return
+        _state.update { it.copy(tool = EditorTool.PRINT_SHEET) }
+    }
+
+    /** Makes the one-page PDF: the picture, cropped to the photo size, repeated on the paper. */
+    fun savePrintSheet(form: com.vextech.editpro.core.image.PrintSheetForm) {
+        val file = staged ?: return
+        val source = _state.value.source ?: return
+        val (cellW, cellH) = form.cellMm() ?: return
+        val layout = form.layout()?.takeIf { it.count > 0 } ?: return
+        val photos = com.vextech.editpro.core.image.PrintSheets.photosOn(layout, form.copies)
+        if (_state.value.saving) return
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true, tool = EditorTool.NONE) }
+            try {
+                val ops = _state.value.stack.done
+                val saved = withContext(io) {
+                    val full = processor.decodeOriented(file, SAVE_MAX_DIMENSION)
+                    val rendered = render(full, ops, exact = true)
+                    // The photo is cut to the photo's shape at 300 dpi, on white where it has see-through corners.
+                    val dpi = com.vextech.editpro.core.image.SizeMath.DEFAULT_DPI
+                    val pxW = com.vextech.editpro.core.image.SizeMath.toPx(cellW, com.vextech.editpro.core.image.SizeUnit.MM, dpi)
+                    val pxH = com.vextech.editpro.core.image.SizeMath.toPx(cellH, com.vextech.editpro.core.image.SizeUnit.MM, dpi)
+                    val cell = processor.resizeFit(rendered, pxW, pxH, FitMode.FILL, 1.0, 0.0, 0.0, android.graphics.Color.WHITE)
+                    val flat = processor.onWhite(cell)
+                    try {
+                        val out = java.io.File(store.editedDir, "${source.name.substringBeforeLast('.')}-sheet-${form.paperId}.pdf")
+                        pdf.photoSheet(flat, layout, cellW, cellH, photos, form.guides, out)
+                        out
+                    } finally {
+                        if (flat !== cell) flat.recycle()
+                        cell.recycle()
+                        if (rendered !== full) rendered.recycle()
+                        full.recycle()
+                    }
+                }
+                val mime = "application/pdf"
+                val entity = repository.registerFile(saved, ResourceType.PDF, mime)
+                repository.recordHistory(HistoryAction.EDITED, "Made print sheet ${saved.name}", ResourceType.PDF, entity.id, saved.toURI().toString(), saved.name)
+                _state.update { it.copy(saved = SavedImage(saved.name, saved.toURI().toString(), mime, saved.length())) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                events.message(UiText.res(R.string.ie_save_failed))
+            } finally {
+                _state.update { it.copy(saving = false) }
+            }
+        }
     }
 
     // ---- export sheet

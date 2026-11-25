@@ -1080,4 +1080,17 @@
     <string name="round_shape">Forme de l\'image</string>
     <string name="round_original">Garder la forme</string>
     <string name="pdf_search_showing_first">Affichage des %1$d premières sur %2$d résultats.</string>
+    <string name="print_title">Planche photo</string>
+    <string name="print_paper">Papier</string>
+    <string name="print_photo_size">Taille de la photo</string>
+    <string name="print_width_mm">Largeur (mm)</string>
+    <string name="print_height_mm">Hauteur (mm)</string>
+    <string name="print_copies">Copies</string>
+    <string name="print_fill">Remplir la page</string>
+    <string name="print_guides">Tracer de fins traits de coupe</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">%1$d photos tiennent sur ce papier. Imprimez à taille réelle.</string>
+    <string name="print_fits_sideways">%1$d photos tiennent sur ce papier, en paysage. Imprimez à taille réelle.</string>
+    <string name="print_too_big">Cette taille est trop grande pour ce papier. Choisissez un papier plus grand.</string>
+    <string name="print_bad_size">Saisissez la taille de la photo en chiffres.</string>
 </resources>

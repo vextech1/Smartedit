@@ -1104,4 +1104,17 @@
     <string name="round_shape">شكل الصورة</string>
     <string name="round_original">الشكل الأصلي</string>
     <string name="pdf_search_showing_first">عرض أول %1$d من %2$d نتيجة.</string>
+    <string name="print_title">ورقة صور</string>
+    <string name="print_paper">الورق</string>
+    <string name="print_photo_size">حجم الصورة</string>
+    <string name="print_width_mm">العرض (مم)</string>
+    <string name="print_height_mm">الارتفاع (مم)</string>
+    <string name="print_copies">النسخ</string>
+    <string name="print_fill">املأ الصفحة</string>
+    <string name="print_guides">ارسم خطوط قص رفيعة</string>
+    <string name="print_letter">US Letter</string>
+    <string name="print_fits">تتسع %1$d صور على هذا الورق. اطبع بالحجم الفعلي.</string>
+    <string name="print_fits_sideways">تتسع %1$d صور على هذا الورق بشكل أفقي. اطبع بالحجم الفعلي.</string>
+    <string name="print_too_big">هذا الحجم أكبر من الورق. اختر ورقًا أكبر.</string>
+    <string name="print_bad_size">أدخل حجم الصورة بالأرقام.</string>
 </resources>
