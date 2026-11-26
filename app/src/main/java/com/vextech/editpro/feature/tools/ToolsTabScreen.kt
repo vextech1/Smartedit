@@ -1,5 +1,25 @@
 package com.vextech.editpro.feature.tools
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.CallMerge
+import androidx.compose.material.icons.automirrored.rounded.CallSplit
+import androidx.compose.material.icons.automirrored.rounded.TextSnippet
+import androidx.compose.material.icons.rounded.Compress
+import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.Colorize
+import androidx.compose.material.icons.rounded.Crop
+import androidx.compose.material.icons.rounded.Dashboard
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Draw
+import androidx.compose.material.icons.rounded.FilterFrames
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.PhotoLibrary
+import androidx.compose.material.icons.rounded.PhotoSizeSelectLarge
+import androidx.compose.material.icons.rounded.RoundedCorner
+import androidx.compose.material.icons.rounded.SwapVert
+import androidx.compose.material.icons.rounded.Tag
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,13 +77,36 @@ enum class ToolCategory(val label: Int, val section: Int, val tint: Color) {
 data class ToolEntry(val label: Int, val category: ToolCategory, val icon: ImageVector, val route: NavKey)
 
 private val allTools: List<ToolEntry> = listOf(
+    // PDF: every PDF tool opens its editor with that tool already running (asks for the file first).
     ToolEntry(R.string.home_tool_edit_pdf, ToolCategory.PDF, EditProIcons.EditPdf, PdfToolsRoute()),
-    ToolEntry(R.string.home_tool_create_pdf, ToolCategory.PDF, EditProIcons.CreatePdf, ConverterRoute()),
-    ToolEntry(R.string.compressor, ToolCategory.PDF, EditProIcons.Compress, CompressorRoute()),
+    ToolEntry(R.string.home_tool_create_pdf, ToolCategory.PDF, EditProIcons.CreatePdf, ConverterRoute(tool = "images_pdf")),
+    ToolEntry(R.string.tool_merge_pdf, ToolCategory.PDF, Icons.AutoMirrored.Rounded.CallMerge, PdfToolsRoute(tool = "merge")),
+    ToolEntry(R.string.tool_organize_pdf, ToolCategory.PDF, Icons.Rounded.SwapVert, PdfToolsRoute(tool = "organize")),
+    ToolEntry(R.string.tool_split_pdf, ToolCategory.PDF, Icons.AutoMirrored.Rounded.CallSplit, PdfToolsRoute(tool = "split")),
+    ToolEntry(R.string.tool_pdf_to_images, ToolCategory.PDF, Icons.Rounded.Image, ConverterRoute(tool = "pdf_images")),
+    ToolEntry(R.string.tool_compress_pdf, ToolCategory.PDF, EditProIcons.Compress, CompressorRoute()),
+    ToolEntry(R.string.tool_extract_images, ToolCategory.PDF, Icons.Rounded.PhotoLibrary, PdfToolsRoute(tool = "extract_images")),
+    ToolEntry(R.string.tool_pdf_watermark, ToolCategory.PDF, Icons.Rounded.WaterDrop, PdfToolsRoute(tool = "watermark")),
+    ToolEntry(R.string.tool_page_numbers, ToolCategory.PDF, Icons.Rounded.Tag, PdfToolsRoute(tool = "page_numbers")),
+    ToolEntry(R.string.tool_crop_pdf, ToolCategory.PDF, Icons.Rounded.Crop, PdfToolsRoute(tool = "crop")),
+    ToolEntry(R.string.tool_pdf_info, ToolCategory.PDF, Icons.Rounded.Info, PdfToolsRoute(tool = "info")),
+    // Image: the photo tools open Edit Image with that tool already open (asks for the photo first).
     ToolEntry(R.string.home_tool_edit_image, ToolCategory.IMAGE, EditProIcons.EditImage, ImageEditorRoute()),
-    ToolEntry(R.string.converter, ToolCategory.IMAGE, EditProIcons.Convert, ConverterRoute()),
+    ToolEntry(R.string.tool_compress_image, ToolCategory.IMAGE, Icons.Rounded.Compress, CompressorRoute()),
+    ToolEntry(R.string.tool_convert_image, ToolCategory.IMAGE, EditProIcons.Convert, ConverterRoute(tool = "images")),
+    ToolEntry(R.string.tool_resize_image, ToolCategory.IMAGE, Icons.Rounded.PhotoSizeSelectLarge, ImageEditorRoute(tool = "resize")),
+    ToolEntry(R.string.tool_photo_frames, ToolCategory.IMAGE, Icons.Rounded.FilterFrames, ImageEditorRoute(tool = "frames")),
+    ToolEntry(R.string.tool_photo_collage, ToolCategory.IMAGE, Icons.Rounded.Dashboard, ImageEditorRoute(tool = "collage")),
+    ToolEntry(R.string.tool_round_corners, ToolCategory.IMAGE, Icons.Rounded.RoundedCorner, ImageEditorRoute(tool = "round")),
+    ToolEntry(R.string.tool_blur_hide, ToolCategory.IMAGE, Icons.Rounded.BlurOn, ImageEditorRoute(tool = "hide")),
+    ToolEntry(R.string.tool_draw_text, ToolCategory.IMAGE, Icons.Rounded.Draw, ImageEditorRoute(tool = "markup")),
+    ToolEntry(R.string.tool_colour_picker, ToolCategory.IMAGE, Icons.Rounded.Colorize, ImageEditorRoute(tool = "colour")),
+    ToolEntry(R.string.tool_watermark_photos, ToolCategory.IMAGE, Icons.Rounded.WaterDrop, ImageEditorRoute(tool = "watermark")),
+    // Document
     ToolEntry(R.string.home_tool_scan_document, ToolCategory.DOCUMENT, EditProIcons.ScanDocument, ScannerRoute),
     ToolEntry(R.string.ocr_title, ToolCategory.DOCUMENT, EditProIcons.ExtractText, OcrRoute()),
+    ToolEntry(R.string.tool_pdf_to_word, ToolCategory.DOCUMENT, Icons.Rounded.Description, ConverterRoute(tool = "docx")),
+    ToolEntry(R.string.tool_pdf_to_text, ToolCategory.DOCUMENT, Icons.AutoMirrored.Rounded.TextSnippet, ConverterRoute(tool = "text")),
 )
 
 /** EditPro's Tools page: title, search box, category chips, then the tools grouped by category in 3-column tiles. */

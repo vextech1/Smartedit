@@ -25,6 +25,7 @@ import androidx.compose.material3.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -102,6 +103,7 @@ fun PdfToolsScreen(
     share: ShareService,
     ads: UnityAdsService,
     initialUri: String? = null,
+    launchTool: String? = null,
     vm: PdfEditorViewModel = hiltViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -116,6 +118,10 @@ fun PdfToolsScreen(
     var cropPreview by remember { mutableStateOf<CropForm?>(null) }
     var pendingRect by remember { mutableStateOf<PdfRect?>(null) }
     var confirmExit by remember { mutableStateOf(false) }
+    // A Tools-tab tile asks for the PDF first, then opens its tool on it. Cancelling the picker goes back.
+    var pendingTool by rememberSaveable { mutableStateOf(launchTool) }
+    var pickedOnce by rememberSaveable { mutableStateOf(false) }
+    var pagesStart by remember { mutableStateOf<PagesSheet?>(null) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetRegistry = remember { SheetHistoryRegistry() }
@@ -127,8 +133,29 @@ fun PdfToolsScreen(
         else vm.close(discard = true, onClosed = onBack)
     }
 
-    val openPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::open) }
-    val mergePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.size >= 2) vm.merge(it) }
+    val openPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { if (it != null) vm.open(it) else if (pendingTool != null && state.session == null) onBack() }
+    val mergePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.size >= 2) vm.merge(it) else if (pendingTool != null && state.session == null) onBack() }
+    LaunchedEffect(Unit) {
+        if (pendingTool != null && initialUri == null && state.session == null && !pickedOnce) {
+            pickedOnce = true
+            if (pendingTool == "merge") mergePicker.launch(arrayOf("application/pdf")) else openPicker.launch(arrayOf("application/pdf"))
+        }
+    }
+    LaunchedEffect(state.session != null) {
+        val t = pendingTool
+        if (t != null && state.session != null) {
+            pendingTool = null
+            when (t) {
+                "watermark" -> dialog = PdfDialog.WATERMARK
+                "page_numbers" -> dialog = PdfDialog.PAGE_NUMBERS
+                "crop" -> dialog = PdfDialog.CROP_SHEET
+                "extract_images" -> dialog = PdfDialog.EXTRACT_IMAGES
+                "info" -> dialog = PdfDialog.METADATA
+                "organize" -> mode = EditorMode.PAGES
+                "split" -> { pagesStart = PagesSheet.SPLIT; mode = EditorMode.PAGES }
+            }
+        }
+    }
     val insertPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { vm.insertPages(it, (state.selectedPages.minOrNull() ?: (state.pages.size - 1)).plus(1).coerceAtLeast(0)) }
     }
@@ -205,7 +232,7 @@ fun PdfToolsScreen(
             loadPage = { vm.loadPreview(it) },
             onExit = { mode = EditorMode.EDIT },
         )
-        EditorMode.PAGES -> PdfPagesScreen(state, vm, onBack = { mode = EditorMode.EDIT }, snackbarHostState = snackbarHostState)
+        EditorMode.PAGES -> PdfPagesScreen(state, vm, onBack = { pagesStart = null; mode = EditorMode.EDIT }, snackbarHostState = snackbarHostState, initialSheet = pagesStart)
         EditorMode.PROTECT -> PdfProtectScreen(
             state = state.security,
             onBack = { mode = EditorMode.EDIT },
@@ -621,10 +648,10 @@ private fun MoreGroup(title: String, actions: List<MoreAction>, pick: (() -> Uni
 private enum class PagesSheet { SPLIT, ARRANGE }
 
 @Composable
-private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBack: () -> Unit, snackbarHostState: SnackbarHostState) {
+private fun PdfPagesScreen(state: PdfEditorUiState, vm: PdfEditorViewModel, onBack: () -> Unit, snackbarHostState: SnackbarHostState, initialSheet: PagesSheet? = null) {
     val selected = state.selectedPages
     val enabled = selected.isNotEmpty() && !state.busy
-    var sheet by remember { mutableStateOf<PagesSheet?>(null) }
+    var sheet by remember { mutableStateOf(initialSheet) }
     FeatureScaffold(
         title = stringResource(R.string.pdf_pages_title),
         onBack = onBack,

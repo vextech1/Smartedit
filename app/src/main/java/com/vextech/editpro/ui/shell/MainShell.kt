@@ -173,10 +173,10 @@ fun MainShell(
                 entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService, onEditMore = { push(ImageEditorRoute(it)) }) }
                 entry<LiveCameraRoute> { route -> LiveCameraScreen(route.sessionId, ::back, shareService) }
                 entry<OcrRoute> { route -> OcrScreen(::back, shareService, initialUri = route.uri) }
-                entry<PdfToolsRoute> { route -> PdfToolsScreen(::back, shareService, adsService, initialUri = route.uri) }
-                entry<ConverterRoute> { route -> ConverterScreen(::back, shareService, adsService, initialUri = route.uri, initialUris = route.uris, onOpenTool = ::push) }
+                entry<PdfToolsRoute> { route -> PdfToolsScreen(::back, shareService, adsService, initialUri = route.uri, launchTool = route.tool) }
+                entry<ConverterRoute> { route -> ConverterScreen(::back, shareService, adsService, initialUri = route.uri, initialUris = route.uris, launchTool = route.tool, onOpenTool = ::push) }
                 entry<CompressorRoute> { route -> CompressorScreen(::back, shareService, adsService, initialUri = route.uri) }
-                entry<ImageEditorRoute> { route -> ImageEditorScreen(::back, shareService, adsService, initialUri = route.uri, onOpenTool = ::push) }
+                entry<ImageEditorRoute> { route -> ImageEditorScreen(::back, shareService, adsService, initialUri = route.uri, launchTool = route.tool, onOpenTool = ::push) }
                 entry<NoteEditorRoute> { route -> NoteEditorScreen(route.noteId, ::back, shareService) }
                 entry<SearchRoute> { SearchScreen(::back, { push(NoteEditorRoute(it)) }, shareService) }
                 entry<TrashRoute> { TrashScreen(::back) }

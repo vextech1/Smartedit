@@ -1236,4 +1236,26 @@
     <string name="scanner_exit_title">تجاهل هذا المسح؟</string>
     <string name="scanner_exit_message">ستفقد الصفحات التي مسحتها أو استوردتها.</string>
     <string name="scanner_continue_editing">متابعة التحرير</string>
+    <string name="tool_merge_pdf">دمج PDF</string>
+    <string name="tool_organize_pdf">تنظيم PDF</string>
+    <string name="tool_split_pdf">تقسيم PDF</string>
+    <string name="tool_pdf_to_images">PDF إلى صور</string>
+    <string name="tool_compress_pdf">ضغط PDF</string>
+    <string name="tool_extract_images">استخراج الصور</string>
+    <string name="tool_pdf_watermark">علامة مائية PDF</string>
+    <string name="tool_page_numbers">أرقام الصفحات</string>
+    <string name="tool_crop_pdf">اقتصاص PDF</string>
+    <string name="tool_pdf_info">معلومات PDF</string>
+    <string name="tool_compress_image">ضغط صورة</string>
+    <string name="tool_convert_image">تحويل صورة</string>
+    <string name="tool_resize_image">تغيير حجم الصورة</string>
+    <string name="tool_photo_frames">إطارات الصور</string>
+    <string name="tool_photo_collage">كولاج الصور</string>
+    <string name="tool_round_corners">زوايا مستديرة</string>
+    <string name="tool_blur_hide">تمويه أو إخفاء</string>
+    <string name="tool_draw_text">رسم ونص</string>
+    <string name="tool_colour_picker">منتقي الألوان</string>
+    <string name="tool_watermark_photos">علامة مائية للصور</string>
+    <string name="tool_pdf_to_word">PDF إلى Word</string>
+    <string name="tool_pdf_to_text">PDF إلى نص</string>
 </resources>

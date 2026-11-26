@@ -1212,4 +1212,26 @@
     <string name="scanner_exit_title">Abandonner ce scan ?</string>
     <string name="scanner_exit_message">Les pages numérisées ou importées seront perdues.</string>
     <string name="scanner_continue_editing">Continuer la modification</string>
+    <string name="tool_merge_pdf">Fusionner PDF</string>
+    <string name="tool_organize_pdf">Organiser PDF</string>
+    <string name="tool_split_pdf">Diviser PDF</string>
+    <string name="tool_pdf_to_images">PDF en images</string>
+    <string name="tool_compress_pdf">Compresser PDF</string>
+    <string name="tool_extract_images">Extraire les images</string>
+    <string name="tool_pdf_watermark">Filigrane PDF</string>
+    <string name="tool_page_numbers">Numéros de page</string>
+    <string name="tool_crop_pdf">Rogner PDF</string>
+    <string name="tool_pdf_info">Infos PDF</string>
+    <string name="tool_compress_image">Compresser image</string>
+    <string name="tool_convert_image">Convertir image</string>
+    <string name="tool_resize_image">Redimensionner</string>
+    <string name="tool_photo_frames">Cadres photo</string>
+    <string name="tool_photo_collage">Collage photo</string>
+    <string name="tool_round_corners">Coins arrondis</string>
+    <string name="tool_blur_hide">Flouter ou masquer</string>
+    <string name="tool_draw_text">Dessin et texte</string>
+    <string name="tool_colour_picker">Sélecteur de couleur</string>
+    <string name="tool_watermark_photos">Filigrane photo</string>
+    <string name="tool_pdf_to_word">PDF en Word</string>
+    <string name="tool_pdf_to_text">PDF en texte</string>
 </resources>

@@ -1204,4 +1204,26 @@
     <string name="scanner_exit_title">यह स्कैन छोड़ दें?</string>
     <string name="scanner_exit_message">स्कैन या इम्पोर्ट किए गए पेज खो जाएँगे।</string>
     <string name="scanner_continue_editing">संपादन जारी रखें</string>
+    <string name="tool_merge_pdf">PDF मर्ज करें</string>
+    <string name="tool_organize_pdf">PDF व्यवस्थित करें</string>
+    <string name="tool_split_pdf">PDF बाँटें</string>
+    <string name="tool_pdf_to_images">PDF से इमेज</string>
+    <string name="tool_compress_pdf">PDF कंप्रेस करें</string>
+    <string name="tool_extract_images">इमेज निकालें</string>
+    <string name="tool_pdf_watermark">PDF वॉटरमार्क</string>
+    <string name="tool_page_numbers">पेज नंबर</string>
+    <string name="tool_crop_pdf">PDF क्रॉप करें</string>
+    <string name="tool_pdf_info">PDF जानकारी</string>
+    <string name="tool_compress_image">इमेज कंप्रेस करें</string>
+    <string name="tool_convert_image">इमेज बदलें</string>
+    <string name="tool_resize_image">इमेज का आकार बदलें</string>
+    <string name="tool_photo_frames">फ़ोटो फ़्रेम</string>
+    <string name="tool_photo_collage">फ़ोटो कोलाज</string>
+    <string name="tool_round_corners">गोल कोने</string>
+    <string name="tool_blur_hide">धुंधला या छिपाएँ</string>
+    <string name="tool_draw_text">ड्रॉ और टेक्स्ट</string>
+    <string name="tool_colour_picker">रंग चुनें</string>
+    <string name="tool_watermark_photos">फ़ोटो वॉटरमार्क</string>
+    <string name="tool_pdf_to_word">PDF से Word</string>
+    <string name="tool_pdf_to_text">PDF से टेक्स्ट</string>
 </resources>

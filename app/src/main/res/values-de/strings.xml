@@ -1204,4 +1204,26 @@
     <string name="scanner_exit_title">Scan verwerfen?</string>
     <string name="scanner_exit_message">Die gescannten oder importierten Seiten gehen verloren.</string>
     <string name="scanner_continue_editing">Weiter bearbeiten</string>
+    <string name="tool_merge_pdf">PDF zusammenführen</string>
+    <string name="tool_organize_pdf">PDF ordnen</string>
+    <string name="tool_split_pdf">PDF teilen</string>
+    <string name="tool_pdf_to_images">PDF zu Bildern</string>
+    <string name="tool_compress_pdf">PDF komprimieren</string>
+    <string name="tool_extract_images">Bilder extrahieren</string>
+    <string name="tool_pdf_watermark">PDF-Wasserzeichen</string>
+    <string name="tool_page_numbers">Seitenzahlen</string>
+    <string name="tool_crop_pdf">PDF zuschneiden</string>
+    <string name="tool_pdf_info">PDF-Info</string>
+    <string name="tool_compress_image">Bild komprimieren</string>
+    <string name="tool_convert_image">Bild konvertieren</string>
+    <string name="tool_resize_image">Bildgröße ändern</string>
+    <string name="tool_photo_frames">Fotorahmen</string>
+    <string name="tool_photo_collage">Fotocollage</string>
+    <string name="tool_round_corners">Runde Ecken</string>
+    <string name="tool_blur_hide">Weichzeichnen</string>
+    <string name="tool_draw_text">Zeichnen &amp; Text</string>
+    <string name="tool_colour_picker">Farbwähler</string>
+    <string name="tool_watermark_photos">Foto-Wasserzeichen</string>
+    <string name="tool_pdf_to_word">PDF zu Word</string>
+    <string name="tool_pdf_to_text">PDF zu Text</string>
 </resources>
