@@ -53,7 +53,7 @@ import com.vextech.editpro.core.ui.rememberSaveToDevice
 import com.vextech.editpro.feature.scanner.domain.*
 
 @Composable
-fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: ShareService, vm: ScannerViewModel = hiltViewModel()) {
+fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: ShareService, onEditMore: (String) -> Unit = {}, vm: ScannerViewModel = hiltViewModel()) {
     val state by vm.state.collectAsState()
     val context = LocalContext.current
     val activity = context as Activity
@@ -115,6 +115,11 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                             text = { Text(stringResource(R.string.scanner_cutout_photo)) },
                             leadingIcon = { Icon(Icons.Rounded.ContentCut, null) }, enabled = target != null && !state.busy,
                             onClick = { menu = false; target?.let { vm.extractCutout(it.id, CutoutMode.PHOTO) { f -> cutoutFile = f } } },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.scanner_edit_more)) },
+                            leadingIcon = { Icon(Icons.Rounded.AutoFixHigh, null) }, enabled = target != null && !state.busy,
+                            onClick = { menu = false; target?.let { onEditMore(it.renderedUri) } },
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.scanner_discard)) },

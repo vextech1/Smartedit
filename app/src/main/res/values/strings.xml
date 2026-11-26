@@ -1242,4 +1242,5 @@
     <string name="colour_copied">Copied %1$s</string>
     <string name="ie_crop_auto">Auto: find the page or object</string>
     <string name="ie_crop_auto_none">Nothing clear to crop. Drag the corners by hand.</string>
+    <string name="scanner_edit_more">Edit more in Edit Image</string>
 </resources>

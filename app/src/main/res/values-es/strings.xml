@@ -1205,4 +1205,5 @@
     <string name="colour_copied">Copiado %1$s</string>
     <string name="ie_crop_auto">Auto: encontrar la página o el objeto</string>
     <string name="ie_crop_auto_none">No hay nada claro que recortar. Arrastra las esquinas a mano.</string>
+    <string name="scanner_edit_more">Editar más en Editar imagen</string>
 </resources>

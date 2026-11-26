@@ -1197,4 +1197,5 @@
     <string name="colour_copied">%1$s kopiert</string>
     <string name="ie_crop_auto">Auto: Seite oder Objekt finden</string>
     <string name="ie_crop_auto_none">Nichts Klares zum Zuschneiden. Ziehe die Ecken von Hand.</string>
+    <string name="scanner_edit_more">Mehr in Bild bearbeiten</string>
 </resources>

@@ -1205,4 +1205,5 @@
     <string name="colour_copied">%1$s copié</string>
     <string name="ie_crop_auto">Auto : trouver la page ou l\'objet</string>
     <string name="ie_crop_auto_none">Rien de net à recadrer. Faites glisser les coins à la main.</string>
+    <string name="scanner_edit_more">Modifier davantage dans Modifier l\'image</string>
 </resources>
