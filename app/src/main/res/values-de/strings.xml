@@ -1198,4 +1198,9 @@
     <string name="ie_crop_auto">Auto: Seite oder Objekt finden</string>
     <string name="ie_crop_auto_none">Nichts Klares zum Zuschneiden. Ziehe die Ecken von Hand.</string>
     <string name="scanner_edit_more">Mehr in Bild bearbeiten</string>
+    <string name="layer_draw">Foto. Zum Zeichnen ziehen oder zum Platzieren von Text tippen.</string>
+    <string name="layer_pick">Foto. Tippen oder ziehen, um eine Farbe zu wählen.</string>
+    <string name="layer_watermark">Foto. Ziehen, um das Wasserzeichen zu bewegen, zusammenziehen oder spreizen, um es in der Größe zu ändern.</string>
+    <string name="layer_hide">Foto. Ziehen, um einen Kasten über den zu verbergenden Teil zu legen.</string>
+    <string name="layer_resize">Foto. Ziehen, um zu wählen, welcher Teil bleibt.</string>
 </resources>

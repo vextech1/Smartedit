@@ -1243,4 +1243,9 @@
     <string name="ie_crop_auto">Auto: find the page or object</string>
     <string name="ie_crop_auto_none">Nothing clear to crop. Drag the corners by hand.</string>
     <string name="scanner_edit_more">Edit more in Edit Image</string>
+    <string name="layer_draw">Photo. Drag to draw, or tap to place text.</string>
+    <string name="layer_pick">Photo. Tap or drag to pick a colour.</string>
+    <string name="layer_watermark">Photo. Drag to move the watermark, pinch to resize it.</string>
+    <string name="layer_hide">Photo. Drag to draw a box over the part to hide.</string>
+    <string name="layer_resize">Photo. Drag to choose which part stays in.</string>
 </resources>
