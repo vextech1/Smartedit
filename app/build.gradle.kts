@@ -70,6 +70,18 @@ android {
         }
     }
 
+    // Per-ABI APK: the release workflow passes -PabiOnly=arm64-v8a. Without the property (debug, CI, local) nothing changes.
+    providers.gradleProperty("abiOnly").orNull?.let { abiName ->
+        splits {
+            abi {
+                isEnable = true
+                reset()
+                include(abiName)
+                isUniversalApk = false
+            }
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

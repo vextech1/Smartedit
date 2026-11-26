@@ -4,6 +4,12 @@ name: Release build
 # Needs repository secrets: RELEASE_KEYSTORE_BASE64, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD.
 on:
   workflow_dispatch:
+    inputs:
+      abi:
+        description: 'ABI of the APK (the AAB for Play always covers every ABI)'
+        type: choice
+        options: [arm64-v8a, all]
+        default: arm64-v8a
 
 permissions:
   contents: read
@@ -56,15 +62,20 @@ jobs:
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          ABI: ${{ inputs.abi }}
         run: |
           chmod +x gradlew
           set -o pipefail
-          ./gradlew --no-daemon assembleRelease bundleRelease 2>&1 | tee release-build.log
+          ABI_ARG=""
+          if [ -n "$ABI" ] && [ "$ABI" != "all" ]; then ABI_ARG="-PabiOnly=$ABI"; fi
+          ./gradlew --no-daemon $ABI_ARG assembleRelease bundleRelease 2>&1 | tee release-build.log
 
       - name: Verify the APK signature
         run: |
+          ls -la app/build/outputs/apk/release/*.apk
           APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
           echo "$APK"
+          echo "native library folders in the APK:"; unzip -l "$APK" | grep -oE "lib/[^/]+/" | sort -u
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$APK" | grep -E "Signer #1 certificate (DN|SHA-256)"
 
       - uses: actions/upload-artifact@v4
