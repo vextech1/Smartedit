@@ -170,7 +170,7 @@ fun MainShell(
                 entry<ActivityRoute> { HistoryScreen(onBack = ::back, share = shareService) }
                 entry<ProfileRoute> { ProfileScreen(onOpen = ::push, onBack = ::back) }
 
-                entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService) }
+                entry<ScannerRoute> { ScannerScreen(::back, { push(LiveCameraRoute(it)) }, shareService, onEditMore = { push(ImageEditorRoute(it)) }) }
                 entry<LiveCameraRoute> { route -> LiveCameraScreen(route.sessionId, ::back, shareService) }
                 entry<OcrRoute> { route -> OcrScreen(::back, shareService, initialUri = route.uri) }
                 entry<PdfToolsRoute> { route -> PdfToolsScreen(::back, shareService, adsService, initialUri = route.uri) }

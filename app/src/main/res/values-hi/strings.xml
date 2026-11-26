@@ -1197,4 +1197,5 @@
     <string name="colour_copied">%1$s कॉपी हुआ</string>
     <string name="ie_crop_auto">ऑटो: पन्ना या वस्तु खोजें</string>
     <string name="ie_crop_auto_none">काटने के लिए कुछ साफ़ नहीं मिला। कोनों को हाथ से खींचें।</string>
+    <string name="scanner_edit_more">इमेज संपादित करें में और बदलें</string>
 </resources>

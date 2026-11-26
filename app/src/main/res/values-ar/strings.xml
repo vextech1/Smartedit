@@ -1229,4 +1229,5 @@
     <string name="colour_copied">تم نسخ %1$s</string>
     <string name="ie_crop_auto">تلقائي: اعثر على الصفحة أو الجسم</string>
     <string name="ie_crop_auto_none">لا يوجد ما يمكن اقتصاصه بوضوح. اسحب الزوايا يدويًا.</string>
+    <string name="scanner_edit_more">تحرير المزيد في تحرير الصور</string>
 </resources>
