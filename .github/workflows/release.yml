@@ -1,0 +1,83 @@
+name: Release build
+
+# Run by hand: Actions tab -> Release build -> Run workflow.
+# Needs repository secrets: RELEASE_KEYSTORE_BASE64, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check release secrets
+        env:
+          KS: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          SP: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          KA: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KP: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          for v in KS SP KA KP; do
+            if [ -z "${!v}" ]; then echo "::error::A release signing secret is missing (see the comment at the top of this workflow)"; exit 1; fi
+          done
+
+      - name: Restore release keystore
+        env:
+          KS: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: |
+          printf '%s' "$KS" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "RELEASE_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install Android 37.1 platform and build tools
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-37.1" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Point Gradle at the SDK
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build signed release APK and AAB
+        env:
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          ./gradlew --no-daemon assembleRelease bundleRelease 2>&1 | tee release-build.log
+
+      - name: Verify the APK signature
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          echo "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$APK" | grep -E "Signer #1 certificate (DN|SHA-256)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-apk-and-aab
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/mapping/release/mapping.txt
+
+      - name: Upload log if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build-log
+          path: release-build.log

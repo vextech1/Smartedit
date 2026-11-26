@@ -44,6 +44,16 @@ android {
             keyAlias = "editprodebug"
             keyPassword = "android"
         }
+        // The release key comes only from the environment (CI secrets); nothing about it is committed.
+        create("release") {
+            val path = System.getenv("RELEASE_KEYSTORE_PATH")
+            if (!path.isNullOrBlank()) {
+                storeFile = file(path)
+                storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -56,6 +66,7 @@ android {
             isShrinkResources = true
             buildConfigField("boolean", "UNITY_TEST_MODE", "false")
             proguardFiles("proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
         }
     }
 
