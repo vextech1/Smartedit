@@ -66,7 +66,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     var ocrSheetFor by remember { mutableStateOf<String?>(null) }
     var cameraPending by rememberSaveable { mutableStateOf(false) }
     fun openCamera(id: String) { cameraPending = true; onLiveCamera(id) }
-    // Entering the scanner shows the chooser (Live camera / Import / Auto). The camera opens only when the user picks it;
+    // Returning from Live camera cleans up a session with no pages. (Entering the scanner opens Auto first; see autoOffered below.)
     // on return, a session with no captured pages is cleaned up.
     LaunchedEffect(Unit) {
         if (cameraPending) { cameraPending = false; vm.afterCamera() }
@@ -85,6 +85,14 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     }
     fun autoScan() { scanner.getStartScanIntent(activity).addOnSuccessListener { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) }.addOnFailureListener { vm.error() } }
     fun importImages() = gallery.launch(arrayOf("image/*"))
+    // Like Files by Google: opening Scanner goes straight to the auto-capture camera. Closing it lands on the chooser
+    // (Live camera / Import / Auto), so the person can pick another way afterwards. Runs once per visit, not on rotation,
+    // not when returning from Live camera, and not when a scan session is already open.
+    var autoOffered by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!autoOffered && !cameraPending && state.session == null) { autoOffered = true; autoScan() }
+        else autoOffered = true
+    }
 
     val msg = state.message?.let { scannerMessage(it) } ?: localMessage?.asString()
     LaunchedEffect(msg) { if (msg != null) { kotlinx.coroutines.delay(2500); vm.clearMessage(); localMessage = null } }
