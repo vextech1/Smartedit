@@ -65,6 +65,8 @@ import com.vextech.editpro.core.image.RoundForm
 import com.vextech.editpro.core.image.RoundShapes
 import com.vextech.editpro.core.image.Turn
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.onSizeChanged
@@ -633,6 +635,7 @@ private fun ExportSheet(hasAlpha: Boolean, limitKB: Int?, estimate: ExportEstima
 @Composable
 private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) -> MarkForm) -> Unit, modifier: Modifier) {
     var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val drawLabel = stringResource(R.string.layer_draw)
     val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
     val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
     val left = (box.width - fitW) / 2f
@@ -641,7 +644,7 @@ private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) ->
         DrawPoint(if (fitW > 0f) ((o.x - left) / fitW).coerceIn(0f, 1f) else 0f, if (fitH > 0f) ((o.y - top) / fitH).coerceIn(0f, 1f) else 0f)
     val textTool = form.tool == MarkTool.TEXT
     androidx.compose.foundation.Canvas(
-        modifier.onSizeChanged { box = it }.pointerInput(imageAspect, textTool, box) {
+        modifier.semantics { contentDescription = drawLabel }.onSizeChanged { box = it }.pointerInput(imageAspect, textTool, box) {
             if (textTool) {
                 detectTapGestures { o -> update { it.tap(point(o)) } }
             } else {
@@ -668,6 +671,7 @@ private fun MarkLayer(imageAspect: Float, form: MarkForm, update: ((MarkForm) ->
 @Composable
 private fun PickLayer(imageAspect: Float, at: DrawPoint?, onPick: (DrawPoint) -> Unit, modifier: Modifier) {
     var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val pickLabel = stringResource(R.string.layer_pick)
     val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
     val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
     val left = (box.width - fitW) / 2f
@@ -675,7 +679,7 @@ private fun PickLayer(imageAspect: Float, at: DrawPoint?, onPick: (DrawPoint) ->
     fun point(o: androidx.compose.ui.geometry.Offset) =
         DrawPoint(if (fitW > 0f) ((o.x - left) / fitW).coerceIn(0f, 1f) else 0f, if (fitH > 0f) ((o.y - top) / fitH).coerceIn(0f, 1f) else 0f)
     androidx.compose.foundation.Canvas(
-        modifier.onSizeChanged { box = it }
+        modifier.semantics { contentDescription = pickLabel }.onSizeChanged { box = it }
             .pointerInput(imageAspect, box) { detectTapGestures { o -> onPick(point(o)) } }
             .pointerInput(imageAspect, box) { detectDragGestures(onDragStart = { o -> onPick(point(o)) }, onDrag = { change, _ -> change.consume(); onPick(point(change.position)) }) },
     ) {
@@ -694,10 +698,11 @@ private fun WatermarkLayer(
     update: ((WatermarkSpec) -> WatermarkSpec) -> Unit, modifier: Modifier,
 ) {
     var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val watermarkLabel = stringResource(R.string.layer_watermark)
     val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
     val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
     Box(
-        modifier.onSizeChanged { box = it }.pointerInput(imageAspect, box, photo, markAspect) {
+        modifier.semantics { contentDescription = watermarkLabel }.onSizeChanged { box = it }.pointerInput(imageAspect, box, photo, markAspect) {
             detectTransformGestures { _, pan, zoom, _ ->
                 if (photo == null || fitW <= 0f || fitH <= 0f) return@detectTransformGestures
                 update { s ->
@@ -720,6 +725,7 @@ private fun WatermarkLayer(
 @Composable
 private fun HideLayer(imageAspect: Float, form: HideForm, update: ((HideForm) -> HideForm) -> Unit, modifier: Modifier) {
     var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val hideLabel = stringResource(R.string.layer_hide)
     val fitW = minOf(box.width.toFloat(), box.height * imageAspect)
     val fitH = if (imageAspect > 0f) fitW / imageAspect else 0f
     val left = (box.width - fitW) / 2f
@@ -728,7 +734,7 @@ private fun HideLayer(imageAspect: Float, form: HideForm, update: ((HideForm) ->
         DrawPoint(if (fitW > 0f) ((o.x - left) / fitW).coerceIn(0f, 1f) else 0f, if (fitH > 0f) ((o.y - top) / fitH).coerceIn(0f, 1f) else 0f)
     val outline = MaterialTheme.colorScheme.tertiary
     androidx.compose.foundation.Canvas(
-        modifier.onSizeChanged { box = it }.pointerInput(imageAspect, box) {
+        modifier.semantics { contentDescription = hideLabel }.onSizeChanged { box = it }.pointerInput(imageAspect, box) {
             detectDragGestures(
                 onDragStart = { o -> update { it.down(point(o)) } },
                 onDrag = { change, _ -> change.consume(); update { it.move(point(change.position)) } },
@@ -754,8 +760,9 @@ private fun HideLayer(imageAspect: Float, form: HideForm, update: ((HideForm) ->
 @Composable
 private fun ResizeDragLayer(imageAspect: Float, modifier: Modifier, onDrag: (dx: Double, dy: Double, boxW: Double, boxH: Double) -> Unit) {
     var box by remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+    val resizeLabel = stringResource(R.string.layer_resize)
     Box(
-        modifier.onSizeChanged { box = it }.pointerInput(imageAspect) {
+        modifier.semantics { contentDescription = resizeLabel }.onSizeChanged { box = it }.pointerInput(imageAspect) {
             detectDragGestures { change, drag ->
                 change.consume()
                 // The picture is shown to fit inside this box, so its drawn size is the box scaled down to the picture's own shape.

@@ -1206,4 +1206,9 @@
     <string name="ie_crop_auto">Auto : trouver la page ou l\'objet</string>
     <string name="ie_crop_auto_none">Rien de net à recadrer. Faites glisser les coins à la main.</string>
     <string name="scanner_edit_more">Modifier davantage dans Modifier l\'image</string>
+    <string name="layer_draw">Photo. Faites glisser pour dessiner, ou touchez pour placer du texte.</string>
+    <string name="layer_pick">Photo. Touchez ou faites glisser pour choisir une couleur.</string>
+    <string name="layer_watermark">Photo. Faites glisser pour déplacer le filigrane, pincez pour le redimensionner.</string>
+    <string name="layer_hide">Photo. Faites glisser pour tracer un cadre sur la partie à masquer.</string>
+    <string name="layer_resize">Photo. Faites glisser pour choisir la partie conservée.</string>
 </resources>

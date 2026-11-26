@@ -1198,4 +1198,9 @@
     <string name="ie_crop_auto">ऑटो: पन्ना या वस्तु खोजें</string>
     <string name="ie_crop_auto_none">काटने के लिए कुछ साफ़ नहीं मिला। कोनों को हाथ से खींचें।</string>
     <string name="scanner_edit_more">इमेज संपादित करें में और बदलें</string>
+    <string name="layer_draw">फ़ोटो। चित्र बनाने के लिए खींचें, या टेक्स्ट रखने के लिए टैप करें।</string>
+    <string name="layer_pick">फ़ोटो। रंग चुनने के लिए टैप करें या खींचें।</string>
+    <string name="layer_watermark">फ़ोटो। वॉटरमार्क हिलाने के लिए खींचें, आकार बदलने के लिए पिंच करें।</string>
+    <string name="layer_hide">फ़ोटो। छिपाने वाले हिस्से पर बॉक्स बनाने के लिए खींचें।</string>
+    <string name="layer_resize">फ़ोटो। कौन सा हिस्सा रहेगा यह चुनने के लिए खींचें।</string>
 </resources>

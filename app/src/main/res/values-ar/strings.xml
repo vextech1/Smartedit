@@ -1230,4 +1230,9 @@
     <string name="ie_crop_auto">تلقائي: اعثر على الصفحة أو الجسم</string>
     <string name="ie_crop_auto_none">لا يوجد ما يمكن اقتصاصه بوضوح. اسحب الزوايا يدويًا.</string>
     <string name="scanner_edit_more">تحرير المزيد في تحرير الصور</string>
+    <string name="layer_draw">الصورة. اسحب للرسم، أو اضغط لوضع نص.</string>
+    <string name="layer_pick">الصورة. اضغط أو اسحب لاختيار لون.</string>
+    <string name="layer_watermark">الصورة. اسحب لتحريك العلامة المائية، واقرص لتغيير حجمها.</string>
+    <string name="layer_hide">الصورة. اسحب لرسم مربع فوق الجزء المراد إخفاؤه.</string>
+    <string name="layer_resize">الصورة. اسحب لاختيار الجزء الذي يبقى.</string>
 </resources>

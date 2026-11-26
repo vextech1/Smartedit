@@ -26,10 +26,10 @@ Each action opens its tool with the file already chosen (`PdfToolsRoute(uri)`, `
 - Images only. PDFs are not offered Extract text (ML Kit reads images; PDF to TXT lives in Converter).
 
 ## Image editor
+The image editor now holds every image tool (Adjust, Crop with Auto, Rotate, Flip, Resize, Round, Draw & Text, Blur or Hide, Watermark, Frames, Colour picker, Collage, Photo sheet, Export). See `docs/features/image.md`.
 - Non-destructive: every edit is an operation on an undo/redo stack replayed on the original. Undo and redo in the top bar.
-- Tools: rotate left/right, crop (edge sliders with a dimmed overlay), adjust (brightness, contrast, saturation, live preview), filters (original, grayscale, black and white), remove plain background.
 - Consecutive rotations add up, a new adjustment replaces the previous one, edits that change nothing are ignored, a new edit clears redo.
-- Saving replays the edits on a larger copy of the source (up to 4096 px) as JPEG, or PNG when transparency is involved. The result is registered in Files and Activity.
+- Saving replays the edits on a larger copy of the source (up to 4096 px) in the format chosen in the Export sheet. The result is registered in Files and Activity.
 
 ## Tests
 `tools/verify_tools_feature.sh`: file-action rules, preset ordering, scaling, percent saved and verdicts, output names, which PDF pictures to skip, OCR text cleaning/stats/titles/file names/script suggestion, crop math, the whole edit stack (merging, cancelling, undo/redo, branching) and output size/format. `tools/static_checks.py` also checks the strings in all six languages.
