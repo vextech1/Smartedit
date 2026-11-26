@@ -39,7 +39,6 @@
     <string name="scanner_live_camera">الكاميرا المباشرة</string>
     <string name="scanner_import">استيراد الصور</string>
     <string name="scanner_auto">تلقائي</string>
-    <string name="scanner_intro">اختر أحد الخيارات أعلاه للمسح.</string>
     <string name="scanner_pages_count">%1$d صفحات</string>
     <string name="scanner_edit">تعديل</string>
     <string name="scanner_export_pdf">تصدير PDF</string>
@@ -505,7 +504,6 @@
     <string name="files_kind_video">فيديو</string>
     <string name="files_kind_file">ملف</string>
     <string name="files_move_to_trash_short">المهملات</string>
-    <string name="scanner_recent_scans">عمليات المسح الأخيرة</string>
     <string name="scanner_add_page">إضافة صفحة</string>
     <string name="scanner_run_ocr">تشغيل OCR</string>
     <string name="scanner_delete_short">حذف</string>
@@ -1235,4 +1233,7 @@
     <string name="layer_watermark">الصورة. اسحب لتحريك العلامة المائية، واقرص لتغيير حجمها.</string>
     <string name="layer_hide">الصورة. اسحب لرسم مربع فوق الجزء المراد إخفاؤه.</string>
     <string name="layer_resize">الصورة. اسحب لاختيار الجزء الذي يبقى.</string>
+    <string name="scanner_exit_title">تجاهل هذا المسح؟</string>
+    <string name="scanner_exit_message">ستفقد الصفحات التي مسحتها أو استوردتها.</string>
+    <string name="scanner_continue_editing">متابعة التحرير</string>
 </resources>

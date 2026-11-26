@@ -39,7 +39,6 @@
     <string name="scanner_live_camera">Cámara en vivo</string>
     <string name="scanner_import">Importar imágenes</string>
     <string name="scanner_auto">Auto</string>
-    <string name="scanner_intro">Elige una de las opciones anteriores para escanear.</string>
     <string name="scanner_pages_count">%1$d páginas</string>
     <string name="scanner_edit">Editar</string>
     <string name="scanner_export_pdf">Exportar PDF</string>
@@ -496,7 +495,6 @@
     <string name="files_kind_video">Vídeo</string>
     <string name="files_kind_file">Archivo</string>
     <string name="files_move_to_trash_short">Papelera</string>
-    <string name="scanner_recent_scans">Escaneos recientes</string>
     <string name="scanner_add_page">Añadir página</string>
     <string name="scanner_run_ocr">Ejecutar OCR</string>
     <string name="scanner_delete_short">Eliminar</string>
@@ -1211,4 +1209,7 @@
     <string name="layer_watermark">Foto. Arrastra para mover la marca de agua, pellizca para cambiar su tamaño.</string>
     <string name="layer_hide">Foto. Arrastra para dibujar un cuadro sobre la parte que quieres ocultar.</string>
     <string name="layer_resize">Foto. Arrastra para elegir qué parte se queda.</string>
+    <string name="scanner_exit_title">¿Descartar este escaneo?</string>
+    <string name="scanner_exit_message">Se perderán las páginas escaneadas o importadas.</string>
+    <string name="scanner_continue_editing">Seguir editando</string>
 </resources>
