@@ -1249,4 +1249,26 @@
     <string name="scanner_exit_title">Discard this scan?</string>
     <string name="scanner_exit_message">The pages you scanned or imported will be lost.</string>
     <string name="scanner_continue_editing">Continue editing</string>
+    <string name="tool_merge_pdf">Merge PDF</string>
+    <string name="tool_organize_pdf">Organize PDF</string>
+    <string name="tool_split_pdf">Split PDF</string>
+    <string name="tool_pdf_to_images">PDF to Images</string>
+    <string name="tool_compress_pdf">Compress PDF</string>
+    <string name="tool_extract_images">Extract Images</string>
+    <string name="tool_pdf_watermark">Watermark PDF</string>
+    <string name="tool_page_numbers">Page Numbers</string>
+    <string name="tool_crop_pdf">Crop PDF</string>
+    <string name="tool_pdf_info">PDF Info</string>
+    <string name="tool_compress_image">Compress Image</string>
+    <string name="tool_convert_image">Convert Image</string>
+    <string name="tool_resize_image">Resize Image</string>
+    <string name="tool_photo_frames">Photo Frames</string>
+    <string name="tool_photo_collage">Photo Collage</string>
+    <string name="tool_round_corners">Round Corners</string>
+    <string name="tool_blur_hide">Blur or Hide</string>
+    <string name="tool_draw_text">Draw &amp; Text</string>
+    <string name="tool_colour_picker">Colour Picker</string>
+    <string name="tool_watermark_photos">Watermark Photos</string>
+    <string name="tool_pdf_to_word">PDF to Word</string>
+    <string name="tool_pdf_to_text">PDF to Text</string>
 </resources>

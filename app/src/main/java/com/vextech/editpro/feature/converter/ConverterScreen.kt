@@ -73,6 +73,7 @@ fun ConverterScreen(
     ads: UnityAdsService,
     initialUri: String? = null,
     initialUris: List<String> = emptyList(),
+    launchTool: String? = null,
     onOpenTool: ((androidx.navigation3.runtime.NavKey) -> Unit)? = null,
     vm: ConverterViewModel = hiltViewModel(),
 ) {
@@ -82,9 +83,30 @@ fun ConverterScreen(
         if (initialUris.size > 1) vm.preselectMany(initialUris.map(Uri::parse)) else (initialUris.firstOrNull() ?: initialUri)?.let { vm.preselect(Uri.parse(it)) }
     }
 
-    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { vm.selectImages(it) }
+    // A Tools-tab tile asks for the file first, then picks the matching output. Cancelling the picker goes back.
+    var pendingTool by rememberSaveable { mutableStateOf(launchTool) }
+    var pickedOnce by rememberSaveable { mutableStateOf(false) }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.isNotEmpty()) vm.selectImages(it) else if (pendingTool != null && state.sources.isEmpty()) onBack() }
     val addPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { vm.addImages(it) }
-    val pdfPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.selectPdf(uri) }
+    val pdfPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) vm.selectPdf(uri) else if (pendingTool != null && state.sources.isEmpty()) onBack() }
+
+    LaunchedEffect(Unit) {
+        if (pendingTool != null && initialUri == null && initialUris.isEmpty() && state.sources.isEmpty() && !pickedOnce) {
+            pickedOnce = true
+            if (pendingTool == "images" || pendingTool == "images_pdf") imagePicker.launch(arrayOf("image/*")) else pdfPicker.launch(arrayOf("application/pdf"))
+        }
+    }
+    LaunchedEffect(state.sources.size) {
+        val t = pendingTool
+        if (t != null && state.sources.isNotEmpty()) {
+            pendingTool = null
+            when (t) {
+                "pdf_images" -> vm.setTarget(ConverterTarget.PDF_IMAGES_ZIP)
+                "docx" -> vm.setTarget(ConverterTarget.DOCX)
+                "text" -> vm.setTarget(ConverterTarget.TEXT)
+            }
+        }
+    }
 
     // Only a result produced just now triggers the ad, not one reopened from history.
     ExportInterstitialEffect(state.outputs.firstOrNull()?.uri?.takeIf { state.freshResult }, ads)

@@ -104,6 +104,7 @@ fun ImageEditorScreen(
     share: ShareService,
     ads: UnityAdsService,
     initialUri: String? = null,
+    launchTool: String? = null,
     onOpenTool: ((androidx.navigation3.runtime.NavKey) -> Unit)? = null,
     vm: ImageEditorViewModel = hiltViewModel(),
 ) {
@@ -114,7 +115,31 @@ fun ImageEditorScreen(
     CollectUiEvents(vm.uiEvents, snackbarHostState)
     CollectUiEvents(screenEvents.events, snackbarHostState)
     val saveToDevice = rememberSaveToDevice(share) { screenEvents.message(it) }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(vm::load) }
+    // A Tools-tab tile asks for a photo first, then opens its tool on it. Cancelling the picker goes back.
+    var pendingTool by rememberSaveable { mutableStateOf(launchTool) }
+    var pickedOnce by rememberSaveable { mutableStateOf(false) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) vm.load(uri) else if (pendingTool != null && state.source == null) onBack()
+    }
+    LaunchedEffect(Unit) {
+        if (pendingTool != null && initialUri == null && state.source == null && !pickedOnce) { pickedOnce = true; picker.launch(imageTypes) }
+    }
+    LaunchedEffect(state.source, state.loading) {
+        val t = pendingTool
+        if (t != null && state.source != null && !state.loading) {
+            pendingTool = null
+            when (t) {
+                "resize" -> vm.openResize()
+                "frames" -> vm.openFrames()
+                "collage" -> vm.openCollage()
+                "round" -> vm.openRound()
+                "hide" -> vm.openHide()
+                "markup" -> vm.openMarkup()
+                "colour" -> vm.openColour()
+                "watermark" -> vm.openWatermark()
+            }
+        }
+    }
     ExportInterstitialEffect(state.saved?.uri, ads)
 
     var panel by remember { mutableStateOf(EditorPanel.FILTERS) }

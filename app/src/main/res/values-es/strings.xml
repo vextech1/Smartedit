@@ -1212,4 +1212,26 @@
     <string name="scanner_exit_title">¿Descartar este escaneo?</string>
     <string name="scanner_exit_message">Se perderán las páginas escaneadas o importadas.</string>
     <string name="scanner_continue_editing">Seguir editando</string>
+    <string name="tool_merge_pdf">Unir PDF</string>
+    <string name="tool_organize_pdf">Organizar PDF</string>
+    <string name="tool_split_pdf">Dividir PDF</string>
+    <string name="tool_pdf_to_images">PDF a imágenes</string>
+    <string name="tool_compress_pdf">Comprimir PDF</string>
+    <string name="tool_extract_images">Extraer imágenes</string>
+    <string name="tool_pdf_watermark">Marca de agua PDF</string>
+    <string name="tool_page_numbers">Números de página</string>
+    <string name="tool_crop_pdf">Recortar PDF</string>
+    <string name="tool_pdf_info">Info del PDF</string>
+    <string name="tool_compress_image">Comprimir imagen</string>
+    <string name="tool_convert_image">Convertir imagen</string>
+    <string name="tool_resize_image">Cambiar tamaño</string>
+    <string name="tool_photo_frames">Marcos de fotos</string>
+    <string name="tool_photo_collage">Collage de fotos</string>
+    <string name="tool_round_corners">Esquinas redondas</string>
+    <string name="tool_blur_hide">Desenfocar u ocultar</string>
+    <string name="tool_draw_text">Dibujar y texto</string>
+    <string name="tool_colour_picker">Selector de color</string>
+    <string name="tool_watermark_photos">Marca de agua en fotos</string>
+    <string name="tool_pdf_to_word">PDF a Word</string>
+    <string name="tool_pdf_to_text">PDF a texto</string>
 </resources>
