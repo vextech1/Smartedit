@@ -39,7 +39,6 @@
     <string name="scanner_live_camera">लाइव कैमरा</string>
     <string name="scanner_import">चित्र आयात करें</string>
     <string name="scanner_auto">ऑटो</string>
-    <string name="scanner_intro">स्कैन करने के लिए ऊपर दिए गए विकल्पों में से चुनें।</string>
     <string name="scanner_pages_count">%1$d पृष्ठ</string>
     <string name="scanner_edit">संपादित करें</string>
     <string name="scanner_export_pdf">PDF निर्यात करें</string>
@@ -493,7 +492,6 @@
     <string name="files_kind_video">वीडियो</string>
     <string name="files_kind_file">फ़ाइल</string>
     <string name="files_move_to_trash_short">ट्रैश</string>
-    <string name="scanner_recent_scans">हाल के स्कैन</string>
     <string name="scanner_add_page">पृष्ठ जोड़ें</string>
     <string name="scanner_run_ocr">OCR चलाएँ</string>
     <string name="scanner_delete_short">हटाएँ</string>
@@ -1203,4 +1201,7 @@
     <string name="layer_watermark">फ़ोटो। वॉटरमार्क हिलाने के लिए खींचें, आकार बदलने के लिए पिंच करें।</string>
     <string name="layer_hide">फ़ोटो। छिपाने वाले हिस्से पर बॉक्स बनाने के लिए खींचें।</string>
     <string name="layer_resize">फ़ोटो। कौन सा हिस्सा रहेगा यह चुनने के लिए खींचें।</string>
+    <string name="scanner_exit_title">यह स्कैन छोड़ दें?</string>
+    <string name="scanner_exit_message">स्कैन या इम्पोर्ट किए गए पेज खो जाएँगे।</string>
+    <string name="scanner_continue_editing">संपादन जारी रखें</string>
 </resources>

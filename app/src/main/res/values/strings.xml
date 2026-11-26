@@ -145,7 +145,6 @@
     <string name="scanner_live_camera">Live camera</string>
     <string name="scanner_import">Import images</string>
     <string name="scanner_auto">Auto</string>
-    <string name="scanner_intro">Choose any of the above to scan</string>
     <string name="scanner_pages_count">%1$d pages</string>
     <string name="scanner_edit">Edit</string>
     <string name="scanner_export_pdf">Export PDF</string>
@@ -160,7 +159,6 @@
     <string name="scanner_error_export">PDF export failed</string>
     <string name="scanner_page_deleted">Page deleted</string>
     <string name="scanner_exported">PDF exported</string>
-    <string name="scanner_recent_scans">Recent scans</string>
     <string name="scanner_add_page">Add page</string>
     <string name="scanner_run_ocr">Run OCR</string>
     <string name="scanner_delete_short">Delete</string>
@@ -1248,4 +1246,7 @@
     <string name="layer_watermark">Photo. Drag to move the watermark, pinch to resize it.</string>
     <string name="layer_hide">Photo. Drag to draw a box over the part to hide.</string>
     <string name="layer_resize">Photo. Drag to choose which part stays in.</string>
+    <string name="scanner_exit_title">Discard this scan?</string>
+    <string name="scanner_exit_message">The pages you scanned or imported will be lost.</string>
+    <string name="scanner_continue_editing">Continue editing</string>
 </resources>

@@ -39,7 +39,6 @@
     <string name="scanner_live_camera">Caméra en direct</string>
     <string name="scanner_import">Importer des images</string>
     <string name="scanner_auto">Auto</string>
-    <string name="scanner_intro">Choisissez l’une des options ci-dessus pour numériser.</string>
     <string name="scanner_pages_count">%1$d pages</string>
     <string name="scanner_edit">Modifier</string>
     <string name="scanner_export_pdf">Exporter en PDF</string>
@@ -496,7 +495,6 @@
     <string name="files_kind_video">Vidéo</string>
     <string name="files_kind_file">Fichier</string>
     <string name="files_move_to_trash_short">Corbeille</string>
-    <string name="scanner_recent_scans">Numérisations récentes</string>
     <string name="scanner_add_page">Ajouter une page</string>
     <string name="scanner_run_ocr">Lancer l\'OCR</string>
     <string name="scanner_delete_short">Supprimer</string>
@@ -1211,4 +1209,7 @@
     <string name="layer_watermark">Photo. Faites glisser pour déplacer le filigrane, pincez pour le redimensionner.</string>
     <string name="layer_hide">Photo. Faites glisser pour tracer un cadre sur la partie à masquer.</string>
     <string name="layer_resize">Photo. Faites glisser pour choisir la partie conservée.</string>
+    <string name="scanner_exit_title">Abandonner ce scan ?</string>
+    <string name="scanner_exit_message">Les pages numérisées ou importées seront perdues.</string>
+    <string name="scanner_continue_editing">Continuer la modification</string>
 </resources>

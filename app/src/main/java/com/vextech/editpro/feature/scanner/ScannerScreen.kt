@@ -59,7 +59,6 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     val activity = context as Activity
     var edit by remember { mutableStateOf<ScanPageDraft?>(null) }
     var selectedId by remember { mutableStateOf<String?>(null) }
-    var confirmDiscard by remember { mutableStateOf(false) }
     var cutoutFile by remember { mutableStateOf<java.io.File?>(null) }
     var renaming by remember { mutableStateOf(false) }
     var localMessage by remember { mutableStateOf<UiText?>(null) }
@@ -76,6 +75,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.isNotEmpty()) vm.importUris(it) }
     val scanLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) GmsDocumentScanningResult.fromActivityResultIntent(result.data)?.let(vm::importScanResult)
+        else if (state.session == null) onBack() // closed the camera with nothing captured: back to where the person came from
     }
     val scanner = remember {
         GmsDocumentScanning.getClient(
@@ -83,7 +83,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG).setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL).build()
         )
     }
-    fun autoScan() { scanner.getStartScanIntent(activity).addOnSuccessListener { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) }.addOnFailureListener { vm.error() } }
+    fun autoScan() { scanner.getStartScanIntent(activity).addOnSuccessListener { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) }.addOnFailureListener { vm.error(); if (state.session == null) onBack() } }
     fun importImages() = gallery.launch(arrayOf("image/*"))
     // Like Files by Google: opening Scanner goes straight to the auto-capture camera. Closing it lands on the chooser
     // (Live camera / Import / Auto), so the person can pick another way afterwards. Runs once per visit, not on rotation,
@@ -99,14 +99,23 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
 
     val session = state.session
     val editing = edit
-    BackHandler(enabled = session != null && editing == null) { vm.closeSession() }
+    var confirmExit by remember { mutableStateOf(false) }
+    // Leaving with pages loaded asks first; with nothing loaded (or a finished PDF) it just closes.
+    fun requestExit() {
+        when {
+            session == null -> onBack()
+            session.status == ScanStatus.EXPORTED -> { vm.closeSession(); onBack() }
+            else -> confirmExit = true
+        }
+    }
+    BackHandler(enabled = editing == null) { requestExit() }
 
     if (editing != null) {
         ScanPageEditor(editing, state.session?.pages?.size ?: 1, { done -> vm.detectOrientation(editing.id, done) }, { edit = null }) { crop, filter, rotation, all -> vm.editPage(editing.id, crop, filter, rotation, all); edit = null }
     } else {
         FeatureScaffold(
             title = session?.title ?: stringResource(R.string.scanner_title),
-            onBack = { if (session != null) vm.closeSession() else onBack() },
+            onBack = ::requestExit,
             actions = {
                 if (session != null) {
                     var menu by remember { mutableStateOf(false) }
@@ -132,7 +141,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.scanner_discard)) },
                             leadingIcon = { Icon(Icons.Rounded.Delete, null) },
-                            onClick = { menu = false; confirmDiscard = true },
+                            onClick = { menu = false; confirmExit = true },
                         )
                     }
                 }
@@ -154,12 +163,7 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
                     }
                 }
                 if (session == null) {
-                    ScannerHome(
-                        recent = state.recentSessions, covers = state.covers, busy = state.busy,
-                        onCamera = { vm.newSession(::openCamera) },
-                        onImport = ::importImages, onAuto = ::autoScan,
-                        onOpen = { selectedId = null; vm.openSession(it) },
-                    )
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 } else {
                     val selected = session.pages.firstOrNull { it.id == selectedId } ?: session.pages.firstOrNull()
                     ScannerSession(
@@ -204,89 +208,16 @@ fun ScannerScreen(onBack: () -> Unit, onLiveCamera: (String) -> Unit, share: Sha
         )
     }
 
-    if (confirmDiscard) {
+    if (confirmExit) {
         AlertDialog(
-            onDismissRequest = { confirmDiscard = false },
-            title = { Text(stringResource(R.string.scanner_discard)) },
-            confirmButton = { TextButton(onClick = { confirmDiscard = false; vm.discard() }) { Text(stringResource(R.string.scanner_discard)) } },
-            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(android.R.string.cancel)) } },
+            onDismissRequest = { confirmExit = false },
+            title = { Text(stringResource(R.string.scanner_exit_title)) },
+            text = { Text(stringResource(R.string.scanner_exit_message)) },
+            confirmButton = { TextButton(onClick = { confirmExit = false; vm.discard(); onBack() }) { Text(stringResource(R.string.scanner_discard)) } },
+            dismissButton = { TextButton(onClick = { confirmExit = false }) { Text(stringResource(R.string.scanner_continue_editing)) } },
         )
     }
 }
-
-// ───────────────────────────── Home ─────────────────────────────
-
-@Composable
-private fun ScannerHome(
-    recent: List<ScanSessionEntity>, covers: Map<String, ScanCover>, busy: Boolean,
-    onCamera: () -> Unit, onImport: () -> Unit, onAuto: () -> Unit, onOpen: (String) -> Unit,
-) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item {
-            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ActionTile(Icons.Rounded.PhotoCamera, stringResource(R.string.scanner_live_camera), !busy, onCamera, Modifier.weight(1f).fillMaxHeight())
-                ActionTile(Icons.Rounded.AddPhotoAlternate, stringResource(R.string.scanner_import), !busy, onImport, Modifier.weight(1f).fillMaxHeight())
-                ActionTile(Icons.Rounded.DocumentScanner, stringResource(R.string.scanner_auto), !busy, onAuto, Modifier.weight(1f).fillMaxHeight())
-            }
-        }
-        if (recent.isEmpty()) {
-            item { Text(stringResource(R.string.scanner_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        } else {
-            item { Text(stringResource(R.string.scanner_recent_scans), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            items(recent.take(20), key = { it.id }) { RecentScanCard(it, covers[it.id]) { onOpen(it.id) } }
-        }
-    }
-}
-
-@Composable
-private fun ActionTile(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(onClick = onClick, enabled = enabled, modifier = modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
-        Column(Modifier.padding(vertical = 16.dp, horizontal = 4.dp).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2)
-        }
-    }
-}
-
-@Composable
-private fun RecentScanCard(session: ScanSessionEntity, cover: ScanCover?, onClick: () -> Unit) {
-    Surface(onClick = onClick, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (cover != null) {
-                ScanThumbnail(cover.renderedUri, Modifier.size(56.dp, 72.dp).clip(RoundedCornerShape(8.dp)), version = cover.updatedAt, maxDim = 256)
-            } else {
-                Box(Modifier.size(56.dp, 72.dp).clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceContainerHighest), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.Description, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(session.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                val whenText = DateUtils.getRelativeTimeSpanString(session.updatedAt, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString()
-                Text(
-                    if (cover != null) stringResource(R.string.scanner_session_summary, stringResource(R.string.scanner_pages_count, cover.pageCount), whenText) else whenText,
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                StatusChip(session.status == ScanStatus.EXPORTED.name)
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusChip(exported: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = if (exported) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer,
-    ) {
-        Text(
-            stringResource(if (exported) R.string.scanner_status_exported else R.string.scanner_status_draft),
-            Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall,
-            color = if (exported) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onTertiaryContainer,
-        )
-    }
-}
-
-// ───────────────────────────── Session ─────────────────────────────
 
 @Composable
 private fun ColumnScope.ScannerSession(
